@@ -9,6 +9,7 @@ interface Props {
   onClose: () => void;
   data: CoinData;
   siteId?: string | null;
+  slug?: string;
 }
 
 const PublishModal = ({ open, onClose, data, siteId }: Props) => {
