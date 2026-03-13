@@ -17,6 +17,7 @@ export type Database = {
       sites: {
         Row: {
           created_at: string
+          custom_domain: string | null
           data: Json
           id: string
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_domain?: string | null
           data?: Json
           id?: string
           name?: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_domain?: string | null
           data?: Json
           id?: string
           name?: string

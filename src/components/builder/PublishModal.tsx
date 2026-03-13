@@ -15,6 +15,7 @@ interface Props {
 const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
   const baseUrl = window.location.origin;
   const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
+  const customDomainUrl = data.customDomain ? `https://${data.customDomain.replace(/^https?:\/\//, '')}` : '';
 
   const copyLink = () => {
     if (siteUrl) {
@@ -50,6 +51,16 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
               <Button variant="ghost" size="icon" onClick={copyLink} className="flex-shrink-0">
                 <Copy className="w-4 h-4" />
               </Button>
+            </div>
+          )}
+
+          {customDomainUrl && (
+            <div className="rounded-lg border border-accent/20 p-3">
+              <p className="text-xs text-muted-foreground mb-1">Custom Domain</p>
+              <span className="text-xs text-foreground font-mono">{customDomainUrl}</span>
+              <p className="text-xs text-muted-foreground mt-2">
+                Point a CNAME record to <code className="text-primary">{window.location.host}</code> to activate.
+              </p>
             </div>
           )}
 

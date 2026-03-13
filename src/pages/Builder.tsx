@@ -42,7 +42,9 @@ const Builder = () => {
       setPublishedId(id);
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
-          setData(site.data as unknown as CoinData);
+          const coinData = site.data as unknown as CoinData;
+          coinData.customDomain = (site as any).custom_domain || '';
+          setData(coinData);
           setSlug((site as any).slug || '');
         }
       });
@@ -75,6 +77,7 @@ const Builder = () => {
           name: data.name,
           ticker: data.ticker,
           slug: slugValue,
+          custom_domain: data.customDomain || null,
           data: JSON.parse(JSON.stringify(data)),
         } as any).eq('id', editingId);
         if (error) throw error;
@@ -86,6 +89,7 @@ const Builder = () => {
           name: data.name,
           ticker: data.ticker,
           slug: slugValue,
+          custom_domain: data.customDomain || null,
           data: JSON.parse(JSON.stringify(data)),
         } as any]).select('id').single();
         if (error) throw error;
