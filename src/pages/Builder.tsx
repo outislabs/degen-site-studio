@@ -81,7 +81,7 @@ const Builder = () => {
           name: data.name,
           ticker: data.ticker,
           data: JSON.parse(JSON.stringify(data)),
-        });
+        }]);
         if (error) throw error;
         toast.success('Site published! 🚀');
       }
