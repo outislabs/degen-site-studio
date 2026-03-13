@@ -15,6 +15,7 @@ interface Props {
 const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
   const baseUrl = window.location.origin;
   const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
+  const customDomainUrl = data.customDomain ? `https://${data.customDomain.replace(/^https?:\/\//, '')}` : '';
 
   const copyLink = () => {
     if (siteUrl) {
