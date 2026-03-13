@@ -12,6 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 interface Props {
   data: CoinData;
   onChange: (data: Partial<CoinData>) => void;
+  slug: string;
+  onSlugChange: (slug: string) => void;
 }
 
 const blockchains = [
