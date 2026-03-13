@@ -44,7 +44,7 @@ const LivePreview = ({ data }: Props) => {
         {data.logoUrl && (
           <div className="relative inline-block">
             <div className="absolute inset-0 rounded-full blur-xl opacity-40" style={{ backgroundColor: style.accentHex }} />
-            <img src={data.logoUrl} alt="Logo" className="w-28 h-28 rounded-full mx-auto animate-float object-cover relative z-10 ring-2" style={{ ringColor: style.accentHex }} />
+            <img src={data.logoUrl} alt="Logo" className="w-28 h-28 rounded-full mx-auto animate-float object-cover relative z-10 ring-2" style={{ '--tw-ring-color': style.accentHex } as React.CSSProperties} />
           </div>
         )}
         <div>

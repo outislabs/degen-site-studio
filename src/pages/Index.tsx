@@ -155,7 +155,7 @@ const Index = () => {
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           {(site.data as any)?.logoUrl ? (
-                            <img src={(site.data as any).logoUrl} alt="" className="w-10 h-10 rounded-full object-cover ring-1" style={{ ringColor: `${accentColor}40` }} />
+                            <img src={(site.data as any).logoUrl} alt="" className="w-10 h-10 rounded-full object-cover ring-1" style={{ '--tw-ring-color': `${accentColor}40` } as React.CSSProperties} />
                           ) : (
                             <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ backgroundColor: `${accentColor}15` }}>
                               {theme?.emoji || '🪙'}

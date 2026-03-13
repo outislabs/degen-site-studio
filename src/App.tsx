@@ -23,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/builder" element={<Builder />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/site/:id" element={<SiteView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
