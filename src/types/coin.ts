@@ -31,10 +31,12 @@ export interface CoinData {
   roadmap: RoadmapPhase[];
   
   // Step 5
-  theme: 'degen-dark' | 'pepe-classic' | 'moon-cult';
+  theme: ThemeId;
   showCountdown: boolean;
   launchDate: Date | null;
 }
+
+export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale';
 
 export interface RoadmapPhase {
   id: string;
