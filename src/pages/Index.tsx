@@ -1,44 +1,82 @@
 import { Button } from '@/components/ui/button';
-import { Rocket, Zap, Globe, Trash2, ExternalLink, Pencil } from 'lucide-react';
+import { Rocket, Zap, Trash2, ExternalLink, Pencil, LogOut, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface SavedSite {
   id: string;
-  data: { name: string; ticker: string; blockchain: string };
-  createdAt: string;
+  name: string;
+  ticker: string;
+  data: Record<string, any>;
+  created_at: string;
 }
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('memelaunch_sites') || '[]');
-    setSites(saved);
-  }, []);
+    if (user) fetchSites();
+  }, [user]);
 
-  const deleteSite = (id: string) => {
-    const updated = sites.filter(s => s.id !== id);
-    setSites(updated);
-    localStorage.setItem('memelaunch_sites', JSON.stringify(updated));
+  const fetchSites = async () => {
+    const { data, error } = await supabase
+      .from('sites')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data) setSites(data as SavedSite[]);
+  };
+
+  const deleteSite = async (id: string) => {
+    const { error } = await supabase.from('sites').delete().eq('id', id);
+    if (error) {
+      toast.error('Failed to delete site');
+    } else {
+      setSites(prev => prev.filter(s => s.id !== id));
+      toast.success('Site deleted');
+    }
   };
 
   const todayCount = sites.filter(s => {
-    const d = new Date(s.createdAt);
+    const d = new Date(s.created_at);
     const now = new Date();
     return d.toDateString() === now.toDateString();
   }).length;
+
+  const handleNewSite = () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    navigate('/builder');
+  };
 
   return (
     <div className="min-h-screen gradient-degen">
       {/* Header */}
       <header className="border-b border-border px-6 py-4 flex items-center justify-between">
         <h1 className="font-display text-sm text-primary text-glow">MEMELAUNCH</h1>
-        <Button size="sm" onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Rocket className="w-4 h-4 mr-1" /> New Site
-        </Button>
+        <div className="flex items-center gap-2">
+          {user ? (
+            <>
+              <Button size="sm" onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Rocket className="w-4 h-4 mr-1" /> New Site
+              </Button>
+              <Button size="sm" variant="ghost" onClick={signOut}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" onClick={() => navigate('/auth')} variant="outline">
+              <LogIn className="w-4 h-4 mr-1" /> Sign In
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* Hero */}
@@ -56,7 +94,7 @@ const Index = () => {
             No code. No designer. Just fill in your coin details and get a degen-approved landing page. Ship it before the next candle.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-xs px-8">
+            <Button size="lg" onClick={handleNewSite} className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-xs px-8">
               <Zap className="w-4 h-4 mr-2" /> START BUILDING
             </Button>
           </div>
@@ -85,7 +123,7 @@ const Index = () => {
       </section>
 
       {/* Dashboard */}
-      {sites.length > 0 && (
+      {user && sites.length > 0 && (
         <section className="px-6 pb-16 max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-xs text-primary">YOUR SITES</h3>
@@ -99,14 +137,16 @@ const Index = () => {
             {sites.map(site => (
               <div key={site.id} className="gradient-card border border-border rounded-lg p-4 flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-foreground">{site.data.name || 'Untitled'}</p>
-                  <p className="text-xs text-muted-foreground">{site.data.ticker} • {site.data.blockchain} • {new Date(site.createdAt).toLocaleDateString()}</p>
+                  <p className="font-semibold text-foreground">{site.name || 'Untitled'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {site.ticker} • {new Date(site.created_at).toLocaleDateString()}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="icon" title="View">
                     <ExternalLink className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" title="Edit" onClick={() => navigate('/builder')}>
+                  <Button variant="ghost" size="icon" title="Edit" onClick={() => navigate(`/builder?id=${site.id}`)}>
                     <Pencil className="w-4 h-4" />
                   </Button>
                   <Button variant="ghost" size="icon" title="Delete" onClick={() => deleteSite(site.id)}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CoinData, defaultCoinData } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
@@ -10,7 +10,10 @@ import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Rocket, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const steps = [
   { label: 'Basics', icon: '🪙' },
@@ -25,7 +28,28 @@ const Builder = () => {
   const [data, setData] = useState<CoinData>({ ...defaultCoinData });
   const [showPublish, setShowPublish] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+
+  // Load existing site if editing
+  useEffect(() => {
+    const id = searchParams.get('id');
+    if (id && user) {
+      setEditingId(id);
+      supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
+        if (site) {
+          setData(site.data as unknown as CoinData);
+        }
+      });
+    }
+  }, [searchParams, user]);
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!user) navigate('/auth');
+  }, [user, navigate]);
 
   const update = (partial: Partial<CoinData>) => setData(prev => ({ ...prev, ...partial }));
 
@@ -39,17 +63,32 @@ const Builder = () => {
     }
   };
 
-  const handlePublish = () => {
-    // Save to localStorage for dashboard
-    const saved = JSON.parse(localStorage.getItem('memelaunch_sites') || '[]');
-    const site = {
-      id: Date.now().toString(),
-      data,
-      createdAt: new Date().toISOString(),
-    };
-    saved.push(site);
-    localStorage.setItem('memelaunch_sites', JSON.stringify(saved));
-    setShowPublish(true);
+  const handlePublish = async () => {
+    if (!user) return;
+
+    try {
+      if (editingId) {
+        const { error } = await supabase.from('sites').update({
+          name: data.name,
+          ticker: data.ticker,
+          data: JSON.parse(JSON.stringify(data)),
+        }).eq('id', editingId);
+        if (error) throw error;
+        toast.success('Site updated! 🚀');
+      } else {
+        const { error } = await supabase.from('sites').insert([{
+          user_id: user.id,
+          name: data.name,
+          ticker: data.ticker,
+          data: JSON.parse(JSON.stringify(data)),
+        }]);
+        if (error) throw error;
+        toast.success('Site published! 🚀');
+      }
+      setShowPublish(true);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save site');
+    }
   };
 
   return (
@@ -69,7 +108,7 @@ const Builder = () => {
             <Eye className="w-4 h-4 mr-1" /> Preview
           </Button>
           <Button size="sm" onClick={handlePublish} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Rocket className="w-4 h-4 mr-1" /> Publish
+            <Rocket className="w-4 h-4 mr-1" /> {editingId ? 'Update' : 'Publish'}
           </Button>
         </div>
       </header>
@@ -115,7 +154,7 @@ const Builder = () => {
               {step < 4 ? (
                 <>Next <ChevronRight className="w-4 h-4 ml-1" /></>
               ) : (
-                <>Publish <Rocket className="w-4 h-4 ml-1" /></>
+                <>{editingId ? 'Update' : 'Publish'} <Rocket className="w-4 h-4 ml-1" /></>
               )}
             </Button>
           </div>
