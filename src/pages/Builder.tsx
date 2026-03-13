@@ -31,6 +31,7 @@ const Builder = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
