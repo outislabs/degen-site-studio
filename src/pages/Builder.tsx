@@ -87,6 +87,7 @@ const Builder = () => {
           name: data.name,
           ticker: data.ticker,
           slug: slugValue,
+          custom_domain: data.customDomain || null,
           data: JSON.parse(JSON.stringify(data)),
         } as any]).select('id').single();
         if (error) throw error;

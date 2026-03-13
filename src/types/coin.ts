@@ -34,6 +34,9 @@ export interface CoinData {
   theme: ThemeId;
   showCountdown: boolean;
   launchDate: Date | null;
+
+  // Optional
+  customDomain?: string;
 }
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale';

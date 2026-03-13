@@ -124,6 +124,18 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
           <Button variant="outline" size="icon" onClick={copyAddress}><Copy className="w-4 h-4" /></Button>
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label>Custom Domain (optional)</Label>
+        <Input
+          placeholder="e.g. mytoken.com"
+          value={data.customDomain || ''}
+          onChange={e => onChange({ customDomain: e.target.value.trim() })}
+        />
+        <p className="text-xs text-muted-foreground">
+          Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">{window.location.host}</code> at your DNS provider.
+        </p>
+      </div>
     </div>
   );
 };
