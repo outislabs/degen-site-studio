@@ -61,7 +61,7 @@ const Builder = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} />;
+      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} siteId={editingId} domainPaymentStatus={domainPaymentStatus} onPaymentStatusChange={setDomainPaymentStatus} />;
       case 1: return <StepTokenomics data={data} onChange={update} />;
       case 2: return <StepSocials data={data} onChange={update} />;
       case 3: return <StepRoadmap data={data} onChange={update} />;
