@@ -57,6 +57,24 @@ const Builder = () => {
     if (!user) navigate('/auth');
   }, [user, navigate]);
 
+  // Refresh payment status when returning from payment
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+    const id = searchParams.get('id');
+    if (payment === 'success' && id) {
+      const checkPayment = async () => {
+        const { data: site } = await supabase.from('sites').select('domain_payment_status').eq('id', id).single();
+        if (site) {
+          setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
+          if ((site as any).domain_payment_status === 'paid') {
+            toast.success('Custom domain unlocked! 🎉');
+          }
+        }
+      };
+      checkPayment();
+    }
+  }, [searchParams]);
+
   const update = (partial: Partial<CoinData>) => setData(prev => ({ ...prev, ...partial }));
 
   const renderStep = () => {
