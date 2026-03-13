@@ -54,6 +54,16 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
             </div>
           )}
 
+          {customDomainUrl && (
+            <div className="rounded-lg border border-accent/20 p-3">
+              <p className="text-xs text-muted-foreground mb-1">Custom Domain</p>
+              <span className="text-xs text-foreground font-mono">{customDomainUrl}</span>
+              <p className="text-xs text-muted-foreground mt-2">
+                Point a CNAME record to <code className="text-primary">{window.location.host}</code> to activate.
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-3">
             {siteUrl && (
               <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={viewSite}>
