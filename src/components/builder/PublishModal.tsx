@@ -12,9 +12,9 @@ interface Props {
   slug?: string;
 }
 
-const PublishModal = ({ open, onClose, data, siteId }: Props) => {
+const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
   const baseUrl = window.location.origin;
-  const siteUrl = siteId ? `${baseUrl}/site/${siteId}` : '';
+  const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
 
   const copyLink = () => {
     if (siteUrl) {

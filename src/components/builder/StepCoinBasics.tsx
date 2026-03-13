@@ -105,6 +105,19 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
       </div>
 
       <div className="space-y-2">
+        <Label>Custom Slug (optional)</Label>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">/site/</span>
+          <Input
+            placeholder="e.g. dogmoon"
+            value={slug}
+            onChange={e => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">Letters, numbers, and hyphens only. Leave empty to use default ID.</p>
+      </div>
+
+      <div className="space-y-2">
         <Label>Contract Address</Label>
         <div className="flex gap-2">
           <Input placeholder="0x..." value={data.contractAddress} onChange={e => onChange({ contractAddress: e.target.value })} className="flex-1" />
