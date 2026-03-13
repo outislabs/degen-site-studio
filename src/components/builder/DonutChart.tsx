@@ -5,15 +5,16 @@ interface DonutChartProps {
     marketing: number;
     burn: number;
   };
+  accentHex?: string;
 }
 
-const DonutChart = ({ distribution }: DonutChartProps) => {
+const DonutChart = ({ distribution, accentHex = '#22c55e' }: DonutChartProps) => {
   const total = distribution.lp + distribution.team + distribution.marketing + distribution.burn;
   const segments = [
-    { label: 'Liquidity', value: distribution.lp, color: 'hsl(142, 76%, 46%)' },
-    { label: 'Team', value: distribution.team, color: 'hsl(270, 80%, 60%)' },
-    { label: 'Marketing', value: distribution.marketing, color: 'hsl(330, 85%, 60%)' },
-    { label: 'Burn', value: distribution.burn, color: 'hsl(30, 90%, 55%)' },
+    { label: 'Liquidity', value: distribution.lp, color: accentHex },
+    { label: 'Team', value: distribution.team, color: '#a855f7' },
+    { label: 'Marketing', value: distribution.marketing, color: '#f472b6' },
+    { label: 'Burn', value: distribution.burn, color: '#fb923c' },
   ];
 
   let cumulative = 0;
@@ -27,22 +28,20 @@ const DonutChart = ({ distribution }: DonutChartProps) => {
   return (
     <div className="flex items-center gap-6">
       <div
-        className="w-32 h-32 rounded-full flex-shrink-0"
+        className="w-28 h-28 rounded-full flex-shrink-0 relative"
         style={{
           background: `conic-gradient(${gradientParts.join(', ')})`,
-          boxShadow: '0 0 30px hsl(142 76% 46% / 0.2)',
+          boxShadow: `0 0 40px ${accentHex}30`,
         }}
       >
-        <div className="w-full h-full rounded-full flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-background" />
-        </div>
+        <div className="absolute inset-3 rounded-full bg-[#0a0a0f]" />
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         {segments.map(seg => (
-          <div key={seg.label} className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: seg.color }} />
-            <span className="text-muted-foreground">{seg.label}</span>
-            <span className="font-semibold text-foreground">{total > 0 ? Math.round((seg.value / total) * 100) : 0}%</span>
+          <div key={seg.label} className="flex items-center gap-2.5 text-sm">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: seg.color, boxShadow: `0 0 8px ${seg.color}40` }} />
+            <span className="text-white/50 text-xs">{seg.label}</span>
+            <span className="font-bold text-white text-xs">{total > 0 ? Math.round((seg.value / total) * 100) : 0}%</span>
           </div>
         ))}
       </div>

@@ -29,15 +29,16 @@ const Builder = () => {
   const [showPublish, setShowPublish] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [publishedId, setPublishedId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
 
-  // Load existing site if editing
   useEffect(() => {
     const id = searchParams.get('id');
     if (id && user) {
       setEditingId(id);
+      setPublishedId(id);
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
           setData(site.data as unknown as CoinData);
@@ -46,7 +47,6 @@ const Builder = () => {
     }
   }, [searchParams, user]);
 
-  // Redirect to auth if not logged in
   useEffect(() => {
     if (!user) navigate('/auth');
   }, [user, navigate]);
@@ -74,15 +74,19 @@ const Builder = () => {
           data: JSON.parse(JSON.stringify(data)),
         }).eq('id', editingId);
         if (error) throw error;
+        setPublishedId(editingId);
         toast.success('Site updated! 🚀');
       } else {
-        const { error } = await supabase.from('sites').insert([{
+        const { data: inserted, error } = await supabase.from('sites').insert([{
           user_id: user.id,
           name: data.name,
           ticker: data.ticker,
           data: JSON.parse(JSON.stringify(data)),
-        }]);
+        }]).select('id').single();
         if (error) throw error;
+        const newId = inserted.id;
+        setEditingId(newId);
+        setPublishedId(newId);
         toast.success('Site published! 🚀');
       }
       setShowPublish(true);
@@ -93,18 +97,12 @@ const Builder = () => {
 
   return (
     <div className="min-h-screen gradient-degen">
-      {/* Header */}
       <header className="border-b border-border px-6 py-3 flex items-center justify-between">
         <button onClick={() => navigate('/')} className="font-display text-sm text-primary text-glow hover:opacity-80 transition-opacity">
           MEMELAUNCH
         </button>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="lg:hidden"
-            onClick={() => setShowPreview(!showPreview)}
-          >
+          <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setShowPreview(!showPreview)}>
             <Eye className="w-4 h-4 mr-1" /> Preview
           </Button>
           <Button size="sm" onClick={handlePublish} className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -114,9 +112,7 @@ const Builder = () => {
       </header>
 
       <div className="flex flex-1">
-        {/* Left: Form */}
         <div className={cn('w-full lg:w-1/2 xl:w-[45%] border-r border-border overflow-y-auto', showPreview && 'hidden lg:block')} style={{ height: 'calc(100vh - 53px)' }}>
-          {/* Step Indicator */}
           <div className="flex border-b border-border">
             {steps.map((s, i) => (
               <button
@@ -124,9 +120,7 @@ const Builder = () => {
                 onClick={() => setStep(i)}
                 className={cn(
                   'flex-1 py-3 text-xs font-medium transition-all border-b-2',
-                  step === i
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                  step === i ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
                 <span className="block text-base mb-0.5">{s.icon}</span>
@@ -135,16 +129,10 @@ const Builder = () => {
             ))}
           </div>
 
-          {/* Step Content */}
           <div className="p-6">{renderStep()}</div>
 
-          {/* Navigation */}
           <div className="p-6 pt-0 flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => setStep(s => Math.max(0, s - 1))}
-              disabled={step === 0}
-            >
+            <Button variant="outline" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
             <Button
@@ -160,7 +148,6 @@ const Builder = () => {
           </div>
         </div>
 
-        {/* Right: Preview */}
         <div className={cn('flex-1 overflow-y-auto', !showPreview && 'hidden lg:block')} style={{ height: 'calc(100vh - 53px)' }}>
           <div className="p-4">
             <div className="text-xs text-muted-foreground mb-2 font-display">LIVE PREVIEW</div>
@@ -169,7 +156,7 @@ const Builder = () => {
         </div>
       </div>
 
-      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} />
+      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} />
     </div>
   );
 };
