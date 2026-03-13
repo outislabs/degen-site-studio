@@ -47,6 +47,7 @@ const Builder = () => {
           coinData.customDomain = (site as any).custom_domain || '';
           setData(coinData);
           setSlug((site as any).slug || '');
+          setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
         }
       });
     }
