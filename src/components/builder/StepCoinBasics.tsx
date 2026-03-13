@@ -27,10 +27,38 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
+const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const { user } = useAuth();
+
+  const domainPaid = domainPaymentStatus === 'paid';
+
+  const handleBuyDomain = async () => {
+    if (!siteId || !user) {
+      toast.error('Please publish your site first before purchasing a custom domain.');
+      return;
+    }
+    setPaymentLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('create-payment', {
+        body: { site_id: siteId },
+      });
+      if (error) throw error;
+      if (result?.invoice_url) {
+        onPaymentStatusChange?.('pending');
+        window.open(result.invoice_url, '_blank');
+        toast.success('Payment page opened! Complete the payment to unlock custom domains.');
+      } else {
+        throw new Error('No invoice URL returned');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create payment');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
