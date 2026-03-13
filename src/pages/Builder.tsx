@@ -31,6 +31,7 @@ const Builder = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -46,6 +47,7 @@ const Builder = () => {
           coinData.customDomain = (site as any).custom_domain || '';
           setData(coinData);
           setSlug((site as any).slug || '');
+          setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
         }
       });
     }
@@ -55,11 +57,29 @@ const Builder = () => {
     if (!user) navigate('/auth');
   }, [user, navigate]);
 
+  // Refresh payment status when returning from payment
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+    const id = searchParams.get('id');
+    if (payment === 'success' && id) {
+      const checkPayment = async () => {
+        const { data: site } = await supabase.from('sites').select('domain_payment_status').eq('id', id).single();
+        if (site) {
+          setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
+          if ((site as any).domain_payment_status === 'paid') {
+            toast.success('Custom domain unlocked! 🎉');
+          }
+        }
+      };
+      checkPayment();
+    }
+  }, [searchParams]);
+
   const update = (partial: Partial<CoinData>) => setData(prev => ({ ...prev, ...partial }));
 
   const renderStep = () => {
     switch (step) {
-      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} />;
+      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} siteId={editingId} domainPaymentStatus={domainPaymentStatus} onPaymentStatusChange={setDomainPaymentStatus} />;
       case 1: return <StepTokenomics data={data} onChange={update} />;
       case 2: return <StepSocials data={data} onChange={update} />;
       case 3: return <StepRoadmap data={data} onChange={update} />;

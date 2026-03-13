@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2 } from 'lucide-react';
+import { Copy, Upload, Loader2, Lock, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
@@ -14,6 +14,9 @@ interface Props {
   onChange: (data: Partial<CoinData>) => void;
   slug: string;
   onSlugChange: (slug: string) => void;
+  siteId?: string | null;
+  domainPaymentStatus?: string;
+  onPaymentStatusChange?: (status: string) => void;
 }
 
 const blockchains = [
@@ -24,10 +27,38 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
+const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const { user } = useAuth();
+
+  const domainPaid = domainPaymentStatus === 'paid';
+
+  const handleBuyDomain = async () => {
+    if (!siteId || !user) {
+      toast.error('Please publish your site first before purchasing a custom domain.');
+      return;
+    }
+    setPaymentLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('create-payment', {
+        body: { site_id: siteId },
+      });
+      if (error) throw error;
+      if (result?.invoice_url) {
+        onPaymentStatusChange?.('pending');
+        window.open(result.invoice_url, '_blank');
+        toast.success('Payment page opened! Complete the payment to unlock custom domains.');
+      } else {
+        throw new Error('No invoice URL returned');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create payment');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -126,15 +157,55 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
       </div>
 
       <div className="space-y-2">
-        <Label>Custom Domain (optional)</Label>
-        <Input
-          placeholder="e.g. mytoken.com"
-          value={data.customDomain || ''}
-          onChange={e => onChange({ customDomain: e.target.value.trim() })}
-        />
-        <p className="text-xs text-muted-foreground">
-          Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">{window.location.host}</code> at your DNS provider.
-        </p>
+        <Label className="flex items-center gap-2">
+          Custom Domain
+          {!domainPaid && (
+            <span className="inline-flex items-center gap-1 text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              <Lock className="w-3 h-3" /> $10 Add-on
+            </span>
+          )}
+          {domainPaid && (
+            <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
+              ✓ Unlocked
+            </span>
+          )}
+        </Label>
+
+        {domainPaid ? (
+          <>
+            <Input
+              placeholder="e.g. mytoken.com"
+              value={data.customDomain || ''}
+              onChange={e => onChange({ customDomain: e.target.value.trim() })}
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">{window.location.host}</code> at your DNS provider.
+            </p>
+          </>
+        ) : (
+          <div className="rounded-lg border border-border p-4 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Connect your own domain to your meme coin site. Pay once with crypto — no recurring fees.
+            </p>
+            <Button
+              onClick={handleBuyDomain}
+              disabled={paymentLoading || !siteId}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {paymentLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <ExternalLink className="w-4 h-4 mr-2" />
+              )}
+              {!siteId ? 'Publish site first to unlock' : 'Pay $10 with Crypto'}
+            </Button>
+            {domainPaymentStatus === 'pending' && (
+              <p className="text-xs text-yellow-500 text-center">
+                ⏳ Payment pending — refresh after completing payment.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
