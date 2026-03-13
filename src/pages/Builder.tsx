@@ -30,6 +30,7 @@ const Builder = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [slug, setSlug] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -42,6 +43,7 @@ const Builder = () => {
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
           setData(site.data as unknown as CoinData);
+          setSlug((site as any).slug || '');
         }
       });
     }
