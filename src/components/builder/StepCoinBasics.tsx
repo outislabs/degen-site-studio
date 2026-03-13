@@ -24,7 +24,7 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-const StepCoinBasics = ({ data, onChange }: Props) => {
+const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
