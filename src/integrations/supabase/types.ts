@@ -19,6 +19,8 @@ export type Database = {
           created_at: string
           custom_domain: string | null
           data: Json
+          domain_payment_id: string | null
+          domain_payment_status: string
           id: string
           name: string
           slug: string | null
@@ -30,6 +32,8 @@ export type Database = {
           created_at?: string
           custom_domain?: string | null
           data?: Json
+          domain_payment_id?: string | null
+          domain_payment_status?: string
           id?: string
           name?: string
           slug?: string | null
@@ -41,6 +45,8 @@ export type Database = {
           created_at?: string
           custom_domain?: string | null
           data?: Json
+          domain_payment_id?: string | null
+          domain_payment_status?: string
           id?: string
           name?: string
           slug?: string | null
