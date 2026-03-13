@@ -69,12 +69,14 @@ const Builder = () => {
     if (!user) return;
 
     try {
+      const slugValue = slug.trim() || null;
       if (editingId) {
         const { error } = await supabase.from('sites').update({
           name: data.name,
           ticker: data.ticker,
+          slug: slugValue,
           data: JSON.parse(JSON.stringify(data)),
-        }).eq('id', editingId);
+        } as any).eq('id', editingId);
         if (error) throw error;
         setPublishedId(editingId);
         toast.success('Site updated! 🚀');
@@ -83,8 +85,9 @@ const Builder = () => {
           user_id: user.id,
           name: data.name,
           ticker: data.ticker,
+          slug: slugValue,
           data: JSON.parse(JSON.stringify(data)),
-        }]).select('id').single();
+        } as any]).select('id').single();
         if (error) throw error;
         const newId = inserted.id;
         setEditingId(newId);
