@@ -12,6 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 interface Props {
   data: CoinData;
   onChange: (data: Partial<CoinData>) => void;
+  slug: string;
+  onSlugChange: (slug: string) => void;
 }
 
 const blockchains = [
@@ -22,7 +24,7 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-const StepCoinBasics = ({ data, onChange }: Props) => {
+const StepCoinBasics = ({ data, onChange, slug, onSlugChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
@@ -100,6 +102,19 @@ const StepCoinBasics = ({ data, onChange }: Props) => {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Custom Slug (optional)</Label>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">/site/</span>
+          <Input
+            placeholder="e.g. dogmoon"
+            value={slug}
+            onChange={e => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">Letters, numbers, and hyphens only. Leave empty to use default ID.</p>
       </div>
 
       <div className="space-y-2">

@@ -20,6 +20,7 @@ export type Database = {
           data: Json
           id: string
           name: string
+          slug: string | null
           ticker: string
           updated_at: string
           user_id: string
@@ -29,6 +30,7 @@ export type Database = {
           data?: Json
           id?: string
           name?: string
+          slug?: string | null
           ticker?: string
           updated_at?: string
           user_id: string
@@ -38,6 +40,7 @@ export type Database = {
           data?: Json
           id?: string
           name?: string
+          slug?: string | null
           ticker?: string
           updated_at?: string
           user_id?: string

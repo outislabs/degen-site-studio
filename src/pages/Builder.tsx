@@ -30,6 +30,7 @@ const Builder = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [slug, setSlug] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -42,6 +43,7 @@ const Builder = () => {
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
           setData(site.data as unknown as CoinData);
+          setSlug((site as any).slug || '');
         }
       });
     }
@@ -55,7 +57,7 @@ const Builder = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 0: return <StepCoinBasics data={data} onChange={update} />;
+      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} />;
       case 1: return <StepTokenomics data={data} onChange={update} />;
       case 2: return <StepSocials data={data} onChange={update} />;
       case 3: return <StepRoadmap data={data} onChange={update} />;
@@ -67,12 +69,14 @@ const Builder = () => {
     if (!user) return;
 
     try {
+      const slugValue = slug.trim() || null;
       if (editingId) {
         const { error } = await supabase.from('sites').update({
           name: data.name,
           ticker: data.ticker,
+          slug: slugValue,
           data: JSON.parse(JSON.stringify(data)),
-        }).eq('id', editingId);
+        } as any).eq('id', editingId);
         if (error) throw error;
         setPublishedId(editingId);
         toast.success('Site updated! 🚀');
@@ -81,8 +85,9 @@ const Builder = () => {
           user_id: user.id,
           name: data.name,
           ticker: data.ticker,
+          slug: slugValue,
           data: JSON.parse(JSON.stringify(data)),
-        }]).select('id').single();
+        } as any]).select('id').single();
         if (error) throw error;
         const newId = inserted.id;
         setEditingId(newId);
@@ -156,7 +161,7 @@ const Builder = () => {
         </div>
       </div>
 
-      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} />
+      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} slug={slug} />
     </div>
   );
 };

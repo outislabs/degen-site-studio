@@ -12,19 +12,21 @@ const SiteView = () => {
 
   useEffect(() => {
     if (!id) return;
-    supabase
-      .from('sites')
-      .select('data')
-      .eq('id', id)
-      .single()
-      .then(({ data: site, error: err }) => {
-        if (err || !site) {
-          setError(true);
-        } else {
-          setData(site.data as unknown as CoinData);
-        }
-        setLoading(false);
-      });
+
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    const query = isUUID
+      ? supabase.from('sites').select('data').eq('id', id).single()
+      : supabase.from('sites').select('data').eq('slug', id).single();
+
+    query.then(({ data: site, error: err }) => {
+      if (err || !site) {
+        setError(true);
+      } else {
+        setData(site.data as unknown as CoinData);
+      }
+      setLoading(false);
+    });
   }, [id]);
 
   if (loading) {
