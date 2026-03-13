@@ -71,16 +71,16 @@ const Builder = () => {
         const { error } = await supabase.from('sites').update({
           name: data.name,
           ticker: data.ticker,
-          data: data as unknown as Record<string, unknown>,
+          data: JSON.parse(JSON.stringify(data)),
         }).eq('id', editingId);
         if (error) throw error;
         toast.success('Site updated! 🚀');
       } else {
-        const { error } = await supabase.from('sites').insert({
+        const { error } = await supabase.from('sites').insert([{
           user_id: user.id,
           name: data.name,
           ticker: data.ticker,
-          data: data as unknown as Record<string, unknown>,
+          data: JSON.parse(JSON.stringify(data)),
         });
         if (error) throw error;
         toast.success('Site published! 🚀');
