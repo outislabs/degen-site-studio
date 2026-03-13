@@ -33,6 +33,7 @@ const Index = () => {
     const { data, error } = await supabase
       .from('sites')
       .select('*')
+      .eq('user_id', user!.id)
       .order('created_at', { ascending: false });
     if (!error && data) setSites(data as SavedSite[]);
     setLoading(false);
