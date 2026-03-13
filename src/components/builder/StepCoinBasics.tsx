@@ -24,12 +24,26 @@ const blockchains = [
 
 const StepCoinBasics = ({ data, onChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
 
-  const handleLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      onChange({ logoUrl: url });
+    if (!file || !user) return;
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('logos').getPublicUrl(path);
+      onChange({ logoUrl: urlData.publicUrl });
+      toast.success('Logo uploaded!');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
