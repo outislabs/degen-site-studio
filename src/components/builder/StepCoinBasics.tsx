@@ -2,10 +2,12 @@ import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload } from 'lucide-react';
+import { Copy, Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Props {
   data: CoinData;
@@ -22,12 +24,26 @@ const blockchains = [
 
 const StepCoinBasics = ({ data, onChange }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
 
-  const handleLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      onChange({ logoUrl: url });
+    if (!file || !user) return;
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('logos').getPublicUrl(path);
+      onChange({ logoUrl: urlData.publicUrl });
+      toast.success('Logo uploaded!');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -61,7 +77,9 @@ const StepCoinBasics = ({ data, onChange }: Props) => {
           onClick={() => fileRef.current?.click()}
           className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
         >
-          {data.logoUrl ? (
+          {uploading ? (
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+          ) : data.logoUrl ? (
             <img src={data.logoUrl} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
           ) : (
             <>
