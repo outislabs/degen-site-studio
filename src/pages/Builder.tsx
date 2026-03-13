@@ -161,7 +161,7 @@ const Builder = () => {
         </div>
       </div>
 
-      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} />
+      <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} slug={slug} />
     </div>
   );
 };
