@@ -1,12 +1,130 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Button } from '@/components/ui/button';
+import { Rocket, Zap, Globe, Trash2, ExternalLink, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+
+interface SavedSite {
+  id: string;
+  data: { name: string; ticker: string; blockchain: string };
+  createdAt: string;
+}
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [sites, setSites] = useState<SavedSite[]>([]);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('memelaunch_sites') || '[]');
+    setSites(saved);
+  }, []);
+
+  const deleteSite = (id: string) => {
+    const updated = sites.filter(s => s.id !== id);
+    setSites(updated);
+    localStorage.setItem('memelaunch_sites', JSON.stringify(updated));
+  };
+
+  const todayCount = sites.filter(s => {
+    const d = new Date(s.createdAt);
+    const now = new Date();
+    return d.toDateString() === now.toDateString();
+  }).length;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen gradient-degen">
+      {/* Header */}
+      <header className="border-b border-border px-6 py-4 flex items-center justify-between">
+        <h1 className="font-display text-sm text-primary text-glow">MEMELAUNCH</h1>
+        <Button size="sm" onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Rocket className="w-4 h-4 mr-1" /> New Site
+        </Button>
+      </header>
+
+      {/* Hero */}
+      <section className="px-6 py-20 text-center max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="text-6xl mb-6">🚀</div>
+          <h2 className="font-display text-2xl md:text-4xl text-primary text-glow mb-4 leading-relaxed">
+            BUILD YOUR MEME COIN SITE IN MINUTES
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+            No code. No designer. Just fill in your coin details and get a degen-approved landing page. Ship it before the next candle.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button size="lg" onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-xs px-8">
+              <Zap className="w-4 h-4 mr-2" /> START BUILDING
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Features */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-16">
+          {[
+            { icon: '⚡', title: 'Instant', desc: 'Go from zero to live in under 5 minutes' },
+            { icon: '🎨', title: '3 Themes', desc: 'Degen Dark, Pepe Classic, Moon Cult' },
+            { icon: '📊', title: 'Tokenomics', desc: 'Auto-generated donut charts & roadmaps' },
+          ].map((f, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.1 }}
+              className="gradient-card border border-border rounded-xl p-6 text-left"
+            >
+              <div className="text-3xl mb-3">{f.icon}</div>
+              <h3 className="font-semibold text-foreground mb-1">{f.title}</h3>
+              <p className="text-sm text-muted-foreground">{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Dashboard */}
+      {sites.length > 0 && (
+        <section className="px-6 pb-16 max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-display text-xs text-primary">YOUR SITES</h3>
+            {todayCount > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {todayCount} created today 🔥
+              </span>
+            )}
+          </div>
+          <div className="space-y-3">
+            {sites.map(site => (
+              <div key={site.id} className="gradient-card border border-border rounded-lg p-4 flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-foreground">{site.data.name || 'Untitled'}</p>
+                  <p className="text-xs text-muted-foreground">{site.data.ticker} • {site.data.blockchain} • {new Date(site.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="icon" title="View">
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" title="Edit" onClick={() => navigate('/builder')}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" title="Delete" onClick={() => deleteSite(site.id)}>
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Footer */}
+      <footer className="border-t border-border px-6 py-6 text-center">
+        <p className="text-xs text-muted-foreground">
+          Built for degens, by degens. Not financial advice. DYOR. 🐸
+        </p>
+      </footer>
     </div>
   );
 };
