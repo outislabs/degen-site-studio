@@ -77,7 +77,9 @@ const StepCoinBasics = ({ data, onChange }: Props) => {
           onClick={() => fileRef.current?.click()}
           className="border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
         >
-          {data.logoUrl ? (
+          {uploading ? (
+            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+          ) : data.logoUrl ? (
             <img src={data.logoUrl} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
           ) : (
             <>
