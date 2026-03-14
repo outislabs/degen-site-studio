@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Image, Sticker, Share2, Type, Loader2 } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
+import StickerPacks from '@/components/studio/StickerPacks';
 import LandingHeader from '@/components/landing/LandingHeader';
 
 interface SiteOption {
@@ -118,7 +119,7 @@ const ContentStudio = () => {
             {tabs.map(t => (
               <TabsContent key={t.id} value={t.id}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-1">
+                  <div className="lg:col-span-1 space-y-4">
                     <ContentGenerator
                       type={t.id}
                       tokenName={tokenName}
@@ -126,6 +127,9 @@ const ContentStudio = () => {
                       siteId={selectedSiteId}
                       onGenerated={() => setRefreshKey(k => k + 1)}
                     />
+                    {t.id === 'sticker' && (
+                      <StickerPacks refreshKey={refreshKey} />
+                    )}
                   </div>
                   <div className="lg:col-span-2">
                     <ContentGallery
