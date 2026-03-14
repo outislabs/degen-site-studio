@@ -48,10 +48,9 @@ const features = [
 
 const FeaturesGrid = () => {
   return (
-    <section id="features" className="px-6 py-24 relative">
-      {/* Section background glow */}
+    <section id="features" className="section-padding py-16 sm:py-24 relative">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/3 blur-[200px] rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[300px] bg-primary/3 blur-[150px] sm:blur-[200px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -59,18 +58,18 @@ const FeaturesGrid = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block font-display text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-5 py-2">FEATURES</span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-4">
+          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">FEATURES</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mt-4 mb-3 sm:mb-4">
             Everything you need to <span className="text-primary text-glow">launch</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-lg mx-auto">
+          <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-lg mx-auto px-2">
             A complete toolkit for building meme coin sites that actually look legit.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {features.map((f, i) => (
             <motion.div
               key={i}
@@ -78,13 +77,13 @@ const FeaturesGrid = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
-              className="group relative gradient-card border border-border rounded-2xl p-7 hover:border-primary/20 transition-all duration-300 hover:shadow-[0_0_40px_hsl(var(--primary)/0.05)]"
+              className="group relative gradient-card border border-border rounded-2xl p-5 sm:p-7 hover:border-primary/20 transition-all duration-300 hover:shadow-[0_0_40px_hsl(var(--primary)/0.05)]"
             >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110`}>
-                <f.icon className={`w-5 h-5 ${f.iconColor}`} />
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-4 sm:mb-5 transition-transform duration-300 group-hover:scale-110`}>
+                <f.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${f.iconColor}`} />
               </div>
-              <h3 className="font-semibold text-foreground text-base mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1.5 sm:mb-2">{f.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>

@@ -6,24 +6,24 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 95%;
+    --background: 220 15% 4%;
+    --foreground: 0 0% 96%;
+    --card: 220 15% 7%;
+    --card-foreground: 0 0% 96%;
+    --popover: 220 15% 7%;
+    --popover-foreground: 0 0% 96%;
     --primary: 142 76% 46%;
     --primary-foreground: 240 6% 7%;
-    --secondary: 240 5% 16%;
+    --secondary: 220 12% 12%;
     --secondary-foreground: 0 0% 90%;
-    --muted: 240 5% 16%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 220 12% 14%;
+    --muted-foreground: 220 10% 50%;
     --accent: 270 80% 60%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 20%;
-    --input: 240 5% 20%;
+    --border: 220 12% 16%;
+    --input: 220 12% 16%;
     --ring: 142 76% 46%;
     --radius: 0.75rem;
 
@@ -32,15 +32,15 @@
     --neon-purple: 270 80% 60%;
     --neon-blue: 210 100% 60%;
     --cosmic-purple: 270 50% 20%;
-    --degen-dark: 240 6% 4%;
+    --degen-dark: 220 15% 3%;
 
-    --sidebar-background: 240 6% 10%;
+    --sidebar-background: 220 15% 8%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 142 76% 46%;
     --sidebar-primary-foreground: 240 6% 7%;
-    --sidebar-accent: 240 5% 16%;
+    --sidebar-accent: 220 12% 14%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 5% 20%;
+    --sidebar-border: 220 12% 16%;
     --sidebar-ring: 142 76% 46%;
 
     --font-display: 'Press Start 2P', cursive;
@@ -55,6 +55,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -81,10 +83,13 @@
     box-shadow: 0 0 15px hsl(var(--neon-pink) / 0.3), 0 0 45px hsl(var(--neon-pink) / 0.1);
   }
   .gradient-degen {
-    background: linear-gradient(135deg, hsl(var(--degen-dark)), hsl(var(--background)), hsl(var(--cosmic-purple) / 0.3));
+    background: linear-gradient(180deg, hsl(var(--degen-dark)), hsl(var(--background)) 40%, hsl(var(--background)));
   }
   .gradient-card {
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary)));
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.5));
+  }
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8;
   }
 }
 
