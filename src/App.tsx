@@ -9,6 +9,7 @@ import Builder from "./pages/Builder.tsx";
 import Auth from "./pages/Auth.tsx";
 import SiteView from "./pages/SiteView.tsx";
 import ContentStudio from "./pages/ContentStudio.tsx";
+import Pricing from "./pages/Pricing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
