@@ -116,25 +116,25 @@ interface SocialsProps { data: CoinData; style: ThemeConfig }
 export const SocialsBlock = ({ data, style }: SocialsProps) => (
   <div className="flex justify-center gap-3 flex-wrap">
     {data.socials.telegram && (
-      <a href="#" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+      <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
         style={{ border: `1px solid ${style.accentHex}18` }}>
         <Send className="w-4 h-4" /> Telegram
       </a>
     )}
     {data.socials.twitter && (
-      <a href="#" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+      <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
         style={{ border: `1px solid ${style.accentHex}18` }}>
         𝕏 Twitter
       </a>
     )}
     {data.socials.discord && (
-      <a href="#" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+      <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
         style={{ border: `1px solid ${style.accentHex}18` }}>
         <MessageCircle className="w-4 h-4" /> Discord
       </a>
     )}
     {data.socials.dex && (
-      <a href="#" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+      <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-white/5 hover:scale-[1.03] flex items-center gap-2', style.accent)}
         style={{ border: `1px solid ${style.accentHex}18` }}>
         <ExternalLink className="w-4 h-4" /> DEX
       </a>
