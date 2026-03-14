@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { mint } = await req.json();
+    const { mint, chain = 'solana' } = await req.json();
 
     if (!mint || typeof mint !== 'string') {
       return new Response(JSON.stringify({ error: 'Missing or invalid mint address' }), {
@@ -20,46 +20,50 @@ serve(async (req) => {
       });
     }
 
-    // Clean the mint address
     const cleanMint = mint.trim();
+    const isSolana = chain === 'solana';
 
-    // Try pump.fun API first
+    // Try pump.fun API first (Solana only)
     let tokenData = null;
-    const pumpResponse = await fetch(`https://frontend-api-v3.pump.fun/coins/${cleanMint}?sync=true`, {
-      headers: {
-        'Accept': 'application/json',
-        'Origin': 'https://pump.fun',
-        'User-Agent': 'Mozilla/5.0',
-      },
-    });
+    if (isSolana) {
+      const pumpResponse = await fetch(`https://frontend-api-v3.pump.fun/coins/${cleanMint}?sync=true`, {
+        headers: {
+          'Accept': 'application/json',
+          'Origin': 'https://pump.fun',
+          'User-Agent': 'Mozilla/5.0',
+        },
+      });
 
-    if (pumpResponse.ok) {
-      tokenData = await pumpResponse.json();
-      if (tokenData?.name) {
-        const result = {
-          name: tokenData.name || '',
-          symbol: tokenData.symbol || '',
-          description: tokenData.description || '',
-          image_uri: tokenData.image_uri || tokenData.uri || '',
-          mint: tokenData.mint || cleanMint,
-          market_cap: tokenData.market_cap || 0,
-          usd_market_cap: tokenData.usd_market_cap || 0,
-          total_supply: tokenData.total_supply || 0,
-          website: tokenData.website || '',
-          twitter: tokenData.twitter || '',
-          telegram: tokenData.telegram || '',
-          complete: tokenData.complete || false,
-        };
-        return new Response(JSON.stringify(result), {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      if (pumpResponse.ok) {
+        tokenData = await pumpResponse.json();
+        if (tokenData?.name) {
+          const result = {
+            name: tokenData.name || '',
+            symbol: tokenData.symbol || '',
+            description: tokenData.description || '',
+            image_uri: tokenData.image_uri || tokenData.uri || '',
+            mint: tokenData.mint || cleanMint,
+            chain: 'solana',
+            market_cap: tokenData.market_cap || 0,
+            usd_market_cap: tokenData.usd_market_cap || 0,
+            total_supply: tokenData.total_supply || 0,
+            website: tokenData.website || '',
+            twitter: tokenData.twitter || '',
+            telegram: tokenData.telegram || '',
+            complete: tokenData.complete || false,
+          };
+          return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
       }
     }
 
-    // Fallback: DexScreener API (works for any Solana token)
-    console.log('Pump.fun miss, trying DexScreener...');
-    const dexResponse = await fetch(`https://api.dexscreener.com/tokens/v1/solana/${cleanMint}`, {
+    // DexScreener API — supports all chains
+    const dexChain = chain === 'bsc' ? 'bsc' : chain;
+    console.log(`Trying DexScreener for ${dexChain}/${cleanMint}...`);
+    const dexResponse = await fetch(`https://api.dexscreener.com/tokens/v1/${dexChain}/${cleanMint}`, {
       headers: { 'Accept': 'application/json' },
     });
 
@@ -79,6 +83,7 @@ serve(async (req) => {
           description: '',
           image_uri: info.imageUrl || '',
           mint: baseToken.address || cleanMint,
+          chain: pair.chainId || chain,
           market_cap: pair.marketCap || 0,
           usd_market_cap: pair.marketCap || 0,
           total_supply: 0,

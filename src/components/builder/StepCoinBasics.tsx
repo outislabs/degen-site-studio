@@ -82,51 +82,54 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
-  const extractTokenInfo = (input: string): { mint?: string; dexPair?: string; source: string } | null => {
+  const dexChainMap: Record<string, string> = {
+    solana: 'solana', ethereum: 'ethereum', eth: 'ethereum', base: 'base',
+    bsc: 'bsc', ton: 'ton', arbitrum: 'ethereum', polygon: 'ethereum',
+    avalanche: 'ethereum', optimism: 'ethereum',
+  };
+
+  const extractTokenInfo = (input: string): { mint?: string; chain?: string; source: string } | null => {
     const trimmed = input.trim();
-    // pump.fun: https://pump.fun/coin/MINT or https://pump.fun/MINT
     const pumpMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,50})/);
-    if (pumpMatch) return { mint: pumpMatch[1], source: 'pumpfun' };
-    // DexScreener: https://dexscreener.com/solana/PAIR_OR_MINT
+    if (pumpMatch) return { mint: pumpMatch[1], chain: 'solana', source: 'pumpfun' };
     const dexMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,50})/);
-    if (dexMatch) return { mint: dexMatch[2], source: 'dexscreener' };
-    // Jupiter: https://jup.ag/swap/SOL-MINT or https://jup.ag/tokens/MINT
+    if (dexMatch) return { mint: dexMatch[2], chain: dexChainMap[dexMatch[1]] || dexMatch[1], source: 'dexscreener' };
     const jupSwapMatch = trimmed.match(/jup\.ag\/swap\/[A-Za-z0-9]+-([A-Za-z0-9]{32,50})/);
-    if (jupSwapMatch) return { mint: jupSwapMatch[1], source: 'jupiter' };
+    if (jupSwapMatch) return { mint: jupSwapMatch[1], chain: 'solana', source: 'jupiter' };
     const jupTokenMatch = trimmed.match(/jup\.ag\/tokens\/([A-Za-z0-9]{32,50})/);
-    if (jupTokenMatch) return { mint: jupTokenMatch[1], source: 'jupiter' };
-    // Raydium: https://raydium.io/swap/?inputMint=...&outputMint=MINT
+    if (jupTokenMatch) return { mint: jupTokenMatch[1], chain: 'solana', source: 'jupiter' };
     const rayMatch = trimmed.match(/raydium\.io\/.*[?&]outputMint=([A-Za-z0-9]{32,50})/);
-    if (rayMatch) return { mint: rayMatch[1], source: 'raydium' };
-    // Birdeye: https://birdeye.so/token/MINT
+    if (rayMatch) return { mint: rayMatch[1], chain: 'solana', source: 'raydium' };
     const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
-    if (birdMatch) return { mint: birdMatch[1], source: 'birdeye' };
-    // Raw mint address
+    if (birdMatch) return { mint: birdMatch[1], chain: 'solana', source: 'birdeye' };
     if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
+    // Ethereum-style address (0x...)
+    if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
     return null;
   };
 
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
     if (!tokenInfo?.mint) {
-      toast.error('Please enter a valid token link or Solana mint address.');
+      toast.error('Please enter a valid token link or contract address.');
       return;
     }
     const mint = tokenInfo.mint;
+    const chain = tokenInfo.chain || 'solana';
     setPumpLoading(true);
     try {
       const { data: result, error } = await supabase.functions.invoke('fetch-pumpfun-token', {
-        body: { mint },
+        body: { mint, chain },
       });
       if (error) throw error;
       if (!result || result.error) throw new Error(result?.error || 'Token not found');
 
-      // Populate fields
+      const detectedChain = result.chain || chain;
       const updates: Partial<CoinData> = {
         name: result.name || data.name,
         ticker: result.symbol ? `$${result.symbol}` : data.ticker,
         tagline: result.description || data.tagline,
-        blockchain: 'solana',
+        blockchain: blockchains.some(b => b.value === detectedChain) ? detectedChain : data.blockchain,
         contractAddress: result.mint || mint,
       };
       if (result.image_uri) updates.logoUrl = result.image_uri;
@@ -134,7 +137,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
-      toast.success(`Imported "${result.name}" data from pump.fun! 🎉`);
+      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
