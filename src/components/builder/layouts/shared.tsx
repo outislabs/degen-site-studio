@@ -55,6 +55,17 @@ export const ContractBlock = ({ data, style }: ContractProps) => {
   );
 };
 
+interface DescriptionProps { data: CoinData; style: ThemeConfig }
+
+export const DescriptionBlock = ({ data, style }: DescriptionProps) => {
+  if (!data.description) return null;
+  return (
+    <div className={cn('rounded-2xl p-6', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
+      <p className="text-sm text-white/55 leading-relaxed whitespace-pre-line">{data.description}</p>
+    </div>
+  );
+};
+
 interface TokenomicsProps { data: CoinData; style: ThemeConfig }
 
 export const TokenomicsBlock = ({ data, style }: TokenomicsProps) => (
