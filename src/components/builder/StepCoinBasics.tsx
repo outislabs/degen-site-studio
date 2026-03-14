@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlan } from '@/hooks/usePlan';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   data: CoinData;
