@@ -65,6 +65,14 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
       </div>
     )}
 
+    {/* Description */}
+    {data.description && (
+      <div className="max-w-lg mx-auto px-8 py-12">
+        <h2 className={cn('text-xs tracking-[0.3em] uppercase text-center mb-8', style.accent)}>About</h2>
+        <p className="text-sm text-white/40 leading-relaxed whitespace-pre-line text-center">{data.description}</p>
+      </div>
+    )}
+
     {/* Stats Row - Minimal */}
     <div className="max-w-2xl mx-auto px-8 py-16">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">

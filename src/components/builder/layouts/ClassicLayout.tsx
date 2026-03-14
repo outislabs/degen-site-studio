@@ -42,6 +42,16 @@ const ClassicLayout = ({ data, style, countdown, showWatermark }: Props) => (
     </div>
 
     {data.contractAddress && <div className="px-6 sm:px-10 pb-8"><ContractBlock data={data} style={style} /></div>}
+
+    {data.description && (
+      <>
+        <Divider style={style} />
+        <div className="px-6 sm:px-10 py-12">
+          <SectionHeader label="About" subtitle={`What is ${data.name || 'this token'}?`} style={style} />
+          <DescriptionBlock data={data} style={style} />
+        </div>
+      </>
+    )}
     <Divider style={style} />
 
     <div className="px-6 sm:px-10 py-12 relative">

@@ -65,6 +65,14 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
           )}
         </div>
 
+        {/* Description card */}
+        {data.description && (
+          <div className={cn('rounded-2xl p-6 sm:col-span-2', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
+            <p className={cn('text-[10px] tracking-[0.25em] uppercase font-medium mb-3 text-center', style.accent)}>About</p>
+            <p className="text-sm text-white/55 leading-relaxed whitespace-pre-line text-center">{data.description}</p>
+          </div>
+        )}
+
         {/* Tokenomics - spans full width */}
         <div className={cn('rounded-2xl p-6 sm:col-span-2', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
           <p className={cn('text-[10px] tracking-[0.25em] uppercase font-medium mb-4 text-center', style.accent)}>Tokenomics</p>

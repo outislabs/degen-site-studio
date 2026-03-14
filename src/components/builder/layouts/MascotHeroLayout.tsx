@@ -117,11 +117,30 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
         </div>
       </div>
 
-      {/* How to Buy Steps */}
+      {/* About / Description */}
       <div id="mascot-about" className="px-6 sm:px-10 py-12">
         <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
-          How to Buy
+          {data.description ? `About ${data.name || 'This Token'}` : 'How to Buy'}
         </h2>
+
+        {data.description && (
+          <div className={cn('rounded-2xl p-6 max-w-xl mx-auto mb-10', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
+            <p className="text-sm text-white/55 leading-relaxed whitespace-pre-line">{data.description}</p>
+          </div>
+        )}
+
+        {!data.description && (
+          <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20`, display: 'none' }}>
+            How to Buy
+          </h2>
+        )}
+
+        {data.description && (
+          <h3 className={cn('font-display text-base md:text-lg text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
+            How to Buy
+          </h3>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
           {[
             { step: '01', title: 'Get a Wallet', desc: `Download Phantom or MetaMask and create your wallet.`, icon: <Wallet className="w-5 h-5" /> },
