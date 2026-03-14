@@ -46,7 +46,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
           </div>
           <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `2px solid ${style.accentHex}30` }}>
-            Buy ${data.ticker || 'TOKEN'}
+            Buy ${cleanTicker(data.ticker) || 'TOKEN'}
           </a>
         </div>
       </div>
