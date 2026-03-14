@@ -222,6 +222,19 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       </div>
 
       <div className="space-y-2">
+        <Label>Token Description</Label>
+        <Textarea
+          placeholder="Describe your token — what it does, why it exists, what makes it unique..."
+          value={data.description}
+          maxLength={1000}
+          onChange={e => onChange({ description: e.target.value })}
+          rows={4}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground">{data.description?.length || 0}/1000 characters</p>
+      </div>
+
+      <div className="space-y-2">
         <Label>Logo / Mascot</Label>
         <input type="file" ref={fileRef} className="hidden" accept="image/*" onChange={handleLogo} />
         <div
