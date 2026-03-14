@@ -60,12 +60,10 @@ const MiniSitePreview = ({ theme, isActive }: { theme: ThemeConfig; isActive: bo
 
 const ThemeShowcase = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const featured = themeList.filter(t => FEATURED_THEMES.includes(t.id));
-  const others = themeList.filter(t => !FEATURED_THEMES.includes(t.id));
-  const activeTheme = featured[activeIndex];
+  const activeTheme = themeList[activeIndex];
 
-  const goNext = () => setActiveIndex(i => (i + 1) % featured.length);
-  const goPrev = () => setActiveIndex(i => (i - 1 + featured.length) % featured.length);
+  const goNext = () => setActiveIndex(i => (i + 1) % themeList.length);
+  const goPrev = () => setActiveIndex(i => (i - 1 + themeList.length) % themeList.length);
 
   return (
     <section id="themes" className="section-padding py-16 sm:py-24 relative overflow-hidden">
