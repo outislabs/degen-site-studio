@@ -17,13 +17,13 @@ import {
   Globe,
   Image,
   CreditCard,
-  Settings,
   LogOut,
   Crown,
   Plus,
   ChevronRight,
   Menu,
   X,
+  UserCog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
