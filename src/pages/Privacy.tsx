@@ -1,18 +1,21 @@
-import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import LandingHeader from '@/components/landing/LandingHeader';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 const Privacy = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+    <div className="min-h-screen bg-background flex flex-col">
+      <LandingHeader
+        isLoggedIn={!!user}
+        email={user?.email}
+        onSignIn={() => navigate('/auth')}
+        onSignOut={signOut}
+      />
+      <div className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
 
         <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
         <p className="text-sm text-muted-foreground mb-10">Last updated: March 14, 2026</p>
@@ -70,6 +73,7 @@ const Privacy = () => {
           </section>
         </div>
       </div>
+      <LandingFooter />
     </div>
   );
 };
