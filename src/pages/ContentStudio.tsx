@@ -1,0 +1,146 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Image, Sticker, Share2, Type, Loader2 } from 'lucide-react';
+import ContentGenerator from '@/components/studio/ContentGenerator';
+import ContentGallery from '@/components/studio/ContentGallery';
+import LandingHeader from '@/components/landing/LandingHeader';
+
+interface SiteOption {
+  id: string;
+  name: string;
+  ticker: string;
+  data: Record<string, any>;
+}
+
+const ContentStudio = () => {
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const [sites, setSites] = useState<SiteOption[]>([]);
+  const [selectedSiteId, setSelectedSiteId] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('meme');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    fetchSites();
+  }, [user]);
+
+  const fetchSites = async () => {
+    const { data } = await supabase
+      .from('sites')
+      .select('id, name, ticker, data')
+      .eq('user_id', user!.id)
+      .order('created_at', { ascending: false });
+    if (data) {
+      setSites(data as SiteOption[]);
+      if (data.length > 0 && !selectedSiteId) setSelectedSiteId(data[0].id);
+    }
+  };
+
+  const selectedSite = sites.find(s => s.id === selectedSiteId);
+  const tokenName = selectedSite?.name || 'My Token';
+  const tokenTicker = selectedSite?.ticker || 'TOKEN';
+
+  const tabs = [
+    { id: 'meme', label: 'Memes', icon: Image },
+    { id: 'sticker', label: 'Stickers', icon: Sticker },
+    { id: 'social_post', label: 'Social Posts', icon: Share2 },
+    { id: 'marketing_copy', label: 'Copy', icon: Type },
+  ];
+
+  return (
+    <div className="min-h-screen gradient-degen">
+      <LandingHeader
+        isLoggedIn={!!user}
+        email={user?.email}
+        onSignIn={() => navigate('/auth')}
+        onSignOut={signOut}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        {/* Top bar */}
+        <div className="flex items-center gap-3 mb-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="shrink-0">
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="font-display text-xs text-primary tracking-wider">CONTENT STUDIO</h1>
+            <p className="text-xs text-muted-foreground mt-1">Create memes, stickers & marketing content for your token</p>
+          </div>
+        </div>
+
+        {/* Site selector */}
+        {sites.length > 0 && (
+          <div className="mb-6">
+            <label className="text-xs text-muted-foreground block mb-2">Select token</label>
+            <select
+              value={selectedSiteId}
+              onChange={e => setSelectedSiteId(e.target.value)}
+              className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs"
+            >
+              {sites.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.name || 'Untitled'} ({s.ticker || '—'})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {sites.length === 0 ? (
+          <div className="border-2 border-dashed border-border rounded-2xl p-16 text-center">
+            <div className="text-5xl mb-4">🎨</div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Create a site first</h3>
+            <p className="text-sm text-muted-foreground mb-6">You need at least one token site to generate content for</p>
+            <Button onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground">
+              Create Site
+            </Button>
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-card border border-border mb-6 w-full justify-start overflow-x-auto">
+              {tabs.map(t => (
+                <TabsTrigger key={t.id} value={t.id} className="gap-1.5 text-xs">
+                  <t.icon className="w-3.5 h-3.5" />
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {tabs.map(t => (
+              <TabsContent key={t.id} value={t.id}>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-1">
+                    <ContentGenerator
+                      type={t.id}
+                      tokenName={tokenName}
+                      tokenTicker={tokenTicker}
+                      siteId={selectedSiteId}
+                      onGenerated={() => setRefreshKey(k => k + 1)}
+                    />
+                  </div>
+                  <div className="lg:col-span-2">
+                    <ContentGallery
+                      type={t.id}
+                      refreshKey={refreshKey}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ContentStudio;
