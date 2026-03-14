@@ -148,10 +148,10 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       {/* PumpFun Import */}
       <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
         <Label className="flex items-center gap-2 text-primary">
-          <Zap className="w-4 h-4" /> Quick Import from Pump.fun
+          <Zap className="w-4 h-4" /> Quick Import Token
         </Label>
         <p className="text-xs text-muted-foreground">
-          Paste a pump.fun link or Solana mint address to auto-fill your token details.
+          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, or a raw mint address.
         </p>
         <div className="flex gap-2">
           <Input
