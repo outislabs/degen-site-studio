@@ -8,7 +8,7 @@ const steps = [
 ];
 
 const HowItWorks = () => (
-  <section className="px-6 py-20 relative">
+  <section id="how-it-works" className="px-6 py-20 relative">
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-14">
         <h2 className="font-display text-xs text-primary tracking-wider mb-3">HOW IT WORKS</h2>
