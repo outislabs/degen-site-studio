@@ -102,8 +102,8 @@ const LandingFooter = () => {
             © {new Date().getFullYear()} Degen Tools • Not financial advice • DYOR 🐸
           </p>
           <div className="flex items-center gap-4 text-[10px] sm:text-xs text-muted-foreground/40">
-            <span className="hover:text-muted-foreground/60 cursor-pointer transition-colors">Terms</span>
-            <span className="hover:text-muted-foreground/60 cursor-pointer transition-colors">Privacy</span>
+            <a href="/terms" className="hover:text-muted-foreground/60 transition-colors">Terms</a>
+            <a href="/privacy" className="hover:text-muted-foreground/60 transition-colors">Privacy</a>
           </div>
         </div>
       </div>

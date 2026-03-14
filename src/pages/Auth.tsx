@@ -298,7 +298,10 @@ const Auth = () => {
 
             {/* Footer */}
             <p className="text-[10px] text-muted-foreground/30 text-center mt-8">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
+              By continuing, you agree to our{' '}
+              <a href="/terms" className="underline hover:text-muted-foreground/50 transition-colors">Terms of Service</a>
+              {' '}and{' '}
+              <a href="/privacy" className="underline hover:text-muted-foreground/50 transition-colors">Privacy Policy</a>.
             </p>
           </motion.div>
         </div>
