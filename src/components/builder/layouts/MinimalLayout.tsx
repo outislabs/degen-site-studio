@@ -58,7 +58,7 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
             <p className="text-[9px] uppercase tracking-[0.3em] text-white/20 mb-1">Contract</p>
             <code className="text-xs text-white/50 truncate block font-mono">{data.contractAddress}</code>
           </div>
-          <button className="p-2 rounded-lg hover:bg-white/5 transition-all">
+          <button onClick={() => copyToClipboard(data.contractAddress)} className="p-2 rounded-lg hover:bg-white/5 transition-all">
             <Copy className={cn('w-4 h-4', style.accent)} />
           </button>
         </div>
