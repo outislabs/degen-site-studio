@@ -96,7 +96,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-14 sm:mt-20 pt-10 sm:pt-12 border-t border-border/40"
+          className="mt-10 sm:mt-20 pt-8 sm:pt-12 border-t border-border/40"
         >
           <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.25em] font-display mb-6 sm:mb-8">
             Works with

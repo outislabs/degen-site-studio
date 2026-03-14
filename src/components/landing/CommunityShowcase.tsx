@@ -71,7 +71,7 @@ const CommunityShowcase = () => {
   const isEmpty = !loading && items.length === 0;
 
   return (
-    <section className="section-padding py-16 sm:py-24 relative overflow-hidden">
+    <section className="section-padding py-10 sm:py-24 relative overflow-hidden">
       {/* Background accents */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-primary/3 blur-[180px] rounded-full" />

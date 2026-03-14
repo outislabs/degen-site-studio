@@ -34,7 +34,7 @@ const tools = [
 
 const ContentStudioShowcase = () => {
   return (
-    <section id="content-studio" className="section-padding py-16 sm:py-24 relative">
+    <section id="content-studio" className="section-padding py-10 sm:py-24 relative">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 right-0 w-[400px] h-[300px] bg-neon-pink/3 blur-[150px] rounded-full" />
       </div>

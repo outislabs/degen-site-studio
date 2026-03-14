@@ -15,7 +15,7 @@ const CTASection = ({ onGetStarted }: Props) => {
         viewport={{ once: true }}
         className="max-w-3xl mx-auto text-center"
       >
-        <div className="gradient-card border border-primary/15 rounded-3xl p-8 sm:p-12 md:p-16 relative overflow-hidden">
+        <div className="gradient-card border border-primary/15 rounded-3xl p-6 sm:p-12 md:p-16 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[400px] h-[200px] sm:h-[250px] bg-primary/8 blur-[80px] sm:blur-[100px]" />
           </div>
