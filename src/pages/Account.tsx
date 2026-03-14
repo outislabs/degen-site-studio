@@ -2,12 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePlan } from '@/hooks/usePlan';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Crown,
   Globe,
@@ -26,21 +24,23 @@ import {
   Clock,
   Receipt,
   AlertCircle,
+  ChevronRight,
+  TrendingUp,
 } from 'lucide-react';
 import { PLAN_ORDER, PLANS, PlanId } from '@/lib/plans';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 const Account = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { plan, planId, subscription, loading: planLoading, remainingDownloads } = usePlan();
   const [siteCount, setSiteCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<'overview' | 'billing' | 'features'>('overview');
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
+    if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
@@ -66,27 +66,18 @@ const Account = () => {
 
   const email = user.email || '';
   const initials = email.split('@')[0].slice(0, 2).toUpperCase();
-  const joinDate = new Date(user.created_at).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const joinDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const remaining = remainingDownloads();
   const maxDownloads = plan.maxMemeDownloads;
   const usedDownloads = subscription?.meme_downloads_used || 0;
   const downloadPercent = maxDownloads === -1 ? 0 : Math.min(100, (usedDownloads / maxDownloads) * 100);
-
   const maxSites = plan.maxSites;
   const sitePercent = maxSites === -1 ? 0 : Math.min(100, (siteCount / maxSites) * 100);
 
   const nextResetDate = subscription?.meme_downloads_reset_at
-    ? new Date(subscription.meme_downloads_reset_at).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      })
+    ? new Date(subscription.meme_downloads_reset_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null;
-
-  const currentPlanIndex = PLAN_ORDER.indexOf(planId);
 
   const subStatus = subscription?.status || 'active';
   const subPlan = (subscription?.plan as PlanId) || 'free';
@@ -99,329 +90,319 @@ const Account = () => {
     ? new Date(subscription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
 
-  const featureRows: { label: string; icon: React.ReactNode; included: boolean }[] = [
-    { label: 'Custom Domain', icon: <Globe className="w-4 h-4" />, included: plan.hasCustomDomain },
-    { label: 'No Watermark', icon: <Sparkles className="w-4 h-4" />, included: plan.hasNoWatermark },
-    { label: 'All Templates', icon: <Palette className="w-4 h-4" />, included: plan.hasAllTemplates },
-    { label: 'Content Studio', icon: <Image className="w-4 h-4" />, included: plan.hasFullContentStudio },
-    { label: 'Sticker Packs', icon: <Zap className="w-4 h-4" />, included: plan.hasStickerPackBuilder },
-    { label: 'Brand Kit', icon: <Sparkles className="w-4 h-4" />, included: plan.hasBrandKit },
-    { label: 'Launch Kit', icon: <Zap className="w-4 h-4" />, included: plan.hasLaunchKit },
-    { label: 'Audit Badge', icon: <Shield className="w-4 h-4" />, included: plan.hasAuditBadge },
-    { label: 'Analytics', icon: <Zap className="w-4 h-4" />, included: plan.hasAnalyticsDashboard },
-    { label: 'API Access', icon: <Zap className="w-4 h-4" />, included: plan.hasApiAccess },
+  const currentPlanIndex = PLAN_ORDER.indexOf(planId);
+
+  const statusLabel = isPending ? 'Pending' : isCancelled ? 'Cancelled' : 'Active';
+
+  const featureRows = [
+    { label: 'Custom Domain', icon: <Globe className="w-3.5 h-3.5" />, included: plan.hasCustomDomain },
+    { label: 'No Watermark', icon: <Sparkles className="w-3.5 h-3.5" />, included: plan.hasNoWatermark },
+    { label: 'All Templates', icon: <Palette className="w-3.5 h-3.5" />, included: plan.hasAllTemplates },
+    { label: 'Content Studio', icon: <Image className="w-3.5 h-3.5" />, included: plan.hasFullContentStudio },
+    { label: 'Sticker Packs', icon: <Zap className="w-3.5 h-3.5" />, included: plan.hasStickerPackBuilder },
+    { label: 'Brand Kit', icon: <Sparkles className="w-3.5 h-3.5" />, included: plan.hasBrandKit },
+    { label: 'Launch Kit', icon: <Zap className="w-3.5 h-3.5" />, included: plan.hasLaunchKit },
+    { label: 'Audit Badge', icon: <Shield className="w-3.5 h-3.5" />, included: plan.hasAuditBadge },
+    { label: 'Analytics', icon: <TrendingUp className="w-3.5 h-3.5" />, included: plan.hasAnalyticsDashboard },
+    { label: 'API Access', icon: <Zap className="w-3.5 h-3.5" />, included: plan.hasApiAccess },
   ];
 
-  const statusColor = isPending
-    ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30'
-    : isCancelled
-    ? 'text-destructive bg-destructive/10 border-destructive/30'
-    : 'text-primary bg-primary/10 border-primary/30';
-
-  const statusLabel = isPending ? 'Pending Payment' : isCancelled ? 'Cancelled' : 'Active';
+  const tabs = [
+    { id: 'overview' as const, label: 'Overview' },
+    { id: 'billing' as const, label: 'Billing' },
+    { id: 'features' as const, label: 'Features' },
+  ];
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
-        {/* Profile Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/30">
-            <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold font-display">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">{email.split('@')[0]}</h1>
-            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5" />
-                {email}
-              </span>
-              <span className="flex items-center gap-1">
-                <CalendarDays className="w-3.5 h-3.5" />
-                Joined {joinDate}
-              </span>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        {/* Profile Hero Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative rounded-2xl border border-border overflow-hidden mb-6"
+        >
+          {/* Gradient top bar */}
+          <div className="h-20 sm:h-24 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />
+            <div className="absolute bottom-0 right-4 top-3 opacity-10">
+              <Crown className="w-16 h-16 sm:w-20 sm:h-20 text-primary" />
             </div>
           </div>
-          <Badge
-            className={`text-xs px-3 py-1 ${statusColor}`}
-            variant="outline"
-          >
-            <Crown className="w-3.5 h-3.5 mr-1.5" />
-            {plan.name} Plan
-          </Badge>
-        </div>
 
-        <Separator />
-
-        {/* Pending Payment Alert */}
-        {isPending && (
-          <Card className="border-yellow-400/30 bg-yellow-400/5">
-            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4">
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-10 h-10 rounded-full bg-yellow-400/10 flex items-center justify-center shrink-0">
-                  <AlertCircle className="w-5 h-5 text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Payment Pending</p>
-                  <p className="text-xs text-muted-foreground">
-                    Your {subPlanConfig.name} plan ({billingPeriod}) subscription is awaiting payment confirmation.
-                    {paymentId && <span className="ml-1">Payment ID: <code className="text-yellow-400/80">{paymentId}</code></span>}
-                  </p>
-                </div>
+          <div className="px-5 pb-5 -mt-8 relative z-10">
+            <div className="flex items-end gap-4 mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-background border-2 border-border flex items-center justify-center text-primary font-display text-lg font-bold shadow-lg">
+                {initials}
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10 shrink-0"
-                onClick={() => navigate('/pricing')}
-              >
-                Retry Payment
-              </Button>
-            </CardContent>
-          </Card>
+              <div className="flex-1 min-w-0 pb-1">
+                <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">{email.split('@')[0]}</h1>
+                <p className="text-xs text-muted-foreground truncate">{email}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className={`text-[10px] px-2.5 py-0.5 ${
+                isPending ? 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5'
+                  : 'text-primary border-primary/30 bg-primary/5'
+              }`}>
+                <Crown className="w-3 h-3 mr-1" />
+                {plan.name}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] px-2.5 py-0.5 text-muted-foreground border-border bg-muted/30">
+                <CalendarDays className="w-3 h-3 mr-1" />
+                Joined {joinDate}
+              </Badge>
+              {isPending && (
+                <Badge variant="outline" className="text-[10px] px-2.5 py-0.5 text-yellow-400 border-yellow-400/30 bg-yellow-400/5 animate-pulse">
+                  <Clock className="w-3 h-3 mr-1" />
+                  Payment Pending
+                </Badge>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Pending Alert */}
+        {isPending && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-4 mb-6 flex items-start gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">Awaiting payment confirmation</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {subPlanConfig.name} · {billingPeriod}
+                {paymentId && <> · <code className="text-yellow-400/70 text-[10px]">{paymentId}</code></>}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" className="text-xs border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10 shrink-0" onClick={() => navigate('/pricing')}>
+              Retry
+            </Button>
+          </motion.div>
         )}
 
-        {/* Usage Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Sites Usage */}
-          <Card className="border-border bg-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Globe className="w-4 h-4 text-primary" />
-                Sites
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between mb-2">
-                <span className="text-2xl font-bold text-foreground">{siteCount}</span>
-                <span className="text-sm text-muted-foreground">
-                  / {maxSites === -1 ? '∞' : maxSites}
-                </span>
-              </div>
-              {maxSites !== -1 && (
-                <Progress value={sitePercent} className="h-2" />
-              )}
-              {maxSites === -1 && (
-                <p className="text-xs text-muted-foreground">Unlimited sites</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Downloads Usage */}
-          <Card className="border-border bg-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Download className="w-4 h-4 text-primary" />
-                Meme Downloads
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between mb-2">
-                <span className="text-2xl font-bold text-foreground">{usedDownloads}</span>
-                <span className="text-sm text-muted-foreground">
-                  / {maxDownloads === -1 ? '∞' : maxDownloads}
-                </span>
-              </div>
-              {maxDownloads !== -1 ? (
-                <>
-                  <Progress value={downloadPercent} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    {remaining} remaining · Resets {nextResetDate}
-                  </p>
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground">Unlimited downloads</p>
-              )}
-            </CardContent>
-          </Card>
+        {/* Tab Navigation */}
+        <div className="flex gap-1 bg-muted/30 rounded-xl p-1 mb-6 border border-border">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 text-xs font-medium py-2 rounded-lg transition-all ${
+                activeTab === tab.id
+                  ? 'bg-background text-foreground shadow-sm border border-border'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Billing & Subscription */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg text-foreground flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-primary" />
-                Billing & Subscription
-              </CardTitle>
-              <Badge variant="outline" className={`text-[10px] font-display tracking-wider ${statusColor}`}>
-                {statusLabel}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Subscription Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-lg border border-border bg-muted/20 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Current Plan</p>
-                <p className="text-sm font-bold text-foreground">{subPlanConfig.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {subPlanConfig.priceMonthly === 0
-                    ? 'Free'
-                    : billingPeriod === 'annual'
-                    ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/year`
-                    : `$${subPlanConfig.priceMonthly}/month`}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/20 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Billing Period</p>
-                <p className="text-sm font-bold text-foreground capitalize">{billingPeriod}</p>
-                <p className="text-xs text-muted-foreground">
-                  {billingPeriod === 'annual' ? '20% savings' : 'Billed monthly'}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/20 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Next Reset</p>
-                <p className="text-sm font-bold text-foreground">{nextResetDate || '—'}</p>
-                <p className="text-xs text-muted-foreground">Download quota resets</p>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Transaction History */}
-            <div>
-              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
-                <Receipt className="w-4 h-4 text-primary" />
-                Transaction History
-              </h3>
-              {subscription && subPlan !== 'free' ? (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/10 p-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                      isPending ? 'bg-yellow-400/10' : 'bg-primary/10'
-                    }`}>
-                      {isPending ? (
-                        <Clock className="w-4 h-4 text-yellow-400" />
-                      ) : (
-                        <Check className="w-4 h-4 text-primary" />
-                      )}
+        {/* Tab Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-4"
+        >
+          {activeTab === 'overview' && (
+            <>
+              {/* Usage Stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Globe className="w-3.5 h-3.5 text-primary" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
-                        {subPlanConfig.name} Plan — {billingPeriod === 'annual' ? 'Annual' : 'Monthly'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {subCreatedAt}
-                        {paymentId && (
-                          <span className="ml-2 text-muted-foreground/60">
-                            ID: {paymentId}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-bold text-foreground">
-                        ${billingPeriod === 'annual'
-                          ? Math.round(subPlanConfig.priceMonthly * 12 * 0.8)
-                          : subPlanConfig.priceMonthly}
-                      </p>
-                      <Badge
-                        variant="outline"
-                        className={`text-[9px] ${isPending ? 'text-yellow-400 border-yellow-400/30' : isCancelled ? 'text-destructive border-destructive/30' : 'text-primary border-primary/30'}`}
-                      >
-                        {statusLabel}
-                      </Badge>
-                    </div>
+                    <span className="text-xs text-muted-foreground">Sites</span>
                   </div>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-2xl font-bold text-foreground">{siteCount}</span>
+                    <span className="text-xs text-muted-foreground">/ {maxSites === -1 ? '∞' : maxSites}</span>
+                  </div>
+                  {maxSites !== -1 ? (
+                    <Progress value={sitePercent} className="h-1.5" />
+                  ) : (
+                    <p className="text-[10px] text-primary/60">Unlimited</p>
+                  )}
                 </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <Receipt className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No transactions yet</p>
-                  <p className="text-xs mt-1">Upgrade your plan to see billing history</p>
-                </div>
-              )}
-            </div>
 
-            {planId !== 'whale' && (
-              <>
-                <Separator />
-                <div className="flex justify-end">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Download className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-xs text-muted-foreground">Downloads</span>
+                  </div>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-2xl font-bold text-foreground">{usedDownloads}</span>
+                    <span className="text-xs text-muted-foreground">/ {maxDownloads === -1 ? '∞' : maxDownloads}</span>
+                  </div>
+                  {maxDownloads !== -1 ? (
+                    <>
+                      <Progress value={downloadPercent} className="h-1.5" />
+                      <p className="text-[10px] text-muted-foreground mt-1">Resets {nextResetDate}</p>
+                    </>
+                  ) : (
+                    <p className="text-[10px] text-primary/60">Unlimited</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Plan Strip */}
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-display mb-3">Plan Tiers</p>
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  {PLAN_ORDER.map((id, idx) => {
+                    const p = PLANS[id];
+                    const isCurrent = id === planId;
+                    return (
+                      <button
+                        key={id}
+                        onClick={() => !isCurrent && navigate('/pricing')}
+                        className={`flex-shrink-0 rounded-lg px-3 py-2.5 text-center transition-all min-w-[70px] border ${
+                          isCurrent
+                            ? 'border-primary bg-primary/10'
+                            : idx < currentPlanIndex
+                            ? 'border-transparent bg-muted/20 opacity-40'
+                            : 'border-border hover:border-primary/30 cursor-pointer'
+                        }`}
+                      >
+                        <div className={`text-[9px] font-bold uppercase tracking-wider ${isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>{p.name}</div>
+                        <div className={`text-sm font-bold mt-0.5 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
+                          {p.priceMonthly === 0 ? 'Free' : `$${p.priceMonthly}`}
+                        </div>
+                        {isCurrent && <div className="w-1 h-1 rounded-full bg-primary mx-auto mt-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {planId !== 'whale' && (
                   <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-3 text-xs border-primary/20 text-primary hover:bg-primary/5"
                     onClick={() => navigate('/pricing')}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    <ArrowUpRight className="w-4 h-4 mr-1.5" />
+                    <ArrowUpRight className="w-3.5 h-3.5 mr-1" />
                     Upgrade Plan
                   </Button>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </>
+          )}
 
-        {/* Current Plan Details */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-lg text-foreground">
-                  Plan Features
-                </CardTitle>
-                <CardDescription>
-                  What's included in your {plan.name} plan
-                </CardDescription>
+          {activeTab === 'billing' && (
+            <>
+              {/* Billing Summary */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: 'Plan', value: subPlanConfig.name, sub: subPlanConfig.priceMonthly === 0 ? 'Free' : billingPeriod === 'annual' ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/yr` : `$${subPlanConfig.priceMonthly}/mo` },
+                  { label: 'Billing', value: billingPeriod === 'annual' ? 'Annual' : 'Monthly', sub: billingPeriod === 'annual' ? '20% off' : 'Standard' },
+                  { label: 'Status', value: statusLabel, sub: subCreatedAt || '—' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl border border-border bg-card p-3 text-center">
+                    <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{item.label}</p>
+                    <p className="text-sm font-bold text-foreground">{item.value}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{item.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Transactions */}
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                  <Receipt className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Transactions</span>
+                </div>
+                {subscription && subPlan !== 'free' ? (
+                  <div className="divide-y divide-border">
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/10 transition-colors">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        isPending ? 'bg-yellow-400/10' : 'bg-primary/10'
+                      }`}>
+                        {isPending ? <Clock className="w-3.5 h-3.5 text-yellow-400" /> : <Check className="w-3.5 h-3.5 text-primary" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-foreground truncate">
+                          {subPlanConfig.name} — {billingPeriod === 'annual' ? 'Annual' : 'Monthly'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {subCreatedAt}
+                          {paymentId && <span className="ml-1 opacity-50">· {paymentId}</span>}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs font-bold text-foreground">
+                          ${billingPeriod === 'annual' ? Math.round(subPlanConfig.priceMonthly * 12 * 0.8) : subPlanConfig.priceMonthly}
+                        </p>
+                        <span className={`text-[9px] ${
+                          isPending ? 'text-yellow-400' : isCancelled ? 'text-destructive' : 'text-primary'
+                        }`}>
+                          {statusLabel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Receipt className="w-6 h-6 mx-auto mb-2 text-muted-foreground/20" />
+                    <p className="text-xs text-muted-foreground">No transactions yet</p>
+                  </div>
+                )}
+              </div>
+
+              {planId !== 'whale' && (
+                <Button
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={() => navigate('/pricing')}
+                >
+                  <ArrowUpRight className="w-4 h-4 mr-1.5" />
+                  Upgrade Plan
+                </Button>
+              )}
+            </>
+          )}
+
+          {activeTab === 'features' && (
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{plan.name} Plan Features</p>
+                  <p className="text-[10px] text-muted-foreground">{featureRows.filter(f => f.included).length} of {featureRows.length} features included</p>
+                </div>
+                {planId !== 'whale' && (
+                  <Button size="sm" variant="ghost" className="text-xs text-primary hover:text-primary" onClick={() => navigate('/pricing')}>
+                    Compare <ChevronRight className="w-3 h-3 ml-0.5" />
+                  </Button>
+                )}
+              </div>
+              <div className="divide-y divide-border">
+                {featureRows.map((feat) => (
+                  <div key={feat.label} className="flex items-center gap-3 px-4 py-2.5">
+                    <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                      feat.included ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-muted-foreground/30'
+                    }`}>
+                      {feat.icon}
+                    </div>
+                    <span className={`flex-1 text-xs ${feat.included ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+                      {feat.label}
+                    </span>
+                    {feat.included ? (
+                      <Check className="w-3.5 h-3.5 text-primary" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-muted-foreground/20" />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-              {featureRows.map((feat) => (
-                <div
-                  key={feat.label}
-                  className="flex items-center gap-2.5 py-1.5 text-sm"
-                >
-                  {feat.included ? (
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                  ) : (
-                    <X className="w-4 h-4 text-muted-foreground/40 shrink-0" />
-                  )}
-                  <span className={feat.included ? 'text-foreground' : 'text-muted-foreground/60'}>
-                    {feat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Plan Comparison Quick Strip */}
-        <Card className="border-border bg-card">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Plan Tiers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {PLAN_ORDER.map((id, idx) => {
-                const p = PLANS[id];
-                const isCurrent = id === planId;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => !isCurrent && navigate('/pricing')}
-                    className={`flex-shrink-0 rounded-lg border px-4 py-3 text-center transition-all min-w-[100px] ${
-                      isCurrent
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : idx < currentPlanIndex
-                        ? 'border-border bg-muted/30 text-muted-foreground'
-                        : 'border-border hover:border-primary/30 text-foreground cursor-pointer'
-                    }`}
-                  >
-                    <div className="text-xs font-bold uppercase tracking-wider">{p.name}</div>
-                    <div className="text-lg font-bold mt-1">
-                      {p.priceMonthly === 0 ? 'Free' : `$${p.priceMonthly}`}
-                    </div>
-                    {isCurrent && (
-                      <div className="text-[10px] text-primary mt-1 font-medium">Current</div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </motion.div>
       </div>
     </DashboardLayout>
   );
