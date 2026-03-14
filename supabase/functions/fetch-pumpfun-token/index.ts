@@ -55,7 +55,8 @@ async function fetchGoPlus(chain: string, address: string) {
   const chainId = goplusChainIds[chain];
   if (!chainId) return null;
   try {
-    const baseUrl = 'https://api.gopluslabs.com';
+    // Use alternative GoPlus endpoint that works with Deno's TLS
+    const baseUrl = 'https://openapi.gopluslabs.com';
     const url = chainId === 'solana'
       ? `${baseUrl}/api/v1/solana/token_security?contract_addresses=${address}`
       : `${baseUrl}/api/v1/token_security/${chainId}?contract_addresses=${address}`;
