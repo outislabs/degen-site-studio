@@ -207,11 +207,11 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Coin Name</Label>
-          <Input placeholder="e.g. DogeMoon" value={data.name} onChange={e => onChange({ name: e.target.value })} />
+          <Input placeholder="e.g. DogeMoon" value={data.name} maxLength={100} onChange={e => onChange({ name: e.target.value })} />
         </div>
         <div className="space-y-2">
           <Label>Ticker Symbol</Label>
-          <Input placeholder="e.g. $DMOON" value={data.ticker} onChange={e => onChange({ ticker: e.target.value })} />
+          <Input placeholder="e.g. $DMOON" value={data.ticker} maxLength={20} onChange={e => onChange({ ticker: e.target.value })} />
         </div>
       </div>
 
