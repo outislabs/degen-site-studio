@@ -8,7 +8,7 @@ interface Props {
 
 const CTASection = ({ onGetStarted }: Props) => {
   return (
-    <section className="section-padding py-16 sm:py-24 relative">
+    <section className="section-padding py-10 sm:py-24 relative">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
