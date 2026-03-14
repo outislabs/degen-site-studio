@@ -65,7 +65,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8 sm:mb-12 px-2">
-            Build stunning landing pages, import token data from any chain, and ship your degen project before the next candle closes.
+            Everything your meme coin needs, website, memes, content, and more.
           </p>
 
           {/* CTA */}
