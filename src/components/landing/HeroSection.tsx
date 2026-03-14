@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import pumpfunLogo from '@/assets/integrations/pumpfun.png';
 import dexscreenerLogo from '@/assets/integrations/dexscreener.png';
 import raydiumLogo from '@/assets/integrations/raydium.png';
-import jupiterLogo from '@/assets/integrations/jupiter.png';
+import jupiterLogo from '@/assets/integrations/jupiter.svg';
 import solanaLogo from '@/assets/integrations/solana.png';
 import ethereumLogo from '@/assets/integrations/ethereum.png';
 import baseLogo from '@/assets/integrations/base.png';
