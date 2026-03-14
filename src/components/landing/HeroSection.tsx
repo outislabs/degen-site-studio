@@ -64,7 +64,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
             <span className="text-primary text-glow">MEME COIN</span> DOMINATION
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8 sm:mb-12 px-2">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-12 px-2">
             Everything your meme coin needs, website, memes, shill content, and more. Built for devs who move fast and ship faster.
           </p>
 
