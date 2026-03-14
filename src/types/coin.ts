@@ -3,6 +3,7 @@ export interface CoinData {
   name: string;
   ticker: string;
   tagline: string;
+  description: string;
   logoUrl: string;
   blockchain: string;
   contractAddress: string;
