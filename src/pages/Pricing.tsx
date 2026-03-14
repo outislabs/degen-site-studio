@@ -274,8 +274,7 @@ const Pricing = () => {
       if (data?.error) throw new Error(data.error);
 
       if (data?.invoice_url) {
-        window.open(data.invoice_url, '_blank');
-        toast.info('Payment page opened in a new tab');
+        window.location.href = data.invoice_url;
       }
     } catch (e: any) {
       toast.error(e.message || 'Failed to create subscription');
