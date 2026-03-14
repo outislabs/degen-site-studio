@@ -30,6 +30,8 @@ const blockchains = [
 ];
 
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
+  const { canUseCustomDomain } = usePlan();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
