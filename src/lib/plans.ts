@@ -31,7 +31,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     name: 'Free',
     priceMonthly: 0,
     maxSites: 1,
-    maxMemeDownloads: 5,
+    maxMemeDownloads: 3,
     hasCustomDomain: false,
     hasNoWatermark: false,
     hasAllTemplates: false,
