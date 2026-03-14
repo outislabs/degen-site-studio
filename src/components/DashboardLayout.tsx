@@ -77,7 +77,6 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <img src={logo} alt="Degen Tools" className="h-7 w-7" />
             <h1 className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider">
               DEGEN TOOLS
             </h1>
