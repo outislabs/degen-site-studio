@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
-import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock } from './shared';
+import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl } from './shared';
 
 interface Props {
   data: CoinData;
