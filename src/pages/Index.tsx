@@ -86,6 +86,7 @@ const Index = () => {
       <FeaturesGrid />
       <HowItWorks />
       <ContentStudioShowcase />
+      <CommunityShowcase />
       <ThemeShowcase />
       <PricingSection onGetStarted={handleNewSite} />
       <CTASection onGetStarted={handleNewSite} />
