@@ -60,7 +60,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
         {/* Big bold title */}
         <h1 className={cn('font-display text-4xl md:text-6xl tracking-tight mb-4 relative z-10', style.accent, style.glow)}
           style={{ textShadow: `0 0 60px ${style.accentHex}40, 0 0 120px ${style.accentHex}15` }}>
-          {data.ticker ? `$${data.ticker}` : data.name || 'YOUR COIN'}
+          {data.ticker ? `$${cleanTicker(data.ticker)}` : data.name || 'YOUR COIN'}
         </h1>
 
         {/* Mascot image - LARGE */}
