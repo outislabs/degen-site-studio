@@ -198,7 +198,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
       {/* Mobile slide-down nav */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-b border-border bg-background/95 backdrop-blur-md px-4 py-3 space-y-1 animate-fade-in">
-          {navItems.map((item) => (
+          {allNavItems.map((item) => (
             <button
               key={item.path}
               onClick={() => {
