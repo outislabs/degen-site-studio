@@ -103,7 +103,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
                 <p className={cn('text-[10px] uppercase tracking-[0.2em] font-bold mb-1', style.accent)}>Contract Address 📋</p>
                 <code className="text-xs text-white/60 truncate block font-mono">{data.contractAddress}</code>
               </div>
-              <button className={cn('px-4 py-2.5 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] flex items-center gap-1.5', style.button, style.buttonText)}
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('px-4 py-2.5 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] flex items-center gap-1.5', style.button, style.buttonText)}
                 style={{ border: `2px solid ${style.accentHex}30` }}>
                 <Copy className="w-3.5 h-3.5" /> Copy
               </button>
