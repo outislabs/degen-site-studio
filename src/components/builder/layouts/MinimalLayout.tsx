@@ -30,7 +30,7 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
       </h1>
 
       {data.ticker && (
-        <span className="text-white/25 text-sm tracking-[0.3em] uppercase font-medium mb-6">${data.ticker}</span>
+        <span className="text-white/25 text-sm tracking-[0.3em] uppercase font-medium mb-6">${cleanTicker(data.ticker)}</span>
       )}
 
       <p className="text-lg text-white/40 max-w-lg mx-auto leading-relaxed mb-10">

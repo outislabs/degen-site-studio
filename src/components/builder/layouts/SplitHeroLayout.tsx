@@ -31,7 +31,7 @@ const SplitHeroLayout = ({ data, style, countdown, showWatermark }: Props) => (
           <div className="space-y-2 text-center sm:text-left">
             <h1 className={cn('font-display text-2xl md:text-4xl tracking-tight', style.accent, style.glow)}>{data.name || 'Your Coin Name'}</h1>
             {data.ticker && (
-              <span className={cn('inline-block px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border', style.border, style.accent)} style={{ background: `${style.accentHex}08` }}>{data.ticker}</span>
+              <span className={cn('inline-block px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border', style.border, style.accent)} style={{ background: `${style.accentHex}08` }}>${cleanTicker(data.ticker)}</span>
             )}
             <p className="text-base text-white/50 max-w-md leading-relaxed pt-1">{data.tagline || 'Your epic tagline goes here 🚀'}</p>
           </div>

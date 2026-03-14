@@ -165,7 +165,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full text-center">
               {[
                 { label: 'Token Name', value: data.name || '—', emoji: '🪙' },
-                { label: 'Ticker', value: data.ticker ? `$${data.ticker}` : '—', emoji: '💎' },
+                { label: 'Ticker', value: data.ticker ? `$${cleanTicker(data.ticker)}` : '—', emoji: '💎' },
                 { label: 'Blockchain', value: data.blockchain || 'Solana', emoji: '⛓️' },
                 { label: 'Supply', value: data.totalSupply || '—', emoji: '📦' },
               ].map(s => (

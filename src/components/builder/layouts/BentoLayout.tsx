@@ -31,7 +31,7 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
       )}
       <h1 className={cn('font-display text-2xl md:text-3xl tracking-tight', style.accent, style.glow)}>{data.name || 'Your Coin Name'}</h1>
       {data.ticker && (
-        <span className={cn('inline-block px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border', style.border, style.accent)} style={{ background: `${style.accentHex}08` }}>{data.ticker}</span>
+        <span className={cn('inline-block px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider border', style.border, style.accent)} style={{ background: `${style.accentHex}08` }}>${cleanTicker(data.ticker)}</span>
       )}
       <p className="text-sm text-white/50 max-w-sm mx-auto">{data.tagline || 'Your epic tagline goes here 🚀'}</p>
     </div>

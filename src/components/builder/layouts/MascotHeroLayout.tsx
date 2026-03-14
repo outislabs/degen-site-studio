@@ -145,7 +145,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
           {[
             { step: '01', title: 'Get a Wallet', desc: `Download Phantom or MetaMask and create your wallet.`, icon: <Wallet className="w-5 h-5" /> },
             { step: '02', title: `Buy ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: `Purchase ${data.blockchain === 'solana' ? 'SOL' : 'ETH'} from an exchange and send to your wallet.`, icon: <ArrowRight className="w-5 h-5" /> },
-            { step: '03', title: `Swap for $${data.ticker || 'TOKEN'}`, desc: `Go to DEX, paste the contract address, and swap!`, icon: <ShieldCheck className="w-5 h-5" /> },
+            { step: '03', title: `Swap for $${cleanTicker(data.ticker) || 'TOKEN'}`, desc: `Go to DEX, paste the contract address, and swap!`, icon: <ShieldCheck className="w-5 h-5" /> },
           ].map((s) => (
             <div key={s.step} className={cn('rounded-2xl p-5 text-center relative overflow-hidden', style.cardBg)} style={{ boxShadow: `0 0 30px ${style.accentHex}05` }}>
               <div className="absolute top-2 right-3 text-4xl font-display opacity-5" style={{ color: style.accentHex }}>{s.step}</div>
