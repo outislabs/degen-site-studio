@@ -45,6 +45,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [pumpLink, setPumpLink] = useState('');
   const [pumpLoading, setPumpLoading] = useState(false);
   const [securityData, setSecurityData] = useState<any>(null);
+  const [rugCheckData, setRugCheckData] = useState<any>(null);
   const [showSecurity, setShowSecurity] = useState(false);
   const { user } = useAuth();
 
