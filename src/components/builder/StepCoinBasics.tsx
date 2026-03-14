@@ -217,7 +217,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         <Label>Contract Address</Label>
         <div className="flex gap-2">
           <Input placeholder="0x..." value={data.contractAddress} onChange={e => onChange({ contractAddress: e.target.value })} className="flex-1" />
-          <Button variant="outline" size="icon" onClick={copyAddress}><Copy className="w-4 h-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => { navigator.clipboard.writeText(data.contractAddress); toast.success('Contract address copied!'); }}><Copy className="w-4 h-4" /></Button>
         </div>
       </div>
 
