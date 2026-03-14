@@ -139,7 +139,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
           {[
             { step: '1', emoji: '👛', title: 'Get a Wallet', desc: 'Download a crypto wallet like Phantom or MetaMask.' },
             { step: '2', emoji: '💰', title: `Buy ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'} from any exchange.` },
-            { step: '3', emoji: '🔄', title: 'Swap!', desc: `Go to DEX and swap for $${data.ticker || 'TOKEN'}!` },
+            { step: '3', emoji: '🔄', title: 'Swap!', desc: `Go to DEX and swap for $${cleanTicker(data.ticker) || 'TOKEN'}!` },
           ].map(s => (
             <div key={s.step} className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] relative"
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}05`, boxShadow: `0 6px 0 ${style.accentHex}10` }}>
