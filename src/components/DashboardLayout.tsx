@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import logo from '@/assets/logo.png';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import MobileBottomNav from '@/components/MobileBottomNav';
