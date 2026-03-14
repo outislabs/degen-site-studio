@@ -331,24 +331,34 @@ const Pricing = () => {
               ? `$${Math.round(parseInt(plan.price.replace('$', '')) * 0.8)}`
               : plan.price;
 
+            const isCurrent = planIdMap[plan.name] === currentPlan;
+            const isDowngrade = PLAN_ORDER.indexOf(planIdMap[plan.name]) < PLAN_ORDER.indexOf(currentPlan);
+
             return (
               <Card
                 key={plan.name}
                 className={cn(
                   'relative flex flex-col transition-all duration-300 hover:scale-[1.02]',
-                  plan.popular
+                  isCurrent
+                    ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.2)] ring-2 ring-primary'
+                    : plan.popular
                     ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.2)] ring-1 ring-primary'
                     : 'border-border hover:border-primary/40'
                 )}
               >
-                {plan.popular && (
+                {isCurrent && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-display">
+                    CURRENT PLAN
+                  </Badge>
+                )}
+                {!isCurrent && plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-display">
                     MOST POPULAR
                   </Badge>
                 )}
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon className={cn('w-5 h-5', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
+                    <Icon className={cn('w-5 h-5', plan.popular || isCurrent ? 'text-primary' : 'text-muted-foreground')} />
                     <CardTitle className="text-base font-bold">{plan.name}</CardTitle>
                   </div>
                   <CardDescription className="text-xs">{plan.description}</CardDescription>
@@ -372,10 +382,19 @@ const Pricing = () => {
                 <CardFooter>
                   <Button
                     className="w-full text-xs"
-                    variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => navigate(user ? '/' : '/auth')}
+                    variant={isCurrent ? 'secondary' : plan.popular ? 'default' : 'outline'}
+                    onClick={() => handleSubscribe(plan.name)}
+                    disabled={isCurrent || subscribing === plan.name}
                   >
-                    {plan.cta}
+                    {subscribing === plan.name ? (
+                      <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Processing...</>
+                    ) : isCurrent ? (
+                      'Current Plan'
+                    ) : isDowngrade ? (
+                      'Downgrade'
+                    ) : (
+                      plan.cta
+                    )}
                   </Button>
                 </CardFooter>
               </Card>
