@@ -90,6 +90,7 @@ const Index = () => {
       <CommunityShowcase />
       <ThemeShowcase />
       <PricingSection onGetStarted={handleNewSite} />
+      <FAQSection />
       <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>
