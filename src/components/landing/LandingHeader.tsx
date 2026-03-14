@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface Props {
   isLoggedIn: boolean;
@@ -30,9 +29,9 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   };
 
   return (
-    <header className="border-b border-border px-6 py-4 sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+    <header className="border-b border-border/50 px-6 py-4 sticky top-0 z-50 bg-background/70 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <h1
             className="font-display text-xs sm:text-sm text-primary text-glow tracking-wider cursor-pointer"
             onClick={() => navigate('/')}
@@ -40,13 +39,12 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
             DEGEN TOOLS
           </h1>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => scrollTo(link.href)}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium px-3 py-1.5 rounded-md hover:bg-primary/5"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2 rounded-lg hover:bg-primary/5"
               >
                 {link.label}
               </button>
@@ -54,7 +52,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <>
               <span className="text-xs text-muted-foreground hidden sm:block">{email}</span>
@@ -63,12 +61,11 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
               </Button>
             </>
           ) : (
-            <Button size="sm" onClick={onSignIn} variant="outline" className="text-xs">
-              <LogIn className="w-4 h-4 mr-1" /> Sign In
+            <Button size="sm" onClick={onSignIn} className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-xs rounded-lg">
+              <LogIn className="w-4 h-4 mr-1.5" /> Sign In
             </Button>
           )}
 
-          {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden text-muted-foreground hover:text-foreground ml-1"
@@ -78,14 +75,13 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
         </div>
       </div>
 
-      {/* Mobile dropdown */}
       {mobileOpen && (
-        <nav className="md:hidden mt-3 pt-3 border-t border-border flex flex-col gap-1">
+        <nav className="md:hidden mt-4 pt-4 border-t border-border/50 flex flex-col gap-1">
           {navLinks.map((link) => (
             <button
               key={link.href}
               onClick={() => scrollTo(link.href)}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium px-3 py-2 rounded-md hover:bg-primary/5 text-left"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2.5 rounded-lg hover:bg-primary/5 text-left"
             >
               {link.label}
             </button>
