@@ -28,7 +28,7 @@ interface Props {
 
 const HeroSection = ({ onGetStarted }: Props) => {
   return (
-    <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-20 sm:pb-28 overflow-hidden">
+    <section className="relative section-padding pt-16 sm:pt-28 md:pt-36 pb-12 sm:pb-28 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] sm:w-[800px] h-[400px] sm:h-[600px] rounded-full bg-primary/8 blur-[150px] sm:blur-[200px]" />
