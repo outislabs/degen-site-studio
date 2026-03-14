@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlan } from '@/hooks/usePlan';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Check, X, Zap, Crown, Rocket, Star, Diamond, Minus } from 'lucide-react';
+import { Check, Zap, Crown, Rocket, Star, Diamond, Minus, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PlanId, PLAN_ORDER } from '@/lib/plans';
 
 const plans = [
   {
