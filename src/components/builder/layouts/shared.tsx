@@ -143,9 +143,20 @@ export const SocialsBlock = ({ data, style }: SocialsProps) => (
   </div>
 );
 
-export const Footer = ({ style }: { style: ThemeConfig }) => (
+export const Footer = ({ style, showWatermark = false }: { style: ThemeConfig; showWatermark?: boolean }) => (
   <div className="px-6 sm:px-10 py-5 text-center" style={{ borderTop: `1px solid ${style.accentHex}08` }}>
-    <p className="text-[10px] text-white/15 tracking-wide">Built with Degen Tools • Not financial advice • DYOR 🐸</p>
+    <p className="text-[10px] text-white/15 tracking-wide">Not financial advice • DYOR 🐸</p>
+    {showWatermark && (
+      <a
+        href="https://degen-site-studio.lovable.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 mt-3 opacity-50 hover:opacity-80 transition-opacity"
+      >
+        <img src={logo} alt="Degen Tools" className="h-5 w-auto" />
+        <span className="text-[9px] text-white/40 tracking-wider font-medium">Built with Degen Tools</span>
+      </a>
+    )}
   </div>
 );
 
