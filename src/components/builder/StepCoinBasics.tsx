@@ -31,6 +31,8 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [pumpLink, setPumpLink] = useState('');
+  const [pumpLoading, setPumpLoading] = useState(false);
   const { user } = useAuth();
 
   const domainPaid = domainPaymentStatus === 'paid';
