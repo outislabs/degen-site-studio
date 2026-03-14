@@ -145,6 +145,39 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     return null;
   };
 
+  const goplusChainIds: Record<string, string> = {
+    ethereum: '1', bsc: '56', polygon: '137', arbitrum: '42161',
+    optimism: '10', avalanche: '43114', base: '8453', solana: 'solana',
+  };
+
+  const fetchGoPlus = async (chain: string, address: string) => {
+    const chainId = goplusChainIds[chain];
+    if (!chainId) return null;
+    try {
+      const url = chainId === 'solana'
+        ? `https://api.gopluslabs.com/api/v1/solana/token_security?contract_addresses=${address}`
+        : `https://api.gopluslabs.com/api/v1/token_security/${chainId}?contract_addresses=${address}`;
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const json = await res.json();
+      const info = json?.result?.[address.toLowerCase()] || json?.result?.[address];
+      if (!info) return null;
+      return {
+        is_honeypot: info.is_honeypot === '1',
+        is_open_source: info.is_open_source === '1',
+        is_proxy: info.is_proxy === '1',
+        buy_tax: info.buy_tax || '0',
+        sell_tax: info.sell_tax || '0',
+        holder_count: parseInt(info.holder_count || '0'),
+        is_mintable: info.is_mintable === '1',
+        can_take_back_ownership: info.can_take_back_ownership === '1',
+        is_blacklisted: info.is_blacklisted === '1',
+      };
+    } catch {
+      return null;
+    }
+  };
+
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
     if (!tokenInfo?.mint) {
@@ -174,14 +207,17 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
-      if (result.security) {
-        setSecurityData(result.security);
+      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
+      setPumpLink('');
+
+      // Fetch GoPlus security data from the browser (bypasses Deno TLS issue)
+      const security = await fetchGoPlus(detectedChain, result.mint || mint);
+      if (security) {
+        setSecurityData(security);
         setShowSecurity(true);
       } else {
         setSecurityData(null);
       }
-      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
-      setPumpLink('');
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
     } finally {
