@@ -1,8 +1,8 @@
-import { CoinData, LayoutStyle, ThemeId } from '@/types/coin';
+import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, Sparkles } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -24,33 +24,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" />, premium: true },
 ];
 
-// Recommended theme+layout combos
-const recommendedCombos: Record<string, string> = {
-  'cartoon+sponge-pop': '🔥 Best Match',
-  'cartoon+sky-toon': '🎨 Perfect Fit',
-  'cartoon+ocean-bolt': '🌊 Popular',
-  'cinematic+midnight-chrome': '⭐ Best Match',
-  'cinematic+stealth-ops': '🕶️ Popular',
-  'cinematic+neon-romance': '💖 Trending',
-  'mascot-hero+lavender-pop': '💜 Popular',
-  'mascot-hero+rose-garden': '🌸 Trending',
-  'mascot-hero+degen-dark': '🔥 Classic',
-  'bento+crude-energy': '⚡ Popular',
-  'bento+solana-sun': '☀️ Popular',
-  'minimal+arctic-whale': '🐋 Clean',
-  'minimal+stealth-ops': '🕵️ Sleek',
-  'split-hero+cyber-punk': '🤖 Popular',
-  'classic+pepe-classic': '🐸 OG Combo',
-  'classic+moon-cult': '🌙 Popular',
-};
-
-const getComboLabel = (layout: LayoutStyle, theme: ThemeId): string | null => {
-  return recommendedCombos[`${layout}+${theme}`] || null;
-};
-
 const StepTheme = ({ data, onChange }: Props) => {
-  const currentLayout = data.layout || 'classic';
-
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Layout Selector */}
@@ -63,7 +37,7 @@ const StepTheme = ({ data, onChange }: Props) => {
               onClick={() => onChange({ layout: l.id })}
               className={cn(
                 'border-2 rounded-xl p-4 cursor-pointer transition-all flex items-start gap-3',
-                currentLayout === l.id ? 'border-primary box-glow' : 'border-border hover:border-muted-foreground'
+                (data.layout || 'classic') === l.id ? 'border-primary box-glow' : 'border-border hover:border-muted-foreground'
               )}
             >
               <div className="text-muted-foreground mt-0.5">{l.icon}</div>
@@ -83,40 +57,31 @@ const StepTheme = ({ data, onChange }: Props) => {
       <div className="space-y-3">
         <Label>Template Vibe</Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {themeList.map(t => {
-            const comboLabel = getComboLabel(currentLayout, t.id);
-            return (
-              <div
-                key={t.id}
-                onClick={() => onChange({ theme: t.id })}
-                className={cn(
-                  'border-2 rounded-xl p-4 cursor-pointer transition-all relative',
-                  data.theme === t.id ? `${t.previewBorder} box-glow` : 'border-border hover:border-muted-foreground'
-                )}
-              >
-                {comboLabel && (
-                  <div className="absolute -top-2.5 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary/15 text-primary border border-primary/20 backdrop-blur-sm">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    {comboLabel}
-                  </div>
-                )}
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style={{ backgroundColor: t.accentHex + '15' }}>
-                    {t.emoji}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">{t.name}</p>
-                  </div>
+          {themeList.map(t => (
+            <div
+              key={t.id}
+              onClick={() => onChange({ theme: t.id })}
+              className={cn(
+                'border-2 rounded-xl p-4 cursor-pointer transition-all',
+                data.theme === t.id ? `${t.previewBorder} box-glow` : 'border-border hover:border-muted-foreground'
+              )}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style={{ backgroundColor: t.accentHex + '15' }}>
+                  {t.emoji}
                 </div>
-                <p className="text-xs text-muted-foreground">{t.desc}</p>
-                <div className="flex gap-1 mt-3">
-                  <div className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${t.accentHex}, ${t.accentHex2})` }} />
-                  <div className="h-2 w-8 rounded-full" style={{ backgroundColor: t.accentHex2, opacity: 0.5 }} />
-                  <div className="h-2 w-4 rounded-full" style={{ backgroundColor: t.accentHex, opacity: 0.2 }} />
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{t.name}</p>
                 </div>
               </div>
-            );
-          })}
+              <p className="text-xs text-muted-foreground">{t.desc}</p>
+              <div className="flex gap-1 mt-3">
+                <div className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${t.accentHex}, ${t.accentHex2})` }} />
+                <div className="h-2 w-8 rounded-full" style={{ backgroundColor: t.accentHex2, opacity: 0.5 }} />
+                <div className="h-2 w-4 rounded-full" style={{ backgroundColor: t.accentHex, opacity: 0.2 }} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
