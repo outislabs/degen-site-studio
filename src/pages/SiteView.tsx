@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
-import { CoinData } from '@/types/coin';
+import { CoinData, defaultCoinData } from '@/types/coin';
 
 const SiteView = () => {
   const { id } = useParams();
@@ -27,7 +27,7 @@ const SiteView = () => {
         return;
       }
 
-      setData(site.data as unknown as CoinData);
+      setData({ ...defaultCoinData, ...(site.data as unknown as CoinData) });
 
       // Check if site owner has a paid plan (no watermark)
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
