@@ -10,6 +10,8 @@ interface Subscription {
   billing_period: string;
   meme_downloads_used: number;
   meme_downloads_reset_at: string;
+  payment_id: string | null;
+  created_at: string;
 }
 
 interface UsePlanReturn {
