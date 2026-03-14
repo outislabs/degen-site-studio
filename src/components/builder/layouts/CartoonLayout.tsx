@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowDown, ShieldCheck } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
 
 interface Props {
   data: CoinData;
@@ -46,7 +46,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
           </div>
           <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `2px solid ${style.accentHex}30` }}>
-            Buy ${data.ticker || 'TOKEN'}
+            Buy ${cleanTicker(data.ticker) || 'TOKEN'}
           </a>
         </div>
       </div>
@@ -85,7 +85,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative z-10">
           <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] hover:rotate-1 inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `3px solid ${style.accentHex}30`, boxShadow: `0 6px 0 ${style.accentHex}30, 0 10px 30px ${style.accentHex}15` }}>
-            🚀 Buy ${data.ticker || 'TOKEN'} Now!
+            🚀 Buy ${cleanTicker(data.ticker) || 'TOKEN'} Now!
           </a>
           <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 hover:scale-[1.05] hover:-rotate-1 inline-flex items-center', style.accent)}
             style={{ border: `3px solid ${style.accentHex}25`, boxShadow: `0 6px 0 ${style.accentHex}15` }}>
@@ -139,7 +139,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
           {[
             { step: '1', emoji: '👛', title: 'Get a Wallet', desc: 'Download a crypto wallet like Phantom or MetaMask.' },
             { step: '2', emoji: '💰', title: `Buy ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'} from any exchange.` },
-            { step: '3', emoji: '🔄', title: 'Swap!', desc: `Go to DEX and swap for $${data.ticker || 'TOKEN'}!` },
+            { step: '3', emoji: '🔄', title: 'Swap!', desc: `Go to DEX and swap for $${cleanTicker(data.ticker) || 'TOKEN'}!` },
           ].map(s => (
             <div key={s.step} className="rounded-2xl p-5 text-center transition-all hover:scale-[1.02] relative"
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}05`, boxShadow: `0 6px 0 ${style.accentHex}10` }}>
@@ -165,7 +165,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full text-center">
               {[
                 { label: 'Token Name', value: data.name || '—', emoji: '🪙' },
-                { label: 'Ticker', value: data.ticker ? `$${data.ticker}` : '—', emoji: '💎' },
+                { label: 'Ticker', value: data.ticker ? `$${cleanTicker(data.ticker)}` : '—', emoji: '💎' },
                 { label: 'Blockchain', value: data.blockchain || 'Solana', emoji: '⛓️' },
                 { label: 'Supply', value: data.totalSupply || '—', emoji: '📦' },
               ].map(s => (

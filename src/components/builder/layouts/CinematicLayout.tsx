@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
 
 interface Props {
   data: CoinData;
@@ -48,7 +48,7 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
 
         {data.ticker && (
           <div className={cn('text-sm tracking-[0.4em] uppercase font-medium mb-6 relative z-10', style.accent)} style={{ opacity: 0.6 }}>
-            ${data.ticker}
+            ${cleanTicker(data.ticker)}
           </div>
         )}
 
@@ -115,7 +115,7 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {[
               { label: 'Token Name', value: data.name || '—' },
-              { label: 'Ticker', value: data.ticker ? `$${data.ticker}` : '—' },
+              { label: 'Ticker', value: data.ticker ? `$${cleanTicker(data.ticker)}` : '—' },
               { label: 'Blockchain', value: data.blockchain || 'Solana' },
               { label: 'Total Supply', value: data.totalSupply || '—' },
             ].map(s => (

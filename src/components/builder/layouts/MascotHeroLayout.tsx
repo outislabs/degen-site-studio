@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowRight, ShieldCheck } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
 
 interface Props {
   data: CoinData;
@@ -30,7 +30,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
       <div className="px-6 sm:px-10 py-4 flex items-center justify-between relative z-10" style={{ borderBottom: `1px solid ${style.accentHex}10` }}>
         <div className="flex items-center gap-3">
           {data.logoUrl && <img src={data.logoUrl} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10" />}
-          <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${data.ticker}` : data.name || 'TOKEN'}</span>
+          <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${cleanTicker(data.ticker)}` : data.name || 'TOKEN'}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-3">
@@ -60,7 +60,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
         {/* Big bold title */}
         <h1 className={cn('font-display text-4xl md:text-6xl tracking-tight mb-4 relative z-10', style.accent, style.glow)}
           style={{ textShadow: `0 0 60px ${style.accentHex}40, 0 0 120px ${style.accentHex}15` }}>
-          {data.ticker ? `$${data.ticker}` : data.name || 'YOUR COIN'}
+          {data.ticker ? `$${cleanTicker(data.ticker)}` : data.name || 'YOUR COIN'}
         </h1>
 
         {/* Mascot image - LARGE */}
@@ -109,7 +109,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
       <div className="px-6 sm:px-10 py-10">
         <div className="max-w-lg mx-auto flex flex-col sm:flex-row gap-4">
           <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center justify-center gap-2', style.button, style.buttonText)}>
-            <Wallet className="w-4 h-4" /> Buy ${data.ticker || 'TOKEN'}
+            <Wallet className="w-4 h-4" /> Buy ${cleanTicker(data.ticker) || 'TOKEN'}
           </a>
           <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center justify-center gap-2', style.border, style.accent)}>
             📊 View Chart <ArrowRight className="w-4 h-4" />
@@ -145,7 +145,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
           {[
             { step: '01', title: 'Get a Wallet', desc: `Download Phantom or MetaMask and create your wallet.`, icon: <Wallet className="w-5 h-5" /> },
             { step: '02', title: `Buy ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: `Purchase ${data.blockchain === 'solana' ? 'SOL' : 'ETH'} from an exchange and send to your wallet.`, icon: <ArrowRight className="w-5 h-5" /> },
-            { step: '03', title: `Swap for $${data.ticker || 'TOKEN'}`, desc: `Go to DEX, paste the contract address, and swap!`, icon: <ShieldCheck className="w-5 h-5" /> },
+            { step: '03', title: `Swap for $${cleanTicker(data.ticker) || 'TOKEN'}`, desc: `Go to DEX, paste the contract address, and swap!`, icon: <ShieldCheck className="w-5 h-5" /> },
           ].map((s) => (
             <div key={s.step} className={cn('rounded-2xl p-5 text-center relative overflow-hidden', style.cardBg)} style={{ boxShadow: `0 0 30px ${style.accentHex}05` }}>
               <div className="absolute top-2 right-3 text-4xl font-display opacity-5" style={{ color: style.accentHex }}>{s.step}</div>

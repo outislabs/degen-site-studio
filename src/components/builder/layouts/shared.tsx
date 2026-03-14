@@ -12,6 +12,9 @@ export const ensureUrl = (url: string) => {
   return `https://${url}`;
 };
 
+/** Strip leading $ from ticker so we can always prefix consistently */
+export const cleanTicker = (ticker: string) => ticker.replace(/^\$+/, '');
+
 /** Returns the best "Buy" URL for a token. Pump.fun tokens link to pump.fun, others to DEX link or DexScreener. */
 export const getBuyUrl = (data: CoinData): string => {
   // If contract address looks like a Solana address and blockchain is solana, link to pump.fun
