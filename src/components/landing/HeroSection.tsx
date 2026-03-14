@@ -28,53 +28,53 @@ interface Props {
 
 const HeroSection = ({ onGetStarted }: Props) => {
   return (
-    <section className="relative px-6 pt-20 pb-28 overflow-hidden">
-      {/* Animated background orbs */}
+    <section className="relative px-6 pt-28 pb-32 overflow-hidden">
+      {/* Layered background effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[150px] animate-pulse-glow" />
-        <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] rounded-full bg-neon-purple/8 blur-[120px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-neon-pink/5 blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/8 blur-[200px]" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-neon-purple/5 blur-[150px]" />
+        <div className="absolute top-1/3 left-0 w-[400px] h-[400px] rounded-full bg-neon-pink/3 blur-[120px]" />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: 'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
+        backgroundSize: '80px 80px'
       }} />
 
-      <div className="max-w-4xl mx-auto text-center relative z-10">
+      <div className="max-w-5xl mx-auto text-center relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 mb-8"
+            transition={{ delay: 0.3 }}
+            className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-10"
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
-            <span className="text-xs text-primary font-medium">Now with multi-chain import</span>
+            <span className="text-xs text-primary font-medium tracking-wide">Now with multi-chain import</span>
           </motion.div>
 
           {/* Main heading */}
-          <h1 className="font-display text-lg sm:text-xl md:text-2xl text-primary text-glow mb-6 leading-[1.8]">
+          <h1 className="font-display text-base sm:text-lg md:text-2xl lg:text-3xl text-foreground leading-[2] sm:leading-[2] mb-8">
             YOUR TOOLKIT FOR<br />
-            <span className="text-foreground">MEME COIN</span> DOMINATION
+            <span className="text-primary text-glow">MEME COIN</span> DOMINATION
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
-            Build landing pages, import token data from any chain, and ship your degen project before the next candle closes.
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-12">
+            Build stunning landing pages, import token data from any chain, and ship your degen project before the next candle closes.
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[10px] px-8 py-6 box-glow group"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[10px] sm:text-[11px] px-10 py-7 box-glow group rounded-xl"
             >
               <Zap className="w-4 h-4 mr-2" />
               START BUILDING
@@ -84,19 +84,19 @@ const HeroSection = ({ onGetStarted }: Props) => {
               size="lg"
               variant="outline"
               onClick={onGetStarted}
-              className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30 font-display text-[10px] px-8 py-6"
+              className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30 font-display text-[10px] sm:text-[11px] px-10 py-7 rounded-xl"
             >
               VIEW DEMO
             </Button>
           </div>
         </motion.div>
 
-        {/* Floating stats */}
+        {/* Stats row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex justify-center gap-8 mt-16"
+          transition={{ delay: 0.6 }}
+          className="flex justify-center gap-12 sm:gap-16 mt-20"
         >
           {[
             { value: '6', label: 'Themes' },
@@ -104,46 +104,42 @@ const HeroSection = ({ onGetStarted }: Props) => {
             { value: '< 5min', label: 'To Launch' },
           ].map((stat, i) => (
             <div key={i} className="text-center">
-              <div className="text-xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{stat.label}</div>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest mt-2">{stat.label}</div>
             </div>
           ))}
         </motion.div>
 
-        {/* Integrations logo bar */}
+        {/* Integrations */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="mt-14"
+          transition={{ delay: 0.8 }}
+          className="mt-20 pt-12 border-t border-border/50"
         >
-          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-display mb-5">
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.25em] font-display mb-8">
             Works with
           </p>
-          {/* Desktop: grid layout */}
-          <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+          {/* Desktop */}
+          <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
             {integrations.map((item) => (
               <div
                 key={item.name}
-                className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity"
+                className="flex flex-col items-center gap-2 opacity-50 hover:opacity-100 transition-opacity duration-300"
               >
-                <img src={item.logo} alt={item.name} className="h-9 w-9 object-contain" />
+                <img src={item.logo} alt={item.name} className="h-10 w-10 object-contain" />
                 <span className="text-[9px] text-muted-foreground font-medium">{item.name}</span>
               </div>
             ))}
           </div>
-
-          {/* Mobile: infinite scrolling carousel */}
+          {/* Mobile carousel */}
           <div className="sm:hidden overflow-hidden relative">
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-            <div className="flex animate-scroll-x gap-8 w-max">
+            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+            <div className="flex animate-scroll-x gap-10 w-max">
               {[...integrations, ...integrations].map((item, i) => (
-                <div
-                  key={`${item.name}-${i}`}
-                  className="flex flex-col items-center gap-1.5 opacity-70 shrink-0"
-                >
-                  <img src={item.logo} alt={item.name} className="h-8 w-8 object-contain" />
+                <div key={`${item.name}-${i}`} className="flex flex-col items-center gap-2 opacity-60 shrink-0">
+                  <img src={item.logo} alt={item.name} className="h-9 w-9 object-contain" />
                   <span className="text-[9px] text-muted-foreground font-medium">{item.name}</span>
                 </div>
               ))}
