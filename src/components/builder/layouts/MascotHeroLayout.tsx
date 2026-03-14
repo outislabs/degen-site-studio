@@ -30,7 +30,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
       <div className="px-6 sm:px-10 py-4 flex items-center justify-between relative z-10" style={{ borderBottom: `1px solid ${style.accentHex}10` }}>
         <div className="flex items-center gap-3">
           {data.logoUrl && <img src={data.logoUrl} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10" />}
-          <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${data.ticker}` : data.name || 'TOKEN'}</span>
+          <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${cleanTicker(data.ticker)}` : data.name || 'TOKEN'}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-3">
