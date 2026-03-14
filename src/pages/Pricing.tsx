@@ -218,10 +218,70 @@ const ComparisonTable = () => (
   </Card>
 );
 
+const planIdMap: Record<string, PlanId> = {
+  Free: 'free',
+  Degen: 'degen',
+  Creator: 'creator',
+  Pro: 'pro',
+  Whale: 'whale',
+};
+
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
+  const { planId: currentPlan, refetch } = usePlan();
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+
+  // Handle payment success redirect
+  React.useEffect(() => {
+    const payment = searchParams.get('payment');
+    const plan = searchParams.get('plan');
+    if (payment === 'success' && plan) {
+      toast.success(`Welcome to the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan! 🎉`);
+      refetch();
+    } else if (payment === 'cancelled') {
+      toast.error('Payment was cancelled');
+    }
+  }, [searchParams, refetch]);
+
+  const handleSubscribe = async (planName: string) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    const targetPlan = planIdMap[planName];
+    if (!targetPlan || targetPlan === 'free') {
+      navigate('/');
+      return;
+    }
+
+    if (targetPlan === currentPlan) {
+      toast.info('You\'re already on this plan');
+      return;
+    }
+
+    setSubscribing(planName);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-subscription', {
+        body: { plan: targetPlan, billing_period: billing },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.invoice_url) {
+        window.open(data.invoice_url, '_blank');
+        toast.info('Payment page opened in a new tab');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to create subscription');
+    } finally {
+      setSubscribing(null);
+    }
+  };
 
   return (
     <div className="min-h-screen gradient-degen">
