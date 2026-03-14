@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import logo from '@/assets/logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { useAuth } from '@/contexts/AuthContext';
@@ -76,7 +77,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <span className="text-lg">🛠️</span>
+            <img src={logo} alt="Degen Tools" className="h-7 w-7" />
             <h1 className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider">
               DEGEN TOOLS
             </h1>
