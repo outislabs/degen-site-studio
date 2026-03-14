@@ -28,6 +28,7 @@ import {
   UserCog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAdmin } from '@/hooks/useAdmin';
 
 
 interface Props {
@@ -47,7 +48,12 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { plan, planId } = usePlan();
+  const { isAdmin } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const allNavItems = isAdmin
+    ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
+    : navItems;
 
   const email = user?.email || '';
   const initials = email
@@ -84,7 +90,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-1 ml-4">
-            {navItems.map((item) => (
+            {allNavItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
@@ -164,7 +170,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               {/* Mobile-only nav items */}
               <div className="lg:hidden">
-                {navItems.map((item) => (
+                {allNavItems.map((item) => (
                   <DropdownMenuItem
                     key={item.path}
                     onClick={() => navigate(item.path)}
@@ -192,7 +198,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
       {/* Mobile slide-down nav */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-b border-border bg-background/95 backdrop-blur-md px-4 py-3 space-y-1 animate-fade-in">
-          {navItems.map((item) => (
+          {allNavItems.map((item) => (
             <button
               key={item.path}
               onClick={() => {
