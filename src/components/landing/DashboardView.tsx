@@ -60,9 +60,14 @@ const DashboardView = ({ sites, onDelete, onNewSite }: Props) => {
       {/* Create New + Title */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-xs text-primary tracking-wider">YOUR SITES</h2>
-        <Button onClick={onNewSite} className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-1" /> New Site
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/studio')} className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30">
+            <Image className="w-4 h-4 mr-1" /> Content Studio
+          </Button>
+          <Button onClick={onNewSite} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Plus className="w-4 h-4 mr-1" /> New Site
+          </Button>
+        </div>
       </div>
 
       {/* Sites Grid */}
