@@ -153,43 +153,54 @@ const Builder = () => {
       <div className="flex flex-1 overflow-hidden">
         <div className={cn('w-full lg:w-1/2 xl:w-[45%] border-r border-border overflow-y-auto flex flex-col', showPreview && 'hidden lg:flex')} style={{ height: 'calc(100vh - 49px)' }}>
           {/* Step Progress Bar */}
-          <div className="px-4 pt-4 pb-2">
-            <div className="flex items-center gap-1">
+          <div className="px-4 pt-4 pb-3">
+            <div className="flex items-center">
               {steps.map((s, i) => {
                 const isActive = step === i;
                 const isCompleted = i < step;
+                const Icon = s.icon;
                 return (
-                  <div key={i} className="flex items-center flex-1">
+                  <div key={i} className="flex items-center flex-1 last:flex-initial">
                     <button
                       onClick={() => setStep(i)}
-                      className={cn(
-                        'flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all w-full justify-center',
-                        isActive
-                          ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
-                          : isCompleted
-                          ? 'bg-primary/5 text-primary/70 hover:bg-primary/10'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      )}
+                      className="flex flex-col items-center gap-1.5 group"
                     >
-                      <span className="text-sm">{s.icon}</span>
-                      <span className="hidden md:inline">{s.label}</span>
+                      <div
+                        className={cn(
+                          'w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 border-2',
+                          isActive
+                            ? 'border-primary bg-primary/15 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
+                            : isCompleted
+                            ? 'border-primary bg-primary text-primary-foreground'
+                            : 'border-border bg-muted/50 text-muted-foreground group-hover:border-muted-foreground/50'
+                        )}
+                      >
+                        {isCompleted ? (
+                          <Check className="w-4 h-4" strokeWidth={3} />
+                        ) : (
+                          <Icon className="w-4 h-4" />
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          'text-[10px] font-medium transition-colors hidden sm:block',
+                          isActive ? 'text-primary' : isCompleted ? 'text-primary/70' : 'text-muted-foreground'
+                        )}
+                      >
+                        {s.label}
+                      </span>
                     </button>
                     {i < steps.length - 1 && (
-                      <div className={cn(
-                        'h-px w-3 mx-0.5 shrink-0 transition-colors',
-                        isCompleted ? 'bg-primary/40' : 'bg-border'
-                      )} />
+                      <div className="flex-1 mx-1.5 sm:mx-2 mt-[-18px] sm:mt-0">
+                        <div className={cn(
+                          'h-0.5 rounded-full transition-colors duration-300',
+                          isCompleted ? 'bg-primary' : 'bg-border'
+                        )} />
+                      </div>
                     )}
                   </div>
                 );
               })}
-            </div>
-            {/* Progress indicator */}
-            <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-300"
-                style={{ width: `${((step + 1) / steps.length) * 100}%` }}
-              />
             </div>
           </div>
 
