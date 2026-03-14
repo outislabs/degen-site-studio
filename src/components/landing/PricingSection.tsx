@@ -80,7 +80,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
         </motion.div>
 
         {/* Mobile: scroll horizontally. Desktop: grid */}
-        <div className="flex lg:grid lg:grid-cols-5 gap-4 sm:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0">
+        <div className="flex lg:grid lg:grid-cols-5 gap-4 sm:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory scrollbar-none">
           {plans.map((plan, i) => {
             const Icon = plan.icon;
             return (
