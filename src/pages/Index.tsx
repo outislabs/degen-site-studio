@@ -11,6 +11,7 @@ import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import HowItWorks from '@/components/landing/HowItWorks';
 import CTASection from '@/components/landing/CTASection';
 import DashboardView from '@/components/landing/DashboardView';
+import { usePlan } from '@/hooks/usePlan';
 
 interface SavedSite {
   id: string;
@@ -24,6 +25,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
+  const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
 
   useEffect(() => {
     if (user) fetchSites();
@@ -53,6 +55,11 @@ const Index = () => {
       navigate('/auth');
       return;
     }
+    if (!canCreateSite(sites.length)) {
+      toast.error(`Your ${plan.name} plan allows up to ${plan.maxSites} site${plan.maxSites === 1 ? '' : 's'}. Upgrade to create more.`);
+      navigate('/pricing');
+      return;
+    }
     navigate('/builder');
   };
 
@@ -66,7 +73,7 @@ const Index = () => {
       />
 
       {user ? (
-        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} />
+        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} planId={planId} plan={plan} />
       ) : (
         <>
           <HeroSection onGetStarted={handleNewSite} />
