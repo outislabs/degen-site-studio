@@ -88,26 +88,50 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
 
   const dexChainMap: Record<string, string> = {
     solana: 'solana', ethereum: 'ethereum', eth: 'ethereum', base: 'base',
-    bsc: 'bsc', ton: 'ton', arbitrum: 'ethereum', polygon: 'ethereum',
-    avalanche: 'ethereum', optimism: 'ethereum',
+    bsc: 'bsc', ton: 'ton', arbitrum: 'arbitrum', polygon: 'polygon',
+    avalanche: 'avalanche', optimism: 'optimism',
+  };
+
+  const etherscanDomains: Record<string, string> = {
+    'etherscan.io': 'ethereum',
+    'bscscan.com': 'bsc',
+    'basescan.org': 'base',
+    'arbiscan.io': 'arbitrum',
+    'polygonscan.com': 'polygon',
+    'optimistic.etherscan.io': 'optimism',
+    'snowscan.xyz': 'avalanche',
   };
 
   const extractTokenInfo = (input: string): { mint?: string; chain?: string; source: string } | null => {
     const trimmed = input.trim();
+    // Pump.fun
     const pumpMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,50})/);
     if (pumpMatch) return { mint: pumpMatch[1], chain: 'solana', source: 'pumpfun' };
-    const dexMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,50})/);
+    // DexScreener
+    const dexMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9x]{32,50})/);
     if (dexMatch) return { mint: dexMatch[2], chain: dexChainMap[dexMatch[1]] || dexMatch[1], source: 'dexscreener' };
+    // Etherscan-compatible explorers
+    for (const [domain, chain] of Object.entries(etherscanDomains)) {
+      const esc = domain.replace(/\./g, '\\.');
+      const ethMatch = trimmed.match(new RegExp(`${esc}/token/(0x[A-Fa-f0-9]{40})`));
+      if (ethMatch) return { mint: ethMatch[1], chain, source: 'etherscan' };
+      const ethAddrMatch = trimmed.match(new RegExp(`${esc}/address/(0x[A-Fa-f0-9]{40})`));
+      if (ethAddrMatch) return { mint: ethAddrMatch[1], chain, source: 'etherscan' };
+    }
+    // Jupiter
     const jupSwapMatch = trimmed.match(/jup\.ag\/swap\/[A-Za-z0-9]+-([A-Za-z0-9]{32,50})/);
     if (jupSwapMatch) return { mint: jupSwapMatch[1], chain: 'solana', source: 'jupiter' };
     const jupTokenMatch = trimmed.match(/jup\.ag\/tokens\/([A-Za-z0-9]{32,50})/);
     if (jupTokenMatch) return { mint: jupTokenMatch[1], chain: 'solana', source: 'jupiter' };
+    // Raydium
     const rayMatch = trimmed.match(/raydium\.io\/.*[?&]outputMint=([A-Za-z0-9]{32,50})/);
     if (rayMatch) return { mint: rayMatch[1], chain: 'solana', source: 'raydium' };
+    // Birdeye
     const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
     if (birdMatch) return { mint: birdMatch[1], chain: 'solana', source: 'birdeye' };
+    // Raw Solana address
     if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
-    // Ethereum-style address (0x...)
+    // Raw EVM address (0x...)
     if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
     return null;
   };
@@ -141,7 +165,10 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
-      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
+      const securityNote = result.security
+        ? result.security.is_honeypot ? ' ⚠️ Honeypot detected!' : ' ✅ Security checked'
+        : '';
+      toast.success(`Imported "${result.name}" from ${tokenInfo.source}!${securityNote} 🎉`);
       setPumpLink('');
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
@@ -158,11 +185,11 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           <Zap className="w-4 h-4" /> Quick Import Token
         </Label>
         <p className="text-xs text-muted-foreground">
-          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, or a raw mint address.
+          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, Etherscan, BSCScan, BaseScan, or a raw contract address. Security is auto-checked via GoPlus.
         </p>
         <div className="flex gap-2">
           <Input
-            placeholder="https://pump.fun/coin/... or dexscreener.com/... or mint address"
+            placeholder="https://pump.fun/... or etherscan.io/token/0x... or contract address"
             value={pumpLink}
             onChange={e => setPumpLink(e.target.value)}
             className="flex-1"
