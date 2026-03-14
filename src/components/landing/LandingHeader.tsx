@@ -39,7 +39,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
             className="h-6 sm:h-7 w-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
-          </h1>
+          
 
           <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
