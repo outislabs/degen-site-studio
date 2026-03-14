@@ -21,10 +21,10 @@ const CTASection = ({ onGetStarted }: Props) => {
           </div>
 
           <div className="relative z-10">
-            <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary mb-5 sm:mb-6" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
               Ready to <span className="text-primary text-glow">launch</span>?
             </h2>
+            <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-5 sm:mb-6" />
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed px-2">
               Join thousands of degens who shipped their token site in under 5 minutes. No code required.
             </p>
