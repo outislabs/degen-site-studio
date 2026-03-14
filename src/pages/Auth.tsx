@@ -6,12 +6,14 @@ import { toast } from 'sonner';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+
+type AuthView = 'signin' | 'signup' | 'forgot';
 
 const Auth = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [view, setView] = useState<AuthView>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
