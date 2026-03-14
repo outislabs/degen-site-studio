@@ -78,14 +78,14 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
 
         {/* Big chunky CTA buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative z-10">
-          <button className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] hover:rotate-1', style.button, style.buttonText)}
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] hover:rotate-1 inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `3px solid ${style.accentHex}30`, boxShadow: `0 6px 0 ${style.accentHex}30, 0 10px 30px ${style.accentHex}15` }}>
             🚀 Buy ${data.ticker || 'TOKEN'} Now!
-          </button>
-          <button className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 hover:scale-[1.05] hover:-rotate-1', style.accent)}
+          </a>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 hover:scale-[1.05] hover:-rotate-1 inline-flex items-center', style.accent)}
             style={{ border: `3px solid ${style.accentHex}25`, boxShadow: `0 6px 0 ${style.accentHex}15` }}>
             📊 View Chart
-          </button>
+          </a>
         </div>
       </div>
 
