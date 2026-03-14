@@ -232,6 +232,7 @@ const Builder = () => {
         </div>
       </div>
 
+      <MobileBottomNav />
       <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} slug={slug} />
     </div>
   );
