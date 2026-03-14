@@ -32,6 +32,7 @@ export interface CoinData {
   
   // Step 5
   theme: ThemeId;
+  layout: LayoutStyle;
   showCountdown: boolean;
   launchDate: Date | null;
 
@@ -40,6 +41,8 @@ export interface CoinData {
 }
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix';
+
+export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal';
 
 export interface RoadmapPhase {
   id: string;
@@ -66,6 +69,7 @@ export const defaultCoinData: CoinData = {
     { id: '3', title: 'Phase 3: Moon', items: ['Major exchange listing', 'Global marketing', 'Ecosystem expansion'] },
   ],
   theme: 'degen-dark',
+  layout: 'classic',
   showCountdown: false,
   launchDate: null,
 };
