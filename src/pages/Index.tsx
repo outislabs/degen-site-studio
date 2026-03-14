@@ -12,6 +12,7 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
+import FAQSection from '@/components/landing/FAQSection';
 import CommunityShowcase from '@/components/landing/CommunityShowcase';
 import DashboardView from '@/components/landing/DashboardView';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -89,6 +90,7 @@ const Index = () => {
       <CommunityShowcase />
       <ThemeShowcase />
       <PricingSection onGetStarted={handleNewSite} />
+      <FAQSection />
       <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>
