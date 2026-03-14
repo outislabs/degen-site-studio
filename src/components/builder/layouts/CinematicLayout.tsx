@@ -98,8 +98,8 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
           <h2 className={cn('font-display text-xl md:text-3xl mb-6', style.accent)} style={{ textShadow: `0 0 40px ${style.accentHex}25` }}>
             What is {data.name || 'This Token'}?
           </h2>
-          <p className="text-base text-white/35 leading-relaxed max-w-xl mx-auto">
-            {data.tagline || 'A community-driven token built for degens, by degens.'} Join a thriving community of holders and be part of something legendary.
+          <p className="text-base text-white/35 leading-relaxed max-w-xl mx-auto whitespace-pre-line">
+            {data.description || data.tagline || 'A community-driven token built for degens, by degens.'}{!data.description && ' Join a thriving community of holders and be part of something legendary.'}
           </p>
         </div>
       </div>

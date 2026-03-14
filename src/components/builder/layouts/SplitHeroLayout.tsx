@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
-import { SectionHeader, Divider, ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl } from './shared';
+import { SectionHeader, Divider, ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, DescriptionBlock, ensureUrl } from './shared';
 
 interface Props {
   data: CoinData;
@@ -49,6 +49,16 @@ const SplitHeroLayout = ({ data, style, countdown, showWatermark }: Props) => (
     </div>
 
     {data.contractAddress && <div className="px-6 sm:px-10 pb-8"><ContractBlock data={data} style={style} /></div>}
+
+    {data.description && (
+      <>
+        <Divider style={style} />
+        <div className="px-6 sm:px-10 py-12">
+          <SectionHeader label="About" style={style} />
+          <DescriptionBlock data={data} style={style} />
+        </div>
+      </>
+    )}
     <Divider style={style} />
 
     {/* Two-column for Tokenomics + Roadmap on larger screens */}

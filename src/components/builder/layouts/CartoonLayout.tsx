@@ -117,6 +117,18 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
         </div>
       )}
 
+      {/* Description */}
+      {data.description && (
+        <div className="px-6 sm:px-10 py-8">
+          <div className="max-w-xl mx-auto rounded-2xl p-6 text-center" style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}05` }}>
+            <h2 className={cn('font-display text-lg mb-4', style.accent)} style={{ textShadow: `2px 2px 0px ${style.accentHex}20` }}>
+              About {data.name || 'This Token'} 📖
+            </h2>
+            <p className="text-sm text-white/50 leading-relaxed whitespace-pre-line">{data.description}</p>
+          </div>
+        </div>
+      )}
+
       {/* How to Buy - Cartoon step cards */}
       <div id="cartoon-about" className="px-6 sm:px-10 py-10">
         <h2 className={cn('font-display text-xl md:text-2xl text-center mb-8', style.accent)}

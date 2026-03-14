@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
-import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard } from './shared';
+import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock } from './shared';
 import { Copy } from 'lucide-react';
 import DonutChart from '../DonutChart';
 
@@ -64,6 +64,14 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
             <p className="text-sm text-white/20">More info coming soon</p>
           )}
         </div>
+
+        {/* Description card */}
+        {data.description && (
+          <div className={cn('rounded-2xl p-6 sm:col-span-2', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
+            <p className={cn('text-[10px] tracking-[0.25em] uppercase font-medium mb-3 text-center', style.accent)}>About</p>
+            <p className="text-sm text-white/55 leading-relaxed whitespace-pre-line text-center">{data.description}</p>
+          </div>
+        )}
 
         {/* Tokenomics - spans full width */}
         <div className={cn('rounded-2xl p-6 sm:col-span-2', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>

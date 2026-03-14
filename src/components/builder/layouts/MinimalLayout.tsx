@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
-import { CountdownBlock, ensureUrl, copyToClipboard } from './shared';
+import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock } from './shared';
 
 interface Props {
   data: CoinData;
@@ -62,6 +62,14 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
             <Copy className={cn('w-4 h-4', style.accent)} />
           </button>
         </div>
+      </div>
+    )}
+
+    {/* Description */}
+    {data.description && (
+      <div className="max-w-lg mx-auto px-8 py-12">
+        <h2 className={cn('text-xs tracking-[0.3em] uppercase text-center mb-8', style.accent)}>About</h2>
+        <p className="text-sm text-white/40 leading-relaxed whitespace-pre-line text-center">{data.description}</p>
       </div>
     )}
 
