@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowDown, ShieldCheck } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
 
 interface Props {
   data: CoinData;
