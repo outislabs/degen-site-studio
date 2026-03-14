@@ -9,6 +9,7 @@ const SiteView = () => {
   const [data, setData] = useState<CoinData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(true);
 
   useEffect(() => {
     if (!id) return;
@@ -16,15 +17,28 @@ const SiteView = () => {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     const query = isUUID
-      ? supabase.from('sites').select('data').eq('id', id).single()
-      : supabase.from('sites').select('data').eq('slug', id).single();
+      ? supabase.from('sites').select('data, user_id').eq('id', id).single()
+      : supabase.from('sites').select('data, user_id').eq('slug', id).single();
 
-    query.then(({ data: site, error: err }) => {
+    query.then(async ({ data: site, error: err }) => {
       if (err || !site) {
         setError(true);
-      } else {
-        setData(site.data as unknown as CoinData);
+        setLoading(false);
+        return;
       }
+
+      setData(site.data as unknown as CoinData);
+
+      // Check if site owner has a paid plan (no watermark)
+      const { data: sub } = await supabase
+        .from('user_subscriptions')
+        .select('plan')
+        .eq('user_id', site.user_id)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      const plan = sub?.plan || 'free';
+      setShowWatermark(plan === 'free');
       setLoading(false);
     });
   }, [id]);
@@ -51,7 +65,7 @@ const SiteView = () => {
 
   return (
     <div className="min-h-screen">
-      <LivePreview data={data} />
+      <LivePreview data={data} showWatermark={showWatermark} />
     </div>
   );
 };
