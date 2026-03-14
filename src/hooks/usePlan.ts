@@ -87,7 +87,9 @@ export const usePlan = (): UsePlanReturn => {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  const planId: PlanId = (subscription?.plan as PlanId) || 'free';
+  // Only grant paid plan if subscription is active; pending/cancelled fall back to free
+  const isActive = subscription?.status === 'active';
+  const planId: PlanId = isActive ? ((subscription?.plan as PlanId) || 'free') : 'free';
   const plan = PLANS[planId] || PLANS.free;
 
   const canCreateSite = (currentSiteCount: number) => {
