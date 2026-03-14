@@ -452,6 +452,7 @@ const Pricing = () => {
       </main>
 
       <LandingFooter />
+      <MobileBottomNav />
     </div>
   );
 };
