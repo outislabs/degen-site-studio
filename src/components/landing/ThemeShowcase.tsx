@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { themeList, ThemeConfig } from '@/lib/themes';
 import { Palette, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const FEATURED_THEMES = ['degen-dark', 'moon-cult', 'cyber-punk', 'golden-ape', 'solana-sun', 'fire-sale'];
-
 const MiniSitePreview = ({ theme, isActive }: { theme: ThemeConfig; isActive: boolean }) => (
   <div
     className="w-full aspect-[16/10] rounded-lg overflow-hidden relative"
