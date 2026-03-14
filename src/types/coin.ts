@@ -69,6 +69,7 @@ export const defaultCoinData: CoinData = {
     { id: '3', title: 'Phase 3: Moon', items: ['Major exchange listing', 'Global marketing', 'Ecosystem expansion'] },
   ],
   theme: 'degen-dark',
+  layout: 'classic',
   showCountdown: false,
   launchDate: null,
 };
