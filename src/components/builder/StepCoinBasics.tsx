@@ -294,7 +294,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               onChange={e => onChange({ customDomain: e.target.value.trim() })}
             />
             <p className="text-xs text-muted-foreground">
-              Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">{window.location.host}</code> at your DNS provider.
+              Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">degentools.co</code> at your DNS provider.
             </p>
           </>
         )}
