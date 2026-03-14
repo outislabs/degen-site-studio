@@ -8,6 +8,7 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
+import HowItWorks from '@/components/landing/HowItWorks';
 import CTASection from '@/components/landing/CTASection';
 import DashboardView from '@/components/landing/DashboardView';
 
@@ -70,6 +71,7 @@ const Index = () => {
         <>
           <HeroSection onGetStarted={handleNewSite} />
           <FeaturesGrid />
+          <HowItWorks />
           <ThemeShowcase />
           <CTASection onGetStarted={handleNewSite} />
         </>
