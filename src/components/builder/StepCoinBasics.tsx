@@ -262,7 +262,16 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           )}
         </Label>
 
-        {domainPaid ? (
+        {!canUseCustomDomain() ? (
+          <div className="rounded-lg border border-border p-4 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Custom domains require the Degen plan or higher.
+            </p>
+            <Button onClick={() => navigate('/pricing')} className="w-full" variant="outline">
+              Upgrade Plan
+            </Button>
+          </div>
+        ) : domainPaid ? (
           <>
             <Input
               placeholder="e.g. mytoken.com"
