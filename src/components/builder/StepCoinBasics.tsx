@@ -111,24 +111,25 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
     if (!tokenInfo?.mint) {
-      toast.error('Please enter a valid token link or Solana mint address.');
+      toast.error('Please enter a valid token link or contract address.');
       return;
     }
     const mint = tokenInfo.mint;
+    const chain = tokenInfo.chain || 'solana';
     setPumpLoading(true);
     try {
       const { data: result, error } = await supabase.functions.invoke('fetch-pumpfun-token', {
-        body: { mint },
+        body: { mint, chain },
       });
       if (error) throw error;
       if (!result || result.error) throw new Error(result?.error || 'Token not found');
 
-      // Populate fields
+      const detectedChain = result.chain || chain;
       const updates: Partial<CoinData> = {
         name: result.name || data.name,
         ticker: result.symbol ? `$${result.symbol}` : data.ticker,
         tagline: result.description || data.tagline,
-        blockchain: 'solana',
+        blockchain: blockchains.some(b => b.value === detectedChain) ? detectedChain : data.blockchain,
         contractAddress: result.mint || mint,
       };
       if (result.image_uri) updates.logoUrl = result.image_uri;
@@ -136,7 +137,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
-      toast.success(`Imported "${result.name}" data from pump.fun! 🎉`);
+      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
