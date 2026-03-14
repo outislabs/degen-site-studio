@@ -84,10 +84,10 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       {/* Social Icons Row */}
       {hasSocials && (
         <div className="flex justify-center gap-3 pb-8 sm:hidden">
-          {data.socials.telegram && <a href="#" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><Send className={cn('w-4 h-4', style.accent)} /></a>}
-          {data.socials.twitter && <a href="#" className={cn('w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 text-sm', style.accent)} style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}>𝕏</a>}
-          {data.socials.discord && <a href="#" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><MessageCircle className={cn('w-4 h-4', style.accent)} /></a>}
-          {data.socials.dex && <a href="#" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><ExternalLink className={cn('w-4 h-4', style.accent)} /></a>}
+          {data.socials.telegram && <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><Send className={cn('w-4 h-4', style.accent)} /></a>}
+          {data.socials.twitter && <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 text-sm', style.accent)} style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}>𝕏</a>}
+          {data.socials.discord && <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><MessageCircle className={cn('w-4 h-4', style.accent)} /></a>}
+          {data.socials.dex && <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><ExternalLink className={cn('w-4 h-4', style.accent)} /></a>}
         </div>
       )}
 
