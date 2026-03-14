@@ -30,9 +30,9 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
         <div className="flex items-center gap-2">
           {hasSocials && (
             <div className="hidden sm:flex items-center gap-1.5 mr-3">
-              {data.socials.telegram && <a href="#" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><Send className={cn('w-3.5 h-3.5', style.accent)} /></a>}
-              {data.socials.twitter && <a href="#" className={cn('w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all text-xs', style.accent)} style={{ border: `1px solid ${style.accentHex}12` }}>𝕏</a>}
-              {data.socials.discord && <a href="#" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><MessageCircle className={cn('w-3.5 h-3.5', style.accent)} /></a>}
+              {data.socials.telegram && <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><Send className={cn('w-3.5 h-3.5', style.accent)} /></a>}
+              {data.socials.twitter && <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all text-xs', style.accent)} style={{ border: `1px solid ${style.accentHex}12` }}>𝕏</a>}
+              {data.socials.discord && <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><MessageCircle className={cn('w-3.5 h-3.5', style.accent)} /></a>}
             </div>
           )}
           <button className={cn('px-5 py-2 rounded-lg font-bold text-xs transition-all hover:scale-[1.03]', style.button, style.buttonText)}>Buy Now</button>
