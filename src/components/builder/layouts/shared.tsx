@@ -4,6 +4,7 @@ import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DonutChart from '../DonutChart';
 import { toast } from 'sonner';
+import logo from '@/assets/logo.png';
 
 export const ensureUrl = (url: string) => {
   if (!url) return '#';
