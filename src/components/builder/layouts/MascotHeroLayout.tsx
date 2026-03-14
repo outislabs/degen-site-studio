@@ -35,7 +35,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
               {data.socials.discord && <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><MessageCircle className={cn('w-3.5 h-3.5', style.accent)} /></a>}
             </div>
           )}
-          <button className={cn('px-5 py-2 rounded-lg font-bold text-xs transition-all hover:scale-[1.03]', style.button, style.buttonText)}>Buy Now</button>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
         </div>
       </div>
 
