@@ -170,20 +170,6 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
 
-      // Fetch security data from the browser
-      const tokenAddress = result.mint || mint;
-      const [security, rugcheck] = await Promise.all([
-        fetchGoPlus(detectedChain, tokenAddress),
-        detectedChain === 'solana' ? fetchRugCheck(tokenAddress) : Promise.resolve(null),
-      ]);
-      if (security) {
-        setSecurityData(security);
-        setShowSecurity(true);
-      } else {
-        setSecurityData(null);
-      }
-      setRugCheckData(rugcheck || null);
-      if (rugcheck && !security) setShowSecurity(true);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
     } finally {
