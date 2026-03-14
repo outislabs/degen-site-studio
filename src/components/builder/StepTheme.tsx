@@ -30,7 +30,7 @@ const StepTheme = ({ data, onChange }: Props) => {
               )}
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg" style={{ backgroundColor: t.accentHex + '20' }}>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style={{ backgroundColor: t.accentHex + '15' }}>
                   {t.emoji}
                 </div>
                 <div>
@@ -38,10 +38,10 @@ const StepTheme = ({ data, onChange }: Props) => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t.desc}</p>
-              {/* Color preview */}
+              {/* Color preview with dual accent */}
               <div className="flex gap-1 mt-3">
-                <div className="h-2 flex-1 rounded-full" style={{ backgroundColor: t.accentHex }} />
-                <div className="h-2 w-8 rounded-full" style={{ backgroundColor: t.accentHex, opacity: 0.5 }} />
+                <div className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${t.accentHex}, ${t.accentHex2})` }} />
+                <div className="h-2 w-8 rounded-full" style={{ backgroundColor: t.accentHex2, opacity: 0.5 }} />
                 <div className="h-2 w-4 rounded-full" style={{ backgroundColor: t.accentHex, opacity: 0.2 }} />
               </div>
             </div>
