@@ -17,13 +17,13 @@ import {
   Globe,
   Image,
   CreditCard,
-  Settings,
   LogOut,
   Crown,
   Plus,
   ChevronRight,
   Menu,
   X,
+  UserCog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -35,8 +35,9 @@ interface Props {
 
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
-  { label: 'Content Studio', icon: Image, path: '/studio' },
+  { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
+  { label: 'Account', icon: UserCog, path: '/account' },
 ];
 
 const DashboardLayout = ({ children, onNewSite }: Props) => {
