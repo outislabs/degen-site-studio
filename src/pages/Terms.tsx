@@ -90,6 +90,7 @@ const Terms = () => {
           </section>
         </div>
       </div>
+      <LandingFooter />
     </div>
   );
 };

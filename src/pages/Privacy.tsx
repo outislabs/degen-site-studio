@@ -73,6 +73,7 @@ const Privacy = () => {
           </section>
         </div>
       </div>
+      <LandingFooter />
     </div>
   );
 };
