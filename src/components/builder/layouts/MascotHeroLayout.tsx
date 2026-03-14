@@ -74,7 +74,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-0.5 font-medium">CA</p>
               <code className="text-xs text-white/60 truncate block font-mono">{data.contractAddress}</code>
             </div>
-            <button className={cn('px-5 py-3 font-bold text-xs transition-all', style.button, style.buttonText)}>
+            <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('px-5 py-3 font-bold text-xs transition-all', style.button, style.buttonText)}>
               Copy
             </button>
           </div>
