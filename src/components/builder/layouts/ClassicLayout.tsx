@@ -8,9 +8,10 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
-const ClassicLayout = ({ data, style, countdown }: Props) => (
+const ClassicLayout = ({ data, style, countdown, showWatermark }: Props) => (
   <>
     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full blur-[160px] opacity-[0.07] pointer-events-none" style={{ backgroundColor: style.accentHex }} />
     <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
@@ -66,7 +67,7 @@ const ClassicLayout = ({ data, style, countdown }: Props) => (
       <SocialsBlock data={data} style={style} />
     </div>
 
-    <Footer style={style} />
+    <Footer style={style} showWatermark={showWatermark} />
   </>
 );
 

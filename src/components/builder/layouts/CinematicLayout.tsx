@@ -10,9 +10,10 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
-const CinematicLayout = ({ data, style, countdown }: Props) => {
+const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
   return (
     <>
       {/* Dramatic ambient layers */}
@@ -221,7 +222,7 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
-      <Footer style={style} />
+      <Footer style={style} showWatermark={showWatermark} />
     </>
   );
 };

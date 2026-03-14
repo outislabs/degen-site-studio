@@ -10,13 +10,14 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-const MascotHeroLayout = ({ data, style, countdown }: Props) => {
+const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
   const hasSocials = data.socials.telegram || data.socials.twitter || data.socials.discord || data.socials.dex;
 
   return (
@@ -193,7 +194,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       )}
 
       <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
-      <Footer style={style} />
+      <Footer style={style} showWatermark={showWatermark} />
     </>
   );
 };

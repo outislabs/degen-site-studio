@@ -12,9 +12,10 @@ import CartoonLayout from './layouts/CartoonLayout';
 
 interface Props {
   data: CoinData;
+  showWatermark?: boolean;
 }
 
-const LivePreview = ({ data }: Props) => {
+const LivePreview = ({ data, showWatermark = false }: Props) => {
   const style = themes[data.theme];
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
@@ -34,7 +35,7 @@ const LivePreview = ({ data }: Props) => {
   }, [data.showCountdown, data.launchDate]);
 
   const layout = data.layout || 'classic';
-  const layoutProps = { data, style, countdown };
+  const layoutProps = { data, style, countdown, showWatermark };
 
   return (
     <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style.bgGradient }}>
