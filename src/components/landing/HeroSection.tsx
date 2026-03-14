@@ -28,7 +28,7 @@ interface Props {
 
 const HeroSection = ({ onGetStarted }: Props) => {
   return (
-    <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-20 sm:pb-28 overflow-hidden">
+    <section className="relative section-padding pt-16 sm:pt-28 md:pt-36 pb-12 sm:pb-28 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] sm:w-[800px] h-[400px] sm:h-[600px] rounded-full bg-primary/8 blur-[150px] sm:blur-[200px]" />
@@ -52,19 +52,19 @@ const HeroSection = ({ onGetStarted }: Props) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-8 sm:mb-10"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-5 sm:mb-10"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
             <span className="text-[10px] sm:text-xs text-primary font-medium tracking-wide">Now with multi-chain import</span>
           </motion.div>
 
           {/* Heading */}
-          <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-6 sm:mb-8">
+          <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-4 sm:mb-8">
             YOUR TOOLKIT FOR<br />
             <span className="text-primary text-glow">MEME COIN</span> DOMINATION
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8 sm:mb-12 px-2">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-12 px-2">
             Everything your meme coin needs, website, memes, shill content, and more. Built for devs who move fast and ship faster.
           </p>
 
@@ -96,7 +96,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-14 sm:mt-20 pt-10 sm:pt-12 border-t border-border/40"
+          className="mt-10 sm:mt-20 pt-8 sm:pt-12 border-t border-border/40"
         >
           <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.25em] font-display mb-6 sm:mb-8">
             Works with

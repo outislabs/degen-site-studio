@@ -58,7 +58,7 @@ const plans = [
 
 const PricingSection = ({ onGetStarted }: Props) => {
   return (
-    <section id="pricing" className="section-padding py-16 sm:py-24 relative">
+    <section id="pricing" className="section-padding py-10 sm:py-24 relative">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[800px] h-[300px] bg-primary/3 blur-[150px] sm:blur-[200px] rounded-full" />
       </div>

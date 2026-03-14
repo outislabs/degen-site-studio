@@ -64,7 +64,7 @@ const ThemeShowcase = () => {
   const goPrev = () => setActiveIndex(i => (i - 1 + themeList.length) % themeList.length);
 
   return (
-    <section id="themes" className="section-padding py-16 sm:py-24 relative overflow-hidden">
+    <section id="themes" className="section-padding py-10 sm:py-24 relative overflow-hidden">
       {/* Background ambient */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] blur-[200px] rounded-full opacity-30" style={{ backgroundColor: activeTheme?.accentHex }} />
@@ -76,7 +76,7 @@ const ThemeShowcase = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-8 sm:mb-16"
         >
           <span className="inline-flex items-center gap-2 font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">
             <Palette className="w-3 h-3" />

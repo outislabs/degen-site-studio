@@ -8,7 +8,7 @@ const steps = [
 ];
 
 const HowItWorks = () => (
-  <section id="how-it-works" className="section-padding py-16 sm:py-24 relative">
+  <section id="how-it-works" className="section-padding py-10 sm:py-24 relative">
     <div className="absolute inset-0 pointer-events-none">
       <div className="absolute bottom-0 left-1/4 w-[400px] h-[250px] bg-neon-purple/3 blur-[150px] rounded-full" />
     </div>
