@@ -46,10 +46,16 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const MAX_PROMPT_LENGTH = 1000;
+
   const generate = async (customPrompt?: string) => {
-    const finalPrompt = customPrompt || prompt;
-    if (!finalPrompt.trim()) {
+    const finalPrompt = (customPrompt || prompt).trim();
+    if (!finalPrompt) {
       toast.error('Enter a prompt first');
+      return;
+    }
+    if (finalPrompt.length > MAX_PROMPT_LENGTH) {
+      toast.error(`Prompt must be ${MAX_PROMPT_LENGTH} characters or fewer`);
       return;
     }
 

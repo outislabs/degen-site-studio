@@ -6,6 +6,23 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// --- Rate Limiting ---
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 300_000; // 5 minutes
+const RATE_LIMIT_MAX = 5; // max 5 payment creations per 5 min
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -32,30 +49,39 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { site_id } = await req.json();
-    if (!site_id) {
-      return new Response(JSON.stringify({ error: "site_id is required" }), {
+    // Rate limit by user
+    if (!checkRateLimit(`user:${user.id}`)) {
+      return new Response(JSON.stringify({ error: "Too many payment requests. Please wait a few minutes." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "300" },
+      });
+    }
+
+    const body = await req.json();
+    const { site_id } = body;
+
+    // Validate site_id format (UUID)
+    if (!site_id || typeof site_id !== "string" || !/^[0-9a-f-]{36}$/.test(site_id)) {
+      return new Response(JSON.stringify({ error: "Valid site_id is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     // Verify user owns this site
-    const userId = claimsData.claims.sub;
     const { data: site, error: siteError } = await supabase
       .from("sites")
       .select("id, domain_payment_status")
       .eq("id", site_id)
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .single();
 
     if (siteError || !site) {
@@ -92,9 +118,8 @@ Deno.serve(async (req) => {
     const invoiceData = await invoiceRes.json();
 
     if (!invoiceRes.ok) {
-      throw new Error(
-        `NOWPayments API error [${invoiceRes.status}]: ${JSON.stringify(invoiceData)}`
-      );
+      console.error(`NOWPayments API error [${invoiceRes.status}]`);
+      throw new Error("Payment provider error. Please try again.");
     }
 
     // Store payment ID
@@ -118,8 +143,7 @@ Deno.serve(async (req) => {
     );
   } catch (error: unknown) {
     console.error("Error creating payment:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Payment creation failed. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
