@@ -206,25 +206,25 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
         </h2>
         <div className="flex justify-center gap-3 flex-wrap">
           {data.socials.telegram && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <Send className="w-4 h-4" /> Telegram
             </a>
           )}
           {data.socials.twitter && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               𝕏 Twitter
             </a>
           )}
           {data.socials.discord && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <MessageCircle className="w-4 h-4" /> Discord
             </a>
           )}
           {data.socials.dex && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <ExternalLink className="w-4 h-4" /> DEX
             </a>

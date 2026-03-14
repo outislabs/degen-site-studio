@@ -194,25 +194,25 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
         </h2>
         <div className="flex justify-center gap-4 flex-wrap">
           {data.socials.telegram && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <Send className="w-4 h-4" /> Telegram
             </a>
           )}
           {data.socials.twitter && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               𝕏 Twitter
             </a>
           )}
           {data.socials.discord && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <MessageCircle className="w-4 h-4" /> Discord
             </a>
           )}
           {data.socials.dex && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <ExternalLink className="w-4 h-4" /> DEX
             </a>
