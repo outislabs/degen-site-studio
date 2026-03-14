@@ -27,7 +27,7 @@ const SiteView = () => {
         return;
       }
 
-      setData(site.data as unknown as CoinData);
+      setData({ ...defaultCoinData, ...(site.data as unknown as CoinData) });
 
       // Check if site owner has a paid plan (no watermark)
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
