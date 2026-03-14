@@ -166,6 +166,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          billing_period: string
+          created_at: string
+          id: string
+          meme_downloads_reset_at: string
+          meme_downloads_used: number
+          payment_id: string | null
+          plan: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_period?: string
+          created_at?: string
+          id?: string
+          meme_downloads_reset_at?: string
+          meme_downloads_used?: number
+          payment_id?: string | null
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          id?: string
+          meme_downloads_reset_at?: string
+          meme_downloads_used?: number
+          payment_id?: string | null
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

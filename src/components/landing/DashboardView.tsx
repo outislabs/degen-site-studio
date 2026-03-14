@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
-import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Image } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Image, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
+import { Badge } from '@/components/ui/badge';
+import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
 
 interface SavedSite {
   id: string;
@@ -17,9 +19,11 @@ interface Props {
   sites: SavedSite[];
   onDelete: (id: string) => void;
   onNewSite: () => void;
+  planId: PlanId;
+  plan: PlanConfig;
 }
 
-const DashboardView = ({ sites, onDelete, onNewSite }: Props) => {
+const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
 
   const getThemeColor = (data: Record<string, any>): string => {
@@ -27,8 +31,28 @@ const DashboardView = ({ sites, onDelete, onNewSite }: Props) => {
     return themes[themeId]?.accentHex || '#22c55e';
   };
 
+  const siteLimit = plan.maxSites === -1 ? '∞' : plan.maxSites;
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
+      {/* Plan banner */}
+      <div className="flex items-center justify-between mb-6 gradient-card border border-border rounded-xl px-5 py-3">
+        <div className="flex items-center gap-3">
+          <Crown className="w-4 h-4 text-primary" />
+          <div>
+            <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
+            <span className="text-xs text-muted-foreground ml-2">
+              {sites.length}/{siteLimit} sites used
+            </span>
+          </div>
+        </div>
+        {planId !== 'whale' && (
+          <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs">
+            Upgrade
+          </Button>
+        )}
+      </div>
+
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[

@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlan } from '@/hooks/usePlan';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   data: CoinData;
@@ -28,6 +30,8 @@ const blockchains = [
 ];
 
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
+  const { canUseCustomDomain } = usePlan();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
@@ -243,19 +247,31 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
           Custom Domain
-          {!domainPaid && (
+          {!canUseCustomDomain() ? (
+            <span className="inline-flex items-center gap-1 text-xs font-normal bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+              <Lock className="w-3 h-3" /> Degen+ Plan
+            </span>
+          ) : !domainPaid ? (
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
               <Lock className="w-3 h-3" /> $10 Add-on
             </span>
-          )}
-          {domainPaid && (
+          ) : (
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
               ✓ Unlocked
             </span>
           )}
         </Label>
 
-        {domainPaid ? (
+        {!canUseCustomDomain() ? (
+          <div className="rounded-lg border border-border p-4 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Custom domains require the Degen plan or higher.
+            </p>
+            <Button onClick={() => navigate('/pricing')} className="w-full" variant="outline">
+              Upgrade Plan
+            </Button>
+          </div>
+        ) : domainPaid ? (
           <>
             <Input
               placeholder="e.g. mytoken.com"

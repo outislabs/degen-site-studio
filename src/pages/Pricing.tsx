@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlan } from '@/hooks/usePlan';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Check, X, Zap, Crown, Rocket, Star, Diamond, Minus } from 'lucide-react';
+import { Check, Zap, Crown, Rocket, Star, Diamond, Minus, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PlanId, PLAN_ORDER } from '@/lib/plans';
 
 const plans = [
   {
@@ -214,10 +218,70 @@ const ComparisonTable = () => (
   </Card>
 );
 
+const planIdMap: Record<string, PlanId> = {
+  Free: 'free',
+  Degen: 'degen',
+  Creator: 'creator',
+  Pro: 'pro',
+  Whale: 'whale',
+};
+
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
+  const { planId: currentPlan, refetch } = usePlan();
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+
+  // Handle payment success redirect
+  React.useEffect(() => {
+    const payment = searchParams.get('payment');
+    const plan = searchParams.get('plan');
+    if (payment === 'success' && plan) {
+      toast.success(`Welcome to the ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan! 🎉`);
+      refetch();
+    } else if (payment === 'cancelled') {
+      toast.error('Payment was cancelled');
+    }
+  }, [searchParams, refetch]);
+
+  const handleSubscribe = async (planName: string) => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    const targetPlan = planIdMap[planName];
+    if (!targetPlan || targetPlan === 'free') {
+      navigate('/');
+      return;
+    }
+
+    if (targetPlan === currentPlan) {
+      toast.info('You\'re already on this plan');
+      return;
+    }
+
+    setSubscribing(planName);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-subscription', {
+        body: { plan: targetPlan, billing_period: billing },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.invoice_url) {
+        window.open(data.invoice_url, '_blank');
+        toast.info('Payment page opened in a new tab');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to create subscription');
+    } finally {
+      setSubscribing(null);
+    }
+  };
 
   return (
     <div className="min-h-screen gradient-degen">
@@ -267,24 +331,34 @@ const Pricing = () => {
               ? `$${Math.round(parseInt(plan.price.replace('$', '')) * 0.8)}`
               : plan.price;
 
+            const isCurrent = planIdMap[plan.name] === currentPlan;
+            const isDowngrade = PLAN_ORDER.indexOf(planIdMap[plan.name]) < PLAN_ORDER.indexOf(currentPlan);
+
             return (
               <Card
                 key={plan.name}
                 className={cn(
                   'relative flex flex-col transition-all duration-300 hover:scale-[1.02]',
-                  plan.popular
+                  isCurrent
+                    ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.2)] ring-2 ring-primary'
+                    : plan.popular
                     ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.2)] ring-1 ring-primary'
                     : 'border-border hover:border-primary/40'
                 )}
               >
-                {plan.popular && (
+                {isCurrent && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-display">
+                    CURRENT PLAN
+                  </Badge>
+                )}
+                {!isCurrent && plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-display">
                     MOST POPULAR
                   </Badge>
                 )}
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon className={cn('w-5 h-5', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
+                    <Icon className={cn('w-5 h-5', plan.popular || isCurrent ? 'text-primary' : 'text-muted-foreground')} />
                     <CardTitle className="text-base font-bold">{plan.name}</CardTitle>
                   </div>
                   <CardDescription className="text-xs">{plan.description}</CardDescription>
@@ -308,10 +382,19 @@ const Pricing = () => {
                 <CardFooter>
                   <Button
                     className="w-full text-xs"
-                    variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => navigate(user ? '/' : '/auth')}
+                    variant={isCurrent ? 'secondary' : plan.popular ? 'default' : 'outline'}
+                    onClick={() => handleSubscribe(plan.name)}
+                    disabled={isCurrent || subscribing === plan.name}
                   >
-                    {plan.cta}
+                    {subscribing === plan.name ? (
+                      <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Processing...</>
+                    ) : isCurrent ? (
+                      'Current Plan'
+                    ) : isDowngrade ? (
+                      'Downgrade'
+                    ) : (
+                      plan.cta
+                    )}
                   </Button>
                 </CardFooter>
               </Card>

@@ -5,11 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Image, Sticker, Share2, Type, Loader2 } from 'lucide-react';
+import { ArrowLeft, Image, Sticker, Share2, Type, Lock } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
 import StickerPacks from '@/components/studio/StickerPacks';
 import LandingHeader from '@/components/landing/LandingHeader';
+import PlanGate from '@/components/PlanGate';
+import { usePlan } from '@/hooks/usePlan';
+import { Badge } from '@/components/ui/badge';
 
 interface SiteOption {
   id: string;
@@ -25,6 +28,7 @@ const ContentStudio = () => {
   const [selectedSiteId, setSelectedSiteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('meme');
   const [refreshKey, setRefreshKey] = useState(0);
+  const { plan, planId, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
     if (!user) {
@@ -50,11 +54,14 @@ const ContentStudio = () => {
   const tokenName = selectedSite?.name || 'My Token';
   const tokenTicker = selectedSite?.ticker || 'TOKEN';
 
+  const remaining = remainingDownloads();
+  const isFullStudio = plan.hasFullContentStudio;
+
   const tabs = [
-    { id: 'meme', label: 'Memes', icon: Image },
-    { id: 'sticker', label: 'Stickers', icon: Sticker },
-    { id: 'social_post', label: 'Social Posts', icon: Share2 },
-    { id: 'marketing_copy', label: 'Copy', icon: Type },
+    { id: 'meme', label: 'Memes', icon: Image, locked: false },
+    { id: 'sticker', label: 'Stickers', icon: Sticker, locked: !isFullStudio },
+    { id: 'social_post', label: 'Social Posts', icon: Share2, locked: !isFullStudio },
+    { id: 'marketing_copy', label: 'Copy', icon: Type, locked: !isFullStudio },
   ];
 
   return (
@@ -73,8 +80,16 @@ const ContentStudio = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex-1">
-            <h1 className="font-display text-xs text-primary tracking-wider">CONTENT STUDIO</h1>
-            <p className="text-xs text-muted-foreground mt-1">Create memes, stickers & marketing content for your token</p>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-xs text-primary tracking-wider">CONTENT STUDIO</h1>
+              <Badge variant="outline" className="text-[10px]">{plan.name}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Create memes, stickers & marketing content
+              {remaining !== null && (
+                <span className="ml-2 text-primary">• {remaining} downloads left this month</span>
+              )}
+            </p>
           </div>
         </div>
 
@@ -106,17 +121,25 @@ const ContentStudio = () => {
             </Button>
           </div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={(v) => {
+            const tab = tabs.find(t => t.id === v);
+            if (tab?.locked) {
+              toast.error('Upgrade to Creator plan to access this feature');
+              return;
+            }
+            setActiveTab(v);
+          }}>
             <TabsList className="bg-card border border-border mb-6 w-full justify-start overflow-x-auto">
               {tabs.map(t => (
-                <TabsTrigger key={t.id} value={t.id} className="gap-1.5 text-xs">
-                  <t.icon className="w-3.5 h-3.5" />
+                <TabsTrigger key={t.id} value={t.id} className="gap-1.5 text-xs" disabled={t.locked}>
+                  {t.locked ? <Lock className="w-3 h-3" /> : <t.icon className="w-3.5 h-3.5" />}
                   {t.label}
+                  {t.locked && <span className="text-[9px] text-muted-foreground ml-1">PRO</span>}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {tabs.map(t => (
+            {tabs.filter(t => !t.locked).map(t => (
               <TabsContent key={t.id} value={t.id}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-1 space-y-4">
@@ -125,10 +148,18 @@ const ContentStudio = () => {
                       tokenName={tokenName}
                       tokenTicker={tokenTicker}
                       siteId={selectedSiteId}
-                      onGenerated={() => setRefreshKey(k => k + 1)}
+                      onGenerated={() => {
+                        incrementDownloads();
+                        setRefreshKey(k => k + 1);
+                      }}
+                      canGenerate={canDownloadMeme()}
+                      remaining={remaining}
                     />
-                    {t.id === 'sticker' && (
+                    {t.id === 'sticker' && canAccessStickerPacks() && (
                       <StickerPacks refreshKey={refreshKey} />
+                    )}
+                    {t.id === 'sticker' && !canAccessStickerPacks() && (
+                      <PlanGate allowed={false} requiredPlan="Creator" message="Upgrade to Creator to build and download sticker packs." />
                     )}
                   </div>
                   <div className="lg:col-span-2">
