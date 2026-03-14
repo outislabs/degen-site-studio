@@ -107,11 +107,12 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   };
 
   const handlePumpImport = async () => {
-    const mint = extractMintFromLink(pumpLink);
-    if (!mint) {
-      toast.error('Please enter a valid pump.fun link or Solana mint address.');
+    const tokenInfo = extractTokenInfo(pumpLink);
+    if (!tokenInfo?.mint) {
+      toast.error('Please enter a valid token link or Solana mint address.');
       return;
     }
+    const mint = tokenInfo.mint;
     setPumpLoading(true);
     try {
       const { data: result, error } = await supabase.functions.invoke('fetch-pumpfun-token', {
