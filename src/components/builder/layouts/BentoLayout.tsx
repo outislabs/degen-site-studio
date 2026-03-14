@@ -55,7 +55,7 @@ const BentoLayout = ({ data, style, countdown }: Props) => (
             <div className="w-full">
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-2 font-medium">Contract</p>
               <code className="text-xs text-white/60 truncate block font-mono mb-2">{data.contractAddress}</code>
-              <button className={cn('p-2 rounded-lg transition-all hover:bg-white/5 border', style.border)}>
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('p-2 rounded-lg transition-all hover:bg-white/5 border', style.border)}>
                 <Copy className={cn('w-3.5 h-3.5', style.accent)} />
               </button>
             </div>

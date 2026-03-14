@@ -39,8 +39,8 @@ const SplitHeroLayout = ({ data, style, countdown }: Props) => (
         {/* Right - CTA */}
         <div className="flex flex-col items-center sm:items-end gap-4 sm:min-w-[200px]">
           <div className="flex flex-col gap-3 w-full">
-            <button className={cn('px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full', style.button, style.buttonText)}>🚀 Buy Now</button>
-            <button className={cn('px-8 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full', style.border, style.accent)}>📊 Chart</button>
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full inline-flex items-center justify-center', style.button, style.buttonText)}>🚀 Buy Now</a>
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full inline-flex items-center justify-center', style.border, style.accent)}>📊 Chart</a>
           </div>
           {data.showCountdown && data.launchDate && <CountdownBlock countdown={countdown} style={style} />}
         </div>

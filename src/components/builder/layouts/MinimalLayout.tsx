@@ -111,22 +111,22 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
     <div className="max-w-lg mx-auto px-8 py-16 text-center">
       <div className="flex justify-center gap-4">
         {data.socials.telegram && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <Send className="w-5 h-5" />
           </a>
         )}
         {data.socials.twitter && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 text-lg', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 text-lg', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             𝕏
           </a>
         )}
         {data.socials.discord && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <MessageCircle className="w-5 h-5" />
           </a>
         )}
         {data.socials.dex && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <ExternalLink className="w-5 h-5" />
           </a>
         )}
