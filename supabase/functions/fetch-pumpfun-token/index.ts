@@ -63,7 +63,7 @@ async function fetchFromDexScreener(chain: string, mint: string) {
     if (!res.ok) return null;
     const dexData = await res.json();
     const pair = Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0];
-    if (!pair) return null;
+    if (!pair || !pair.baseToken?.name) return null;
     const baseToken = pair.baseToken || {};
     const info = pair.info || {};
     const socials = info.socials || [];
