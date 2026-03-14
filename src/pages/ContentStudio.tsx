@@ -5,11 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Image, Sticker, Share2, Type, Lock } from 'lucide-react';
+import { Image, Sticker, Share2, Type, Lock } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
 import StickerPacks from '@/components/studio/StickerPacks';
-import LandingHeader from '@/components/landing/LandingHeader';
+import DashboardLayout from '@/components/DashboardLayout';
 import PlanGate from '@/components/PlanGate';
 import { usePlan } from '@/hooks/usePlan';
 import { Badge } from '@/components/ui/badge';
@@ -23,12 +23,12 @@ interface SiteOption {
 
 const ContentStudio = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [sites, setSites] = useState<SiteOption[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('meme');
   const [refreshKey, setRefreshKey] = useState(0);
-  const { plan, planId, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
+  const { plan, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
     if (!user) {
@@ -65,21 +65,11 @@ const ContentStudio = () => {
   ];
 
   return (
-    <div className="min-h-screen gradient-degen">
-      <LandingHeader
-        isLoggedIn={!!user}
-        email={user?.email}
-        onSignIn={() => navigate('/auth')}
-        onSignOut={signOut}
-      />
-
+    <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         {/* Top bar */}
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="shrink-0">
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
+        <div className="flex items-center justify-between mb-6">
+          <div>
             <div className="flex items-center gap-2">
               <h1 className="font-display text-xs text-primary tracking-wider">CONTENT STUDIO</h1>
               <Badge variant="outline" className="text-[10px]">{plan.name}</Badge>
@@ -87,7 +77,7 @@ const ContentStudio = () => {
             <p className="text-xs text-muted-foreground mt-1">
               Create memes, stickers & marketing content
               {remaining !== null && (
-                <span className="ml-2 text-primary">• {remaining} downloads left this month</span>
+                <span className="ml-2 text-primary">• {remaining} downloads left</span>
               )}
             </p>
           </div>
@@ -174,7 +164,7 @@ const ContentStudio = () => {
           </Tabs>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

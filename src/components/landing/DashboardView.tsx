@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Image, Crown } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
@@ -42,7 +42,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
           <div>
             <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
             <span className="text-xs text-muted-foreground ml-2">
-              {sites.length}/{siteLimit} sites used
+              {sites.length}/{siteLimit} sites
             </span>
           </div>
         </div>
@@ -81,17 +81,9 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
         ))}
       </div>
 
-      {/* Create New + Title */}
+      {/* Section Title */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-xs text-primary tracking-wider">YOUR SITES</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/studio')} className="border-border text-muted-foreground hover:text-foreground hover:border-primary/30">
-            <Image className="w-4 h-4 mr-1" /> Content Studio
-          </Button>
-          <Button onClick={onNewSite} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Plus className="w-4 h-4 mr-1" /> New Site
-          </Button>
-        </div>
       </div>
 
       {/* Sites Grid */}
