@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
-import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl } from './shared';
+import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl, cleanTicker } from './shared';
 import { Copy } from 'lucide-react';
 import DonutChart from '../DonutChart';
 
