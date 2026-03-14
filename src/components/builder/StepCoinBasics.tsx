@@ -1,5 +1,6 @@
 import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Upload, Loader2, Lock, ExternalLink, Zap } from 'lucide-react';
@@ -159,6 +160,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         name: result.name || data.name,
         ticker: result.symbol ? `$${result.symbol}` : data.ticker,
         tagline: result.description || data.tagline,
+        description: result.description || data.description,
         blockchain: blockchains.some(b => b.value === detectedChain) ? detectedChain : data.blockchain,
         contractAddress: result.mint || mint,
       };
@@ -218,6 +220,19 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       <div className="space-y-2">
         <Label>Tagline / Slogan</Label>
         <Input placeholder="To the moon and beyond 🚀" value={data.tagline} maxLength={200} onChange={e => onChange({ tagline: e.target.value })} />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Token Description</Label>
+        <Textarea
+          placeholder="Describe your token — what it does, why it exists, what makes it unique..."
+          value={data.description}
+          maxLength={1000}
+          onChange={e => onChange({ description: e.target.value })}
+          rows={4}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground">{data.description?.length || 0}/1000 characters</p>
       </div>
 
       <div className="space-y-2">
