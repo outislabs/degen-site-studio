@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut } from 'lucide-react';
-import logo from '@/assets/logo.png';
+
 
 interface Props {
   isLoggedIn: boolean;
@@ -16,7 +16,6 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
     <header className="border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-50 bg-background/80 backdrop-blur-md">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-          <img src={logo} alt="Degen Tools" className="h-7 w-7" />
           <h1 className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider">DEGEN TOOLS</h1>
         </div>
         <button onClick={() => navigate('/pricing')} className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
