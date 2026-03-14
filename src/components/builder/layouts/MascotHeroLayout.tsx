@@ -117,7 +117,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* How to Buy Steps */}
-      <div className="px-6 sm:px-10 py-12">
+      <div id="mascot-about" className="px-6 sm:px-10 py-12">
         <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
           How to Buy
         </h2>
