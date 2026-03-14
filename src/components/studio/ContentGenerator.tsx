@@ -79,7 +79,12 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
 
   return (
     <div className="gradient-card border border-border rounded-xl p-5">
-      <h3 className="font-semibold text-foreground text-sm mb-1">{titles[type]}</h3>
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="font-semibold text-foreground text-sm">{titles[type]}</h3>
+        {(type === 'dex_header' || type === 'x_header') && (
+          <span className="text-[9px] font-mono bg-muted text-muted-foreground px-1.5 py-0.5 rounded">1500×500</span>
+        )}
+      </div>
       <p className="text-xs text-muted-foreground mb-4">
         For <span className="text-primary">{tokenName}</span> (${tokenTicker})
       </p>
