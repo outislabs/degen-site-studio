@@ -1,5 +1,5 @@
 import logo from '@/assets/logo.png';
-import { Send, MessageCircle } from 'lucide-react';
+import { Send, Mail } from 'lucide-react';
 
 const footerLinks = [
   {
