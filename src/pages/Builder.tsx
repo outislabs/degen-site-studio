@@ -16,11 +16,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const steps = [
-  { label: 'Basics', icon: '🪙' },
-  { label: 'Tokenomics', icon: '📊' },
-  { label: 'Socials', icon: '🔗' },
-  { label: 'Roadmap', icon: '🗺️' },
-  { label: 'Theme', icon: '🎨' },
+  { label: 'Basics', icon: Coins },
+  { label: 'Tokenomics', icon: PieChart },
+  { label: 'Socials', icon: Share2 },
+  { label: 'Roadmap', icon: Map },
+  { label: 'Theme', icon: Palette },
 ];
 
 const Builder = () => {
