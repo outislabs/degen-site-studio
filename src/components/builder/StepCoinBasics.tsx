@@ -247,12 +247,15 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
           Custom Domain
-          {!domainPaid && (
+          {!canUseCustomDomain() ? (
+            <span className="inline-flex items-center gap-1 text-xs font-normal bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+              <Lock className="w-3 h-3" /> Degen+ Plan
+            </span>
+          ) : !domainPaid ? (
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
               <Lock className="w-3 h-3" /> $10 Add-on
             </span>
-          )}
-          {domainPaid && (
+          ) : (
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
               ✓ Unlocked
             </span>
