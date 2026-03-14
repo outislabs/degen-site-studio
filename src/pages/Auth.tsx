@@ -74,12 +74,12 @@ const Auth = () => {
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
         <header className="px-6 py-5">
-          <h1
-            className="font-display text-xs text-primary text-glow tracking-wider cursor-pointer"
+          <img
+            src={logo}
+            alt="Degen Tools"
+            className="h-8 sm:h-10 w-auto cursor-pointer"
             onClick={() => navigate('/')}
-          >
-            DEGEN TOOLS
-          </h1>
+          />
         </header>
 
         {/* Main content — centered */}
