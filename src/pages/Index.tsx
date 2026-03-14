@@ -11,6 +11,7 @@ import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import HowItWorks from '@/components/landing/HowItWorks';
 import CTASection from '@/components/landing/CTASection';
 import DashboardView from '@/components/landing/DashboardView';
+import DashboardLayout from '@/components/DashboardLayout';
 import { usePlan } from '@/hooks/usePlan';
 
 interface SavedSite {
@@ -63,27 +64,28 @@ const Index = () => {
     navigate('/builder');
   };
 
+  // Logged-in: Dashboard layout with nav
+  if (user) {
+    return (
+      <DashboardLayout onNewSite={handleNewSite}>
+        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} planId={planId} plan={plan} />
+      </DashboardLayout>
+    );
+  }
+
+  // Logged-out: Landing page
   return (
     <div className="min-h-screen gradient-degen">
       <LandingHeader
-        isLoggedIn={!!user}
-        email={user?.email}
+        isLoggedIn={false}
         onSignIn={() => navigate('/auth')}
         onSignOut={signOut}
       />
-
-      {user ? (
-        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} planId={planId} plan={plan} />
-      ) : (
-        <>
-          <HeroSection onGetStarted={handleNewSite} />
-          <FeaturesGrid />
-          <HowItWorks />
-          <ThemeShowcase />
-          <CTASection onGetStarted={handleNewSite} />
-        </>
-      )}
-
+      <HeroSection onGetStarted={handleNewSite} />
+      <FeaturesGrid />
+      <HowItWorks />
+      <ThemeShowcase />
+      <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>
   );
