@@ -225,7 +225,7 @@ const CommunityShowcase = () => {
                               className="font-display text-sm sm:text-base tracking-tight font-bold"
                               style={{ color: theme.accentHex }}
                             >
-                              {site.ticker ? `$${site.ticker}` : site.name}
+                              {site.ticker ? (site.ticker.startsWith('$') ? site.ticker : `$${site.ticker}`) : site.name}
                             </h3>
                             {site.data?.tagline && (
                               <p className="text-[10px] text-white/40 mt-1 text-center line-clamp-1 max-w-[200px]">
