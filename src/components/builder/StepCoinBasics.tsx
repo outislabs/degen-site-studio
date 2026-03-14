@@ -206,6 +206,54 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         </div>
       </div>
 
+      {/* GoPlus Security Results */}
+      {securityData && (
+        <div className="rounded-lg border border-border overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowSecurity(!showSecurity)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              {securityData.is_honeypot ? (
+                <ShieldAlert className="w-4 h-4 text-destructive" />
+              ) : (
+                <Shield className="w-4 h-4 text-primary" />
+              )}
+              <span className="text-sm font-medium">
+                Security Scan {securityData.is_honeypot ? '— Risk Detected' : '— Passed'}
+              </span>
+            </div>
+            {showSecurity ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          </button>
+          {showSecurity && (
+            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <SecurityBadge label="Honeypot" value={!securityData.is_honeypot} />
+              <SecurityBadge label="Open Source" value={securityData.is_open_source} />
+              <SecurityBadge label="Not Proxy" value={!securityData.is_proxy} />
+              <SecurityBadge label="Not Mintable" value={!securityData.is_mintable} />
+              <SecurityBadge label="No Blacklist" value={!securityData.is_blacklisted} />
+              <SecurityBadge label="Ownership Safe" value={!securityData.can_take_back_ownership} />
+              {(securityData.buy_tax && securityData.buy_tax !== '0') && (
+                <div className="text-xs text-muted-foreground">
+                  Buy Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.buy_tax) * 100).toFixed(1)}%</span>
+                </div>
+              )}
+              {(securityData.sell_tax && securityData.sell_tax !== '0') && (
+                <div className="text-xs text-muted-foreground">
+                  Sell Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.sell_tax) * 100).toFixed(1)}%</span>
+                </div>
+              )}
+              {securityData.holder_count > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Holders: <span className="font-mono text-foreground">{securityData.holder_count.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
