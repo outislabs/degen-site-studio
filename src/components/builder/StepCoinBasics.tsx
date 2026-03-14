@@ -47,6 +47,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [securityData, setSecurityData] = useState<any>(null);
   const [rugCheckData, setRugCheckData] = useState<any>(null);
   const [showSecurity, setShowSecurity] = useState(false);
+  const [securityLoading, setSecurityLoading] = useState(false);
   const { user } = useAuth();
 
   const domainPaid = domainPaymentStatus === 'paid';
