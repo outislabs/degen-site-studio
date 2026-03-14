@@ -37,11 +37,11 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
         </div>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-2">
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
+            <span onClick={() => scrollTo('cartoon-about')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
             <span className="text-white/20">•</span>
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
+            <span onClick={() => scrollTo('cartoon-tokenomics')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
             <span className="text-white/20">•</span>
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
+            <span onClick={() => scrollTo('cartoon-roadmap')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
           </div>
           <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `2px solid ${style.accentHex}30` }}>
