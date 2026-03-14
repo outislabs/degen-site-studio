@@ -48,7 +48,7 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
 
         {data.ticker && (
           <div className={cn('text-sm tracking-[0.4em] uppercase font-medium mb-6 relative z-10', style.accent)} style={{ opacity: 0.6 }}>
-            ${data.ticker}
+            ${cleanTicker(data.ticker)}
           </div>
         )}
 
