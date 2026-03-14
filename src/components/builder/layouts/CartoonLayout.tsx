@@ -142,7 +142,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* Tokenomics - Fun card */}
-      <div className="px-6 sm:px-10 py-10">
+      <div id="cartoon-tokenomics" className="px-6 sm:px-10 py-10">
         <h2 className={cn('font-display text-xl md:text-2xl text-center mb-8', style.accent)}
           style={{ textShadow: `2px 2px 0px ${style.accentHex}20` }}>
           Tokenomics 📊
