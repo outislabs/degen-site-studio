@@ -165,10 +165,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
-      const securityNote = result.security
-        ? result.security.is_honeypot ? ' ⚠️ Honeypot detected!' : ' ✅ Security checked'
-        : '';
-      toast.success(`Imported "${result.name}" from ${tokenInfo.source}!${securityNote} 🎉`);
+      toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
