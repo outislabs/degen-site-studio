@@ -45,7 +45,7 @@ const Builder = () => {
       setPublishedId(id);
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
-          const coinData = site.data as unknown as CoinData;
+          const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
           coinData.customDomain = (site as any).custom_domain || '';
           setData(coinData);
           setSlug((site as any).slug || '');
