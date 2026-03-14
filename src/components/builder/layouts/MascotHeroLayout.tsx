@@ -140,7 +140,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* Tokenomics Section */}
-      <div className="px-6 sm:px-10 py-12 relative">
+      <div id="mascot-tokenomics" className="px-6 sm:px-10 py-12 relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[200px] h-[200px] rounded-full blur-[120px] opacity-[0.04] pointer-events-none" style={{ backgroundColor: style.accentHex2 }} />
         <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
           Tokenomics
