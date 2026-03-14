@@ -47,6 +47,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [securityData, setSecurityData] = useState<any>(null);
   const [rugCheckData, setRugCheckData] = useState<any>(null);
   const [showSecurity, setShowSecurity] = useState(false);
+  const [securityLoading, setSecurityLoading] = useState(false);
   const { user } = useAuth();
 
   const domainPaid = domainPaymentStatus === 'paid';
@@ -257,6 +258,30 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
+  const handleSecurityScan = async () => {
+    const address = data.contractAddress?.trim();
+    if (!address) return;
+    setSecurityLoading(true);
+    try {
+      const chain = data.blockchain || 'solana';
+      const [security, rugcheck] = await Promise.all([
+        fetchGoPlus(chain, address),
+        chain === 'solana' ? fetchRugCheck(address) : Promise.resolve(null),
+      ]);
+      setSecurityData(security || null);
+      setRugCheckData(rugcheck || null);
+      if (security || rugcheck) {
+        setShowSecurity(true);
+      } else {
+        toast.error('Could not retrieve security data for this token.');
+      }
+    } catch {
+      toast.error('Security scan failed.');
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-5 animate-fade-in">
       {/* PumpFun Import */}
@@ -280,6 +305,20 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           </Button>
         </div>
       </div>
+
+      {/* Security Scan Button — always visible when contract address exists */}
+      {data.contractAddress?.trim() && !securityData && !rugCheckData && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSecurityScan}
+          disabled={securityLoading}
+          className="w-full gap-2"
+        >
+          {securityLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
+          {securityLoading ? 'Scanning...' : 'Run Security Scan (GoPlus & RugCheck)'}
+        </Button>
+      )}
 
       {/* Security Results */}
       {(securityData || rugCheckData) && (
