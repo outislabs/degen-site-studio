@@ -29,22 +29,22 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   };
 
   return (
-    <header className="border-b border-border/50 px-6 py-4 sticky top-0 z-50 bg-background/70 backdrop-blur-xl">
+    <header className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 sm:gap-8">
           <h1
-            className="font-display text-xs sm:text-sm text-primary text-glow tracking-wider cursor-pointer"
+            className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider cursor-pointer"
             onClick={() => navigate('/')}
           >
             DEGEN TOOLS
           </h1>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => scrollTo(link.href)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2 rounded-lg hover:bg-primary/5"
+                className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-2.5 sm:px-3 py-2 rounded-lg hover:bg-primary/5"
               >
                 {link.label}
               </button>
@@ -52,23 +52,23 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {isLoggedIn ? (
             <>
-              <span className="text-xs text-muted-foreground hidden sm:block">{email}</span>
-              <Button size="sm" variant="ghost" onClick={onSignOut} className="text-muted-foreground hover:text-foreground">
+              <span className="text-xs text-muted-foreground hidden sm:block truncate max-w-[120px]">{email}</span>
+              <Button size="sm" variant="ghost" onClick={onSignOut} className="text-muted-foreground hover:text-foreground h-8 w-8 p-0">
                 <LogOut className="w-4 h-4" />
               </Button>
             </>
           ) : (
-            <Button size="sm" onClick={onSignIn} className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-xs rounded-lg">
-              <LogIn className="w-4 h-4 mr-1.5" /> Sign In
+            <Button size="sm" onClick={onSignIn} className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-[10px] sm:text-xs rounded-lg h-8 sm:h-9 px-3 sm:px-4">
+              <LogIn className="w-3.5 h-3.5 mr-1.5" /> Sign In
             </Button>
           )}
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-muted-foreground hover:text-foreground ml-1"
+            className="md:hidden text-muted-foreground hover:text-foreground p-1"
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -76,7 +76,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden mt-4 pt-4 border-t border-border/50 flex flex-col gap-1">
+        <nav className="md:hidden mt-3 pt-3 border-t border-border/50 flex flex-col gap-0.5 pb-2">
           {navLinks.map((link) => (
             <button
               key={link.href}
