@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { Loader2, Sparkles, Wand2, AlertTriangle } from 'lucide-react';
 
 interface Props {
   type: string;
@@ -11,6 +11,8 @@ interface Props {
   tokenTicker: string;
   siteId: string;
   onGenerated: () => void;
+  canGenerate?: boolean;
+  remaining?: number | null;
 }
 
 const placeholders: Record<string, string> = {
@@ -34,7 +36,7 @@ const quickPrompts: Record<string, string[]> = {
   marketing_copy: ['Shill tweets (5x)', 'Telegram welcome message', 'Token description', 'FOMO announcement'],
 };
 
-const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated }: Props) => {
+const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining }: Props) => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +44,11 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated }:
     const finalPrompt = customPrompt || prompt;
     if (!finalPrompt.trim()) {
       toast.error('Enter a prompt first');
+      return;
+    }
+
+    if (!canGenerate) {
+      toast.error('You\'ve reached your download limit for this month. Upgrade your plan for more.');
       return;
     }
 
@@ -71,17 +78,30 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated }:
         For <span className="text-primary">{tokenName}</span> (${tokenTicker})
       </p>
 
+      {!canGenerate && (
+        <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2 mb-3">
+          <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+          <p className="text-xs text-destructive">Monthly download limit reached. Upgrade for more.</p>
+        </div>
+      )}
+
+      {remaining !== null && remaining !== undefined && canGenerate && (
+        <div className="text-[10px] text-muted-foreground mb-2">
+          {remaining} download{remaining !== 1 ? 's' : ''} remaining this month
+        </div>
+      )}
+
       <Textarea
         value={prompt}
         onChange={e => setPrompt(e.target.value)}
         placeholder={placeholders[type]}
         className="bg-background border-border text-sm min-h-[100px] mb-3 resize-none"
-        disabled={loading}
+        disabled={loading || !canGenerate}
       />
 
       <Button
         onClick={() => generate()}
-        disabled={loading || !prompt.trim()}
+        disabled={loading || !prompt.trim() || !canGenerate}
         className="w-full bg-primary text-primary-foreground hover:bg-primary/90 mb-4"
       >
         {loading ? (
@@ -98,7 +118,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated }:
             <button
               key={i}
               onClick={() => { setPrompt(qp); generate(qp); }}
-              disabled={loading}
+              disabled={loading || !canGenerate}
               className="text-[10px] px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-50"
             >
               <Wand2 className="w-2.5 h-2.5 inline mr-1" />
