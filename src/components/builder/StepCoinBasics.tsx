@@ -45,6 +45,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [pumpLink, setPumpLink] = useState('');
   const [pumpLoading, setPumpLoading] = useState(false);
   const [securityData, setSecurityData] = useState<any>(null);
+  const [rugCheckData, setRugCheckData] = useState<any>(null);
   const [showSecurity, setShowSecurity] = useState(false);
   const { user } = useAuth();
 
@@ -178,6 +179,31 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
+  const fetchRugCheck = async (address: string) => {
+    try {
+      const res = await fetch(`https://api.rugcheck.xyz/v1/tokens/${address}/report`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (!json) return null;
+      const risks = json.risks || [];
+      const topHolders = json.topHolders || [];
+      const totalPct = topHolders.slice(0, 10).reduce((s: number, h: any) => s + (h.pct || 0), 0);
+      return {
+        score: json.score ?? null,
+        risks,
+        riskLevel: risks.length === 0 ? 'Good' : risks.some((r: any) => r.level === 'danger') ? 'Danger' : 'Warning',
+        topHolderConcentration: totalPct,
+        mintAuthority: json.mintAuthority || null,
+        freezeAuthority: json.freezeAuthority || null,
+        isInitialized: json.isInitialized ?? true,
+        supply: json.tokenMeta?.supply || 0,
+        rugcheckUrl: `https://rugcheck.xyz/tokens/${address}`,
+      };
+    } catch {
+      return null;
+    }
+  };
+
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
     if (!tokenInfo?.mint) {
@@ -210,14 +236,20 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
 
-      // Fetch GoPlus security data from the browser (bypasses Deno TLS issue)
-      const security = await fetchGoPlus(detectedChain, result.mint || mint);
+      // Fetch security data from the browser
+      const tokenAddress = result.mint || mint;
+      const [security, rugcheck] = await Promise.all([
+        fetchGoPlus(detectedChain, tokenAddress),
+        detectedChain === 'solana' ? fetchRugCheck(tokenAddress) : Promise.resolve(null),
+      ]);
       if (security) {
         setSecurityData(security);
         setShowSecurity(true);
       } else {
         setSecurityData(null);
       }
+      setRugCheckData(rugcheck || null);
+      if (rugcheck && !security) setShowSecurity(true);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch token data');
     } finally {
@@ -233,7 +265,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           <Zap className="w-4 h-4" /> Quick Import Token
         </Label>
         <p className="text-xs text-muted-foreground">
-          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, Etherscan, BSCScan, BaseScan, or a raw contract address. Security is auto-checked via GoPlus.
+          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, Etherscan, BSCScan, BaseScan, or a raw contract address. Security is auto-checked via GoPlus & RugCheck.
         </p>
         <div className="flex gap-2">
           <Input
@@ -249,8 +281,8 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         </div>
       </div>
 
-      {/* GoPlus Security Results */}
-      {securityData && (
+      {/* Security Results */}
+      {(securityData || rugCheckData) && (
         <div className="rounded-lg border border-border overflow-hidden">
           <button
             type="button"
@@ -258,38 +290,97 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
             className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors"
           >
             <div className="flex items-center gap-2">
-              {securityData.is_honeypot ? (
+              {(securityData?.is_honeypot || rugCheckData?.riskLevel === 'Danger') ? (
                 <ShieldAlert className="w-4 h-4 text-destructive" />
               ) : (
                 <Shield className="w-4 h-4 text-primary" />
               )}
               <span className="text-sm font-medium">
-                Security Scan {securityData.is_honeypot ? '— Risk Detected' : '— Passed'}
+                Security Scan {(securityData?.is_honeypot || rugCheckData?.riskLevel === 'Danger') ? '— Risk Detected' : '— Passed'}
               </span>
+              <div className="flex gap-1">
+                {securityData && <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">GoPlus</span>}
+                {rugCheckData && <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">RugCheck</span>}
+              </div>
             </div>
             {showSecurity ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
           </button>
           {showSecurity && (
-            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <SecurityBadge label="Honeypot" value={!securityData.is_honeypot} />
-              <SecurityBadge label="Open Source" value={securityData.is_open_source} />
-              <SecurityBadge label="Not Proxy" value={!securityData.is_proxy} />
-              <SecurityBadge label="Not Mintable" value={!securityData.is_mintable} />
-              <SecurityBadge label="No Blacklist" value={!securityData.is_blacklisted} />
-              <SecurityBadge label="Ownership Safe" value={!securityData.can_take_back_ownership} />
-              {(securityData.buy_tax && securityData.buy_tax !== '0') && (
-                <div className="text-xs text-muted-foreground">
-                  Buy Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.buy_tax) * 100).toFixed(1)}%</span>
+            <div className="p-4 space-y-4">
+              {/* GoPlus Results */}
+              {securityData && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-semibold">GoPlus Security</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <SecurityBadge label="Honeypot" value={!securityData.is_honeypot} />
+                    <SecurityBadge label="Open Source" value={securityData.is_open_source} />
+                    <SecurityBadge label="Not Proxy" value={!securityData.is_proxy} />
+                    <SecurityBadge label="Not Mintable" value={!securityData.is_mintable} />
+                    <SecurityBadge label="No Blacklist" value={!securityData.is_blacklisted} />
+                    <SecurityBadge label="Ownership Safe" value={!securityData.can_take_back_ownership} />
+                    {(securityData.buy_tax && securityData.buy_tax !== '0') && (
+                      <div className="text-xs text-muted-foreground">
+                        Buy Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.buy_tax) * 100).toFixed(1)}%</span>
+                      </div>
+                    )}
+                    {(securityData.sell_tax && securityData.sell_tax !== '0') && (
+                      <div className="text-xs text-muted-foreground">
+                        Sell Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.sell_tax) * 100).toFixed(1)}%</span>
+                      </div>
+                    )}
+                    {securityData.holder_count > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        Holders: <span className="font-mono text-foreground">{securityData.holder_count.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-              {(securityData.sell_tax && securityData.sell_tax !== '0') && (
-                <div className="text-xs text-muted-foreground">
-                  Sell Tax: <span className="font-mono text-foreground">{(parseFloat(securityData.sell_tax) * 100).toFixed(1)}%</span>
-                </div>
-              )}
-              {securityData.holder_count > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Holders: <span className="font-mono text-foreground">{securityData.holder_count.toLocaleString()}</span>
+
+              {/* RugCheck Results */}
+              {rugCheckData && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">RugCheck (Solana)</p>
+                    <a
+                      href={rugCheckData.rugcheckUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-primary hover:underline"
+                    >
+                      View on RugCheck ↗
+                    </a>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <div className={`w-2 h-2 rounded-full ${
+                        rugCheckData.riskLevel === 'Good' ? 'bg-primary' : rugCheckData.riskLevel === 'Danger' ? 'bg-destructive' : 'bg-yellow-500'
+                      }`} />
+                      <span className="text-foreground">{rugCheckData.riskLevel}</span>
+                    </div>
+                    {rugCheckData.score !== null && (
+                      <div className="text-xs text-muted-foreground">
+                        Score: <span className="font-mono text-foreground">{rugCheckData.score}</span>
+                      </div>
+                    )}
+                    <SecurityBadge label="No Mint Authority" value={!rugCheckData.mintAuthority} />
+                    <SecurityBadge label="No Freeze Authority" value={!rugCheckData.freezeAuthority} />
+                    {rugCheckData.topHolderConcentration > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        Top 10 Holders: <span className="font-mono text-foreground">{rugCheckData.topHolderConcentration.toFixed(1)}%</span>
+                      </div>
+                    )}
+                  </div>
+                  {rugCheckData.risks.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {rugCheckData.risks.slice(0, 5).map((risk: any, i: number) => (
+                        <div key={i} className="flex items-center gap-1.5 text-xs">
+                          <div className={`w-1.5 h-1.5 rounded-full ${risk.level === 'danger' ? 'bg-destructive' : 'bg-yellow-500'}`} />
+                          <span className="text-muted-foreground">{risk.name || risk.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
