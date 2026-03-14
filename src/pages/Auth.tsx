@@ -51,7 +51,7 @@ const Auth = () => {
       >
         <div className="text-center mb-8">
           <div className="text-4xl mb-4">🚀</div>
-          <h1 className="font-display text-sm text-primary text-glow mb-2">MEMELAUNCH</h1>
+          <h1 className="font-display text-sm text-primary text-glow mb-2">DEGEN TOOLS</h1>
           <p className="text-sm text-muted-foreground">
             {isSignUp ? 'Create your degen account' : 'Welcome back, degen'}
           </p>

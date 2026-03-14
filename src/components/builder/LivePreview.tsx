@@ -185,7 +185,7 @@ const LivePreview = ({ data }: Props) => {
 
       {/* Footer */}
       <div className="px-8 py-4 text-center">
-        <p className="text-[10px] text-white/20">Built with MemeLaunch • Not financial advice • DYOR 🐸</p>
+        <p className="text-[10px] text-white/20">Built with Degen Tools • Not financial advice • DYOR 🐸</p>
       </div>
     </div>
   );
