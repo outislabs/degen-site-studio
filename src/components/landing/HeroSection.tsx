@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Zap, ArrowRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Zap, ArrowRight, Link2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import pumpfunLogo from '@/assets/integrations/pumpfun.png';
@@ -24,9 +26,22 @@ const integrations = [
 
 interface Props {
   onGetStarted: () => void;
+  onImportUrl?: (url: string) => void;
 }
 
-const HeroSection = ({ onGetStarted }: Props) => {
+const HeroSection = ({ onGetStarted, onImportUrl }: Props) => {
+  const [tokenUrl, setTokenUrl] = useState('');
+
+  const handleImport = () => {
+    const trimmed = tokenUrl.trim();
+    if (!trimmed) return;
+    onImportUrl?.(trimmed);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleImport();
+  };
+
   return (
     <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-20 sm:pb-28 overflow-hidden">
       {/* Background effects */}
@@ -67,6 +82,39 @@ const HeroSection = ({ onGetStarted }: Props) => {
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8 sm:mb-12 px-2">
             Build stunning landing pages, import token data from any chain, and ship your degen project before the next candle closes.
           </p>
+
+          {/* Token URL Input */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-lg mx-auto mb-8 sm:mb-10 px-2"
+          >
+            <div className="flex items-center gap-2 p-1.5 rounded-xl border border-border bg-card/60 backdrop-blur-sm shadow-lg">
+              <div className="flex items-center gap-2 flex-1 pl-3">
+                <Link2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                <Input
+                  value={tokenUrl}
+                  onChange={(e) => setTokenUrl(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Paste pump.fun or dexscreener link…"
+                  className="border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-muted-foreground/50 h-9 px-0"
+                />
+              </div>
+              <Button
+                size="sm"
+                onClick={handleImport}
+                disabled={!tokenUrl.trim()}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[10px] px-5 py-5 rounded-lg shrink-0"
+              >
+                <Zap className="w-3.5 h-3.5 mr-1.5" />
+                BUILD
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground/40 mt-2">
+              e.g. pump.fun/coin/... or dexscreener.com/solana/...
+            </p>
+          </motion.div>
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">

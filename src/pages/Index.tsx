@@ -75,6 +75,16 @@ const Index = () => {
     );
   }
 
+  const handleImportUrl = (url: string) => {
+    if (!user) {
+      // Store the URL so we can use it after login
+      sessionStorage.setItem('pending_import_url', url);
+      navigate('/auth');
+      return;
+    }
+    navigate(`/builder?import=${encodeURIComponent(url)}`);
+  };
+
   return (
     <div className="min-h-screen gradient-degen overflow-x-hidden">
       <LandingHeader
@@ -82,7 +92,7 @@ const Index = () => {
         onSignIn={() => navigate('/auth')}
         onSignOut={signOut}
       />
-      <HeroSection onGetStarted={handleNewSite} />
+      <HeroSection onGetStarted={handleNewSite} onImportUrl={handleImportUrl} />
       <FeaturesGrid />
       <HowItWorks />
       <ContentStudioShowcase />
