@@ -8,9 +8,10 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
-const SplitHeroLayout = ({ data, style, countdown }: Props) => (
+const SplitHeroLayout = ({ data, style, countdown, showWatermark }: Props) => (
   <>
     <div className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none" style={{ backgroundColor: style.accentHex }} />
     <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full blur-[160px] opacity-[0.04] pointer-events-none" style={{ backgroundColor: style.accentHex2 }} />
