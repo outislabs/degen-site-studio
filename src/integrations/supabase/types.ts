@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      generated_content: {
+        Row: {
+          content_text: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          metadata: Json
+          prompt: string
+          site_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          metadata?: Json
+          prompt?: string
+          site_id?: string | null
+          title?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          metadata?: Json
+          prompt?: string
+          site_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_content_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sites: {
         Row: {
           created_at: string

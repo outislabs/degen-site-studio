@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import Builder from "./pages/Builder.tsx";
 import Auth from "./pages/Auth.tsx";
 import SiteView from "./pages/SiteView.tsx";
+import ContentStudio from "./pages/ContentStudio.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/builder" element={<Builder />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/site/:id" element={<SiteView />} />
+            <Route path="/studio" element={<ContentStudio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
