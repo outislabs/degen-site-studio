@@ -10,6 +10,7 @@ import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
