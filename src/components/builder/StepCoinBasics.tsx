@@ -29,6 +29,13 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
+const SecurityBadge = ({ label, value }: { label: string; value: boolean }) => (
+  <div className="flex items-center gap-1.5 text-xs">
+    <div className={`w-2 h-2 rounded-full ${value ? 'bg-primary' : 'bg-destructive'}`} />
+    <span className={value ? 'text-foreground' : 'text-destructive'}>{label}</span>
+  </div>
+);
+
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
   const { canUseCustomDomain } = usePlan();
   const navigate = useNavigate();
