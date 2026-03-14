@@ -90,24 +90,6 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </div>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex justify-center gap-8 sm:gap-14 mt-14 sm:mt-20"
-        >
-          {[
-            { value: '6', label: 'Themes' },
-            { value: '10+', label: 'Chains' },
-            { value: '< 5min', label: 'To Launch' },
-          ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-widest mt-1.5">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
 
         {/* Integrations */}
         <motion.div
