@@ -1,0 +1,2 @@
+ALTER TABLE public.generated_content DROP CONSTRAINT generated_content_type_check;
+ALTER TABLE public.generated_content ADD CONSTRAINT generated_content_type_check CHECK (type IN ('meme', 'sticker', 'social_post', 'marketing_copy', 'dex_header', 'x_header'));
