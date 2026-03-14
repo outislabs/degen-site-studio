@@ -12,6 +12,7 @@ import HowItWorks from '@/components/landing/HowItWorks';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
+import CommunityShowcase from '@/components/landing/CommunityShowcase';
 import DashboardView from '@/components/landing/DashboardView';
 import DashboardLayout from '@/components/DashboardLayout';
 import { usePlan } from '@/hooks/usePlan';
