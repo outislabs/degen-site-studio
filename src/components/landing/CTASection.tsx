@@ -33,7 +33,7 @@ const CTASection = ({ onGetStarted }: Props) => {
               onClick={onGetStarted}
               className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[9px] sm:text-[10px] md:text-[11px] px-8 sm:px-12 py-6 sm:py-7 box-glow rounded-xl group"
             >
-              <Rocket className="w-4 h-4 mr-2" /> CREATE YOUR SITE
+              <Bot className="w-4 h-4 mr-2" /> CREATE YOUR SITE
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
