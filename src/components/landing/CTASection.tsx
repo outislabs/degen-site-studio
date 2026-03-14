@@ -21,7 +21,7 @@ const CTASection = ({ onGetStarted }: Props) => {
           </div>
 
           <div className="relative z-10">
-            <div className="text-4xl sm:text-5xl mb-5 sm:mb-6">🚀</div>
+            <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary mb-5 sm:mb-6" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
               Ready to <span className="text-primary text-glow">launch</span>?
             </h2>
