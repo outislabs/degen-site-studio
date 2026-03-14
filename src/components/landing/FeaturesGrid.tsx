@@ -18,8 +18,8 @@ const features = [
   },
   {
     icon: Palette,
-    title: '6 Degen Themes',
-    desc: 'From Degen Dark to Arctic Whale. Each theme is crafted for maximum visual impact.',
+    title: '19 Degen Themes',
+    desc: 'From Degen Dark to Midnight Chrome. Each theme is crafted for maximum visual impact.',
     gradient: 'from-neon-purple/20 to-neon-purple/5',
     iconColor: 'text-neon-purple',
   },
