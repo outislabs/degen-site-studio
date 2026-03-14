@@ -179,6 +179,31 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
+  const fetchRugCheck = async (address: string) => {
+    try {
+      const res = await fetch(`https://api.rugcheck.xyz/v1/tokens/${address}/report`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (!json) return null;
+      const risks = json.risks || [];
+      const topHolders = json.topHolders || [];
+      const totalPct = topHolders.slice(0, 10).reduce((s: number, h: any) => s + (h.pct || 0), 0);
+      return {
+        score: json.score ?? null,
+        risks,
+        riskLevel: risks.length === 0 ? 'Good' : risks.some((r: any) => r.level === 'danger') ? 'Danger' : 'Warning',
+        topHolderConcentration: totalPct,
+        mintAuthority: json.mintAuthority || null,
+        freezeAuthority: json.freezeAuthority || null,
+        isInitialized: json.isInitialized ?? true,
+        supply: json.tokenMeta?.supply || 0,
+        rugcheckUrl: `https://rugcheck.xyz/tokens/${address}`,
+      };
+    } catch {
+      return null;
+    }
+  };
+
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
     if (!tokenInfo?.mint) {
