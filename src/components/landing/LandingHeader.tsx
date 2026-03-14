@@ -36,7 +36,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           <img
             src={logo}
             alt="Degen Tools"
-            className="h-6 sm:h-7 w-auto cursor-pointer"
+            className="h-8 sm:h-10 w-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
           
