@@ -75,7 +75,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-degen">
+    <div className="min-h-screen gradient-degen overflow-x-hidden">
       <LandingHeader
         isLoggedIn={false}
         onSignIn={() => navigate('/auth')}
