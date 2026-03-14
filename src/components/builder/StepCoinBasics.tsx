@@ -160,6 +160,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         name: result.name || data.name,
         ticker: result.symbol ? `$${result.symbol}` : data.ticker,
         tagline: result.description || data.tagline,
+        description: result.description || data.description,
         blockchain: blockchains.some(b => b.value === detectedChain) ? detectedChain : data.blockchain,
         contractAddress: result.mint || mint,
       };
