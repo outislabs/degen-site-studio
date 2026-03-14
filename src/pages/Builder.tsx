@@ -128,7 +128,7 @@ const Builder = () => {
     <div className="min-h-screen gradient-degen">
       <header className="border-b border-border px-6 py-3 flex items-center justify-between">
         <button onClick={() => navigate('/')} className="font-display text-sm text-primary text-glow hover:opacity-80 transition-opacity">
-          MEMELAUNCH
+          DEGEN TOOLS
         </button>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setShowPreview(!showPreview)}>

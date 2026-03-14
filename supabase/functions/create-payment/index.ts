@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
         price_amount: 10,
         price_currency: "usd",
         order_id: site_id,
-        order_description: "Custom Domain Add-on for MemeLaunch",
+        order_description: "Custom Domain Add-on for Degen Tools",
         success_url: `${req.headers.get("origin") || ""}/builder?id=${site_id}&payment=success`,
         cancel_url: `${req.headers.get("origin") || ""}/builder?id=${site_id}&payment=cancelled`,
       }),
