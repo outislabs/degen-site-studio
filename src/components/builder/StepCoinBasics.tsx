@@ -155,7 +155,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         </p>
         <div className="flex gap-2">
           <Input
-            placeholder="https://pump.fun/coin/... or mint address"
+            placeholder="https://pump.fun/coin/... or dexscreener.com/... or mint address"
             value={pumpLink}
             onChange={e => setPumpLink(e.target.value)}
             className="flex-1"
