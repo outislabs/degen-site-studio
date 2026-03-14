@@ -40,7 +40,7 @@ export interface CoinData {
   customDomain?: string;
 }
 
-export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix';
+export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance';
 
 export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal';
 
