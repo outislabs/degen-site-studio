@@ -170,7 +170,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               {/* Mobile-only nav items */}
               <div className="lg:hidden">
-                {navItems.map((item) => (
+                {allNavItems.map((item) => (
                   <DropdownMenuItem
                     key={item.path}
                     onClick={() => navigate(item.path)}
