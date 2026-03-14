@@ -1,8 +1,8 @@
-import { CoinData } from '@/types/coin';
+import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -14,9 +14,40 @@ interface Props {
   onChange: (data: Partial<CoinData>) => void;
 }
 
+const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
+  { id: 'classic', name: 'Classic', desc: 'Centered single-column layout', icon: <LayoutGrid className="w-5 h-5" /> },
+  { id: 'split-hero', name: 'Split Hero', desc: 'Side-by-side hero with 2-col sections', icon: <Columns className="w-5 h-5" /> },
+  { id: 'bento', name: 'Bento Grid', desc: 'Modern card grid layout', icon: <Grid3X3 className="w-5 h-5" /> },
+  { id: 'minimal', name: 'Minimal', desc: 'Clean, spacious one-page scroll', icon: <Minus className="w-5 h-5" /> },
+];
+
 const StepTheme = ({ data, onChange }: Props) => {
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Layout Selector */}
+      <div className="space-y-3">
+        <Label>Layout Style</Label>
+        <div className="grid grid-cols-2 gap-3">
+          {layouts.map(l => (
+            <div
+              key={l.id}
+              onClick={() => onChange({ layout: l.id })}
+              className={cn(
+                'border-2 rounded-xl p-4 cursor-pointer transition-all flex items-start gap-3',
+                (data.layout || 'classic') === l.id ? 'border-primary box-glow' : 'border-border hover:border-muted-foreground'
+              )}
+            >
+              <div className="text-muted-foreground mt-0.5">{l.icon}</div>
+              <div>
+                <p className="font-semibold text-foreground text-sm">{l.name}</p>
+                <p className="text-xs text-muted-foreground">{l.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Theme Selector */}
       <div className="space-y-3">
         <Label>Template Vibe</Label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -38,7 +69,6 @@ const StepTheme = ({ data, onChange }: Props) => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t.desc}</p>
-              {/* Color preview with dual accent */}
               <div className="flex gap-1 mt-3">
                 <div className="h-2 flex-1 rounded-full" style={{ background: `linear-gradient(90deg, ${t.accentHex}, ${t.accentHex2})` }} />
                 <div className="h-2 w-8 rounded-full" style={{ backgroundColor: t.accentHex2, opacity: 0.5 }} />
