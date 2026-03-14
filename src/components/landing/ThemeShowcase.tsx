@@ -177,43 +177,6 @@ const ThemeShowcase = () => {
           </div>
         </motion.div>
 
-        {/* All themes grid */}
-        <div>
-          <h3 className="font-display text-[9px] sm:text-[10px] text-muted-foreground tracking-[0.25em] text-center mb-6">
-            ALL {themeList.length} THEMES
-          </h3>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 sm:gap-3">
-            {themeList.map((t, i) => (
-              <motion.button
-                key={t.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.03 }}
-                onClick={() => {
-                  const fi = featured.findIndex(f => f.id === t.id);
-                  if (fi >= 0) setActiveIndex(fi);
-                }}
-                className="group relative rounded-xl overflow-hidden aspect-square hover:scale-105 transition-all duration-300"
-                style={{ border: `1px solid ${t.accentHex}18` }}
-              >
-                <div className="absolute inset-0" style={{ background: t.bgGradient }} />
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `radial-gradient(circle at center, ${t.accentHex}25, transparent 70%)` }}
-                />
-                <div className="relative z-10 h-full flex flex-col items-center justify-center gap-1 p-2">
-                  <span className="text-base sm:text-lg">{t.emoji}</span>
-                  <span className="text-[8px] sm:text-[9px] font-semibold text-foreground/90 text-center leading-tight">{t.name}</span>
-                  <div className="flex gap-0.5 mt-0.5">
-                    <div className="w-2.5 h-1 rounded-full" style={{ backgroundColor: t.accentHex }} />
-                    <div className="w-2.5 h-1 rounded-full" style={{ backgroundColor: t.accentHex2 }} />
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );
