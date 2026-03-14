@@ -46,7 +46,7 @@ export const ContractBlock = ({ data, style }: ContractProps) => {
         <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-1.5 font-medium">Contract Address</p>
         <code className="text-xs text-white/60 truncate block font-mono">{data.contractAddress}</code>
       </div>
-      <button className={cn('p-2.5 rounded-lg transition-all hover:bg-white/5', style.border)}
+      <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('p-2.5 rounded-lg transition-all hover:bg-white/5', style.border)}
         style={{ borderWidth: '1px', borderColor: `${style.accentHex}15` }}>
         <Copy className={cn('w-4 h-4', style.accent)} />
       </button>
