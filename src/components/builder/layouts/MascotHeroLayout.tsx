@@ -12,6 +12,10 @@ interface Props {
   countdown: { d: number; h: number; m: number; s: number };
 }
 
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const MascotHeroLayout = ({ data, style, countdown }: Props) => {
   const hasSocials = data.socials.telegram || data.socials.twitter || data.socials.discord || data.socials.dex;
 
