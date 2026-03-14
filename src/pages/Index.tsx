@@ -71,6 +71,7 @@ const Index = () => {
         <>
           <HeroSection onGetStarted={handleNewSite} />
           <FeaturesGrid />
+          <HowItWorks />
           <ThemeShowcase />
           <CTASection onGetStarted={handleNewSite} />
         </>
