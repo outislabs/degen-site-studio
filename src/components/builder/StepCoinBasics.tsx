@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2, Lock, ExternalLink, Zap } from 'lucide-react';
+import { Copy, Upload, Loader2, Lock, ExternalLink, Zap, Shield, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
