@@ -82,13 +82,76 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
-  const copyAddress = () => {
-    navigator.clipboard.writeText(data.contractAddress);
-    toast.success('Contract address copied!');
+  const extractMintFromLink = (input: string): string | null => {
+    // Handle pump.fun URLs like https://pump.fun/coin/MINT or https://pump.fun/MINT
+    const pumpFunMatch = input.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,50})/);
+    if (pumpFunMatch) return pumpFunMatch[1];
+    // If it looks like a raw mint address
+    if (/^[A-Za-z0-9]{32,50}$/.test(input.trim())) return input.trim();
+    return null;
+  };
+
+  const handlePumpImport = async () => {
+    const mint = extractMintFromLink(pumpLink);
+    if (!mint) {
+      toast.error('Please enter a valid pump.fun link or Solana mint address.');
+      return;
+    }
+    setPumpLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('fetch-pumpfun-token', {
+        body: { mint },
+      });
+      if (error) throw error;
+      if (!result || result.error) throw new Error(result?.error || 'Token not found');
+
+      // Populate fields
+      const updates: Partial<CoinData> = {
+        name: result.name || data.name,
+        ticker: result.symbol ? `$${result.symbol}` : data.ticker,
+        tagline: result.description || data.tagline,
+        blockchain: 'solana',
+        contractAddress: result.mint || mint,
+      };
+      if (result.image_uri) updates.logoUrl = result.image_uri;
+      if (result.twitter) updates.socials = { ...data.socials, twitter: result.twitter };
+      if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
+
+      onChange(updates);
+      toast.success(`Imported "${result.name}" data from pump.fun! 🎉`);
+      setPumpLink('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch token data');
+    } finally {
+      setPumpLoading(false);
+    }
   };
 
   return (
     <div className="space-y-5 animate-fade-in">
+      {/* PumpFun Import */}
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+        <Label className="flex items-center gap-2 text-primary">
+          <Zap className="w-4 h-4" /> Quick Import from Pump.fun
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          Paste a pump.fun link or Solana mint address to auto-fill your token details.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="https://pump.fun/coin/... or mint address"
+            value={pumpLink}
+            onChange={e => setPumpLink(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={handlePumpImport} disabled={pumpLoading || !pumpLink.trim()} size="sm">
+            {pumpLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+            {pumpLoading ? 'Fetching...' : 'Import'}
+          </Button>
+        </div>
+      </div>
+
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Coin Name</Label>
