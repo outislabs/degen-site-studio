@@ -1,10 +1,31 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { hmac } from "https://deno.land/x/hmac@v2.0.1/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "authorization, x-client-info, apikey, content-type, x-nowpayments-sig, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// --- Rate Limiting (IP-based for webhook) ---
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 30; // webhooks may retry
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// --- Input Validation ---
+const VALID_STATUSES = ["waiting", "confirming", "confirmed", "sending", "partially_paid", "finished", "failed", "refunded", "expired"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,11 +33,39 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
+    // Rate limit by IP
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkRateLimit(`ip:${clientIp}`)) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const rawBody = await req.text();
+    let body: Record<string, unknown>;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { order_id, payment_status } = body;
 
-    if (!order_id) {
-      return new Response(JSON.stringify({ error: "Missing order_id" }), {
+    // Validate order_id
+    if (!order_id || typeof order_id !== "string" || !/^[0-9a-f-]{36}$/.test(order_id as string)) {
+      return new Response(JSON.stringify({ error: "Missing or invalid order_id" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate payment_status
+    if (!payment_status || typeof payment_status !== "string" || !VALID_STATUSES.includes(payment_status as string)) {
+      return new Response(JSON.stringify({ error: "Invalid payment_status" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -57,8 +106,7 @@ Deno.serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Webhook error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Webhook processing failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -5,6 +5,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// --- Rate Limiting (IP-based for public endpoint) ---
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 20; // 20 lookups per minute per IP
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// --- Input Validation ---
+const VALID_CHAINS = ["solana", "ethereum", "base", "bsc", "arbitrum", "polygon", "optimism", "avalanche", "ton"];
+const MAX_MINT_LENGTH = 128;
+
+function validateInput(body: Record<string, unknown>): { valid: boolean; error?: string } {
+  const { mint, chain } = body;
+  if (!mint || typeof mint !== "string" || mint.trim().length === 0 || mint.trim().length > MAX_MINT_LENGTH) {
+    return { valid: false, error: `Missing or invalid mint address (max ${MAX_MINT_LENGTH} chars)` };
+  }
+  // Only allow alphanumeric + 0x prefix for EVM
+  if (!/^(0x)?[A-Za-z0-9]{1,128}$/.test(mint.trim())) {
+    return { valid: false, error: "Invalid mint address format" };
+  }
+  if (chain !== undefined && (typeof chain !== "string" || !VALID_CHAINS.includes(chain))) {
+    return { valid: false, error: `Invalid chain. Must be one of: ${VALID_CHAINS.join(", ")}` };
+  }
+  return { valid: true };
+}
+
 const etherscanApis: Record<string, string> = {
   ethereum: 'https://api.etherscan.io/api',
   bsc: 'https://api.bscscan.com/api',
@@ -39,10 +75,10 @@ function buildResult(data: {
 
 async function fetchFromPumpFun(mint: string) {
   try {
-    const res = await fetch(`https://frontend-api-v3.pump.fun/coins/${mint}?sync=true`, {
+    const res = await fetch(`https://frontend-api-v3.pump.fun/coins/${encodeURIComponent(mint)}?sync=true`, {
       headers: { 'Accept': 'application/json', 'Origin': 'https://pump.fun', 'User-Agent': 'Mozilla/5.0' },
     });
-    if (!res.ok) return null;
+    if (!res.ok) { await res.text(); return null; }
     const d = await res.json();
     if (!d?.name) return null;
     return {
@@ -57,10 +93,10 @@ async function fetchFromPumpFun(mint: string) {
 
 async function fetchFromDexScreener(chain: string, mint: string) {
   try {
-    const res = await fetch(`https://api.dexscreener.com/tokens/v1/${chain}/${mint}`, {
+    const res = await fetch(`https://api.dexscreener.com/tokens/v1/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`, {
       headers: { 'Accept': 'application/json' },
     });
-    if (!res.ok) return null;
+    if (!res.ok) { await res.text(); return null; }
     const dexData = await res.json();
     const pair = Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0];
     if (!pair || !pair.baseToken?.name) return null;
@@ -83,16 +119,18 @@ async function fetchFromEtherscan(chain: string, mint: string) {
   const apiBase = etherscanApis[chain];
   if (!apiBase) return null;
   try {
-    const supplyRes = await fetch(`${apiBase}?module=stats&action=tokensupply&contractaddress=${mint}`);
-    if (!supplyRes.ok) return null;
+    const supplyRes = await fetch(`${apiBase}?module=stats&action=tokensupply&contractaddress=${encodeURIComponent(mint)}`);
+    if (!supplyRes.ok) { await supplyRes.text(); return null; }
     const supplyData = await supplyRes.json();
     const totalSupply = supplyData?.result || '0';
 
-    const srcRes = await fetch(`${apiBase}?module=contract&action=getsourcecode&address=${mint}`);
+    const srcRes = await fetch(`${apiBase}?module=contract&action=getsourcecode&address=${encodeURIComponent(mint)}`);
     let contractName = '';
     if (srcRes.ok) {
       const srcData = await srcRes.json();
       contractName = srcData?.result?.[0]?.ContractName || '';
+    } else {
+      await srcRes.text();
     }
 
     if (!contractName && totalSupply === '0') return null;
@@ -112,15 +150,24 @@ serve(async (req) => {
   }
 
   try {
-    const { mint, chain = 'solana' } = await req.json();
+    // Rate limit by IP
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkRateLimit(`ip:${clientIp}`)) {
+      return new Response(JSON.stringify({ error: "Too many requests. Please wait and try again." }), {
+        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" },
+      });
+    }
 
-    if (!mint || typeof mint !== 'string') {
-      return new Response(JSON.stringify({ error: 'Missing or invalid mint address' }), {
+    const body = await req.json();
+    const validation = validateInput(body);
+    if (!validation.valid) {
+      return new Response(JSON.stringify({ error: validation.error }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const cleanMint = mint.trim();
+    const cleanMint = (body.mint as string).trim();
+    const chain = (body.chain as string) || 'solana';
     const isSolana = chain === 'solana';
     let tokenData = null;
 
@@ -134,7 +181,7 @@ serve(async (req) => {
       }
     }
 
-    // 2. DexScreener — try specified chain first, then auto-detect across EVM chains
+    // 2. DexScreener
     tokenData = await fetchFromDexScreener(chain, cleanMint);
     if (tokenData) {
       return new Response(JSON.stringify(buildResult(tokenData)), {
@@ -142,7 +189,7 @@ serve(async (req) => {
       });
     }
 
-    // 2b. If EVM address, try other common chains via DexScreener
+    // 2b. Try other EVM chains via DexScreener
     if (!isSolana && cleanMint.startsWith('0x')) {
       const evmChains = ['ethereum', 'base', 'bsc', 'arbitrum', 'polygon', 'optimism', 'avalanche'].filter(c => c !== chain);
       for (const tryChain of evmChains) {
@@ -155,7 +202,7 @@ serve(async (req) => {
       }
     }
 
-    // 3. Etherscan-compatible explorers (EVM chains)
+    // 3. Etherscan-compatible explorers
     if (!isSolana) {
       tokenData = await fetchFromEtherscan(chain, cleanMint);
       if (tokenData) {
@@ -170,7 +217,7 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error fetching token:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

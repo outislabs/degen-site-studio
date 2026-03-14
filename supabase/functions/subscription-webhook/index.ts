@@ -3,8 +3,29 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-nowpayments-sig",
+    "authorization, x-client-info, apikey, content-type, x-nowpayments-sig, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// --- Rate Limiting (IP-based for webhook) ---
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 30;
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// --- Input Validation ---
+const VALID_STATUSES = ["waiting", "confirming", "confirmed", "sending", "partially_paid", "finished", "failed", "refunded", "expired"];
+const VALID_PLANS = ["free", "degen", "creator", "pro", "whale"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,22 +33,47 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
-    console.log("Subscription webhook received:", JSON.stringify(body));
+    // Rate limit by IP
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkRateLimit(`ip:${clientIp}`)) {
+      return new Response(JSON.stringify({ error: "Too many requests" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { payment_status, order_id, payment_id } = body;
 
-    if (!order_id || !order_id.startsWith("sub_")) {
+    // Validate order_id format
+    if (!order_id || typeof order_id !== "string" || !(order_id as string).startsWith("sub_")) {
       return new Response(JSON.stringify({ ok: true, skipped: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Validate payment_status
+    if (!payment_status || typeof payment_status !== "string" || !VALID_STATUSES.includes(payment_status as string)) {
+      return new Response(JSON.stringify({ error: "Invalid payment_status" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Parse order_id: sub_{userId}_{plan}_{timestamp}
-    const parts = order_id.split("_");
+    const parts = (order_id as string).split("_");
     if (parts.length < 4) {
-      return new Response(JSON.stringify({ error: "Invalid order_id" }), {
+      return new Response(JSON.stringify({ error: "Invalid order_id format" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -35,6 +81,22 @@ Deno.serve(async (req) => {
 
     const userId = parts[1];
     const plan = parts[2];
+
+    // Validate extracted plan
+    if (!VALID_PLANS.includes(plan)) {
+      return new Response(JSON.stringify({ error: "Invalid plan in order_id" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate userId format (UUID)
+    if (!/^[0-9a-f-]{36}$/.test(userId)) {
+      return new Response(JSON.stringify({ error: "Invalid user ID in order_id" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -79,8 +141,7 @@ Deno.serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Webhook error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Webhook processing failed" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

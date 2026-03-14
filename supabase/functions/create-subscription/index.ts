@@ -6,6 +6,27 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// --- Rate Limiting ---
+const rateLimits = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 300_000; // 5 minutes
+const RATE_LIMIT_MAX = 5;
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// --- Input Validation ---
+const VALID_PLANS = ["degen", "creator", "pro", "whale"];
+const VALID_BILLING_PERIODS = ["monthly", "annual"];
+
 const PLAN_PRICES: Record<string, number> = {
   degen: 19,
   creator: 49,
@@ -46,23 +67,41 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { plan, billing_period } = await req.json();
+    // Rate limit by user
+    if (!checkRateLimit(`user:${user.id}`)) {
+      return new Response(JSON.stringify({ error: "Too many subscription requests. Please wait." }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "300" },
+      });
+    }
 
-    if (!plan || !PLAN_PRICES[plan]) {
-      return new Response(JSON.stringify({ error: "Invalid plan" }), {
+    const body = await req.json();
+    const { plan, billing_period } = body;
+
+    // Validate plan
+    if (!plan || typeof plan !== "string" || !VALID_PLANS.includes(plan)) {
+      return new Response(JSON.stringify({ error: `Invalid plan. Must be one of: ${VALID_PLANS.join(", ")}` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate billing_period
+    const period = billing_period || "monthly";
+    if (typeof period !== "string" || !VALID_BILLING_PERIODS.includes(period)) {
+      return new Response(JSON.stringify({ error: `Invalid billing period. Must be: ${VALID_BILLING_PERIODS.join(", ")}` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     let price = PLAN_PRICES[plan];
-    if (billing_period === 'annual') {
-      price = Math.round(price * 12 * 0.8); // 20% discount, billed annually
+    if (period === 'annual') {
+      price = Math.round(price * 12 * 0.8);
     }
 
     const orderId = `sub_${user.id}_${plan}_${Date.now()}`;
 
-    // Create NOWPayments invoice
     const invoiceRes = await fetch("https://api.nowpayments.io/v1/invoice", {
       method: "POST",
       headers: {
@@ -73,7 +112,7 @@ Deno.serve(async (req) => {
         price_amount: price,
         price_currency: "usd",
         order_id: orderId,
-        order_description: `DegenTools ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan - ${billing_period === 'annual' ? 'Annual' : 'Monthly'}`,
+        order_description: `DegenTools ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan - ${period === 'annual' ? 'Annual' : 'Monthly'}`,
         success_url: `${req.headers.get("origin") || ""}/pricing?payment=success&plan=${plan}`,
         cancel_url: `${req.headers.get("origin") || ""}/pricing?payment=cancelled`,
       }),
@@ -82,7 +121,8 @@ Deno.serve(async (req) => {
     const invoiceData = await invoiceRes.json();
 
     if (!invoiceRes.ok) {
-      throw new Error(`NOWPayments error [${invoiceRes.status}]: ${JSON.stringify(invoiceData)}`);
+      console.error(`NOWPayments error [${invoiceRes.status}]`);
+      throw new Error("Payment provider error. Please try again.");
     }
 
     // Update subscription to pending
@@ -91,14 +131,13 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Upsert subscription
     await serviceClient
       .from("user_subscriptions")
       .upsert({
         user_id: user.id,
         plan: plan,
         status: "pending",
-        billing_period: billing_period || "monthly",
+        billing_period: period,
         payment_id: invoiceData.id?.toString(),
       }, { onConflict: 'user_id' });
 
@@ -114,8 +153,7 @@ Deno.serve(async (req) => {
     );
   } catch (error: unknown) {
     console.error("Error creating subscription:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Subscription creation failed. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
