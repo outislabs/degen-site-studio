@@ -21,14 +21,7 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
 
   if (loading) return null;
-  if (user) {
-    const pendingUrl = sessionStorage.getItem('pending_import_url');
-    if (pendingUrl) {
-      sessionStorage.removeItem('pending_import_url');
-      return <Navigate to={`/builder?import=${encodeURIComponent(pendingUrl)}`} replace />;
-    }
-    return <Navigate to="/" replace />;
-  }
+  if (user) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
