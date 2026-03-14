@@ -40,6 +40,7 @@ const CommunityShowcase = () => {
       supabase
         .from('sites')
         .select('id, name, ticker, slug, data')
+        .not('slug', 'is', null)
         .order('created_at', { ascending: false })
         .limit(12),
       supabase
