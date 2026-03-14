@@ -251,27 +251,42 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
               <Lock className="w-3 h-3" /> Degen+ Plan
             </span>
-          ) : !domainPaid ? (
+          ) : canUseCustomDomain() && !domainPaid ? (
             <span className="inline-flex items-center gap-1 text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
               <Lock className="w-3 h-3" /> $10 Add-on
             </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
-              ✓ Unlocked
-            </span>
-          )}
+          ) : null}
         </Label>
 
         {!canUseCustomDomain() ? (
           <div className="rounded-lg border border-border p-4 space-y-3">
             <p className="text-sm text-muted-foreground">
-              Custom domains require the Degen plan or higher.
+              Custom domains require the Degen plan or higher — or pay a one-time $10 add-on.
             </p>
-            <Button onClick={() => navigate('/pricing')} className="w-full" variant="outline">
-              Upgrade Plan
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => navigate('/pricing')} className="w-full" variant="outline">
+                Upgrade Plan
+              </Button>
+              <Button
+                onClick={handleBuyDomain}
+                disabled={paymentLoading || !siteId}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {paymentLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                )}
+                {!siteId ? 'Publish site first to unlock' : 'Pay $10 with Crypto'}
+              </Button>
+            </div>
+            {domainPaymentStatus === 'pending' && (
+              <p className="text-xs text-yellow-500 text-center">
+                ⏳ Payment pending — refresh after completing payment.
+              </p>
+            )}
           </div>
-        ) : domainPaid ? (
+        ) : (
           <>
             <Input
               placeholder="e.g. mytoken.com"
@@ -282,29 +297,6 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">{window.location.host}</code> at your DNS provider.
             </p>
           </>
-        ) : (
-          <div className="rounded-lg border border-border p-4 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Connect your own domain to your meme coin site. Pay once with crypto — no recurring fees.
-            </p>
-            <Button
-              onClick={handleBuyDomain}
-              disabled={paymentLoading || !siteId}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {paymentLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <ExternalLink className="w-4 h-4 mr-2" />
-              )}
-              {!siteId ? 'Publish site first to unlock' : 'Pay $10 with Crypto'}
-            </Button>
-            {domainPaymentStatus === 'pending' && (
-              <p className="text-xs text-yellow-500 text-center">
-                ⏳ Payment pending — refresh after completing payment.
-              </p>
-            )}
-          </div>
         )}
       </div>
     </div>
