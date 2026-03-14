@@ -8,6 +8,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { lovable } from '@/integrations/lovable/index';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
