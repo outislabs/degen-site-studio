@@ -23,8 +23,9 @@ serve(async (req) => {
     // Clean the mint address
     const cleanMint = mint.trim();
 
-    // Fetch from pump.fun frontend API
-    const response = await fetch(`https://frontend-api-v3.pump.fun/coins/${cleanMint}?sync=true`, {
+    // Try pump.fun API first
+    let tokenData = null;
+    const pumpResponse = await fetch(`https://frontend-api-v3.pump.fun/coins/${cleanMint}?sync=true`, {
       headers: {
         'Accept': 'application/json',
         'Origin': 'https://pump.fun',
@@ -32,37 +33,69 @@ serve(async (req) => {
       },
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error(`Pump.fun API error [${response.status}]: ${text}`);
-      return new Response(JSON.stringify({ error: `Token not found or API error (${response.status})` }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (pumpResponse.ok) {
+      tokenData = await pumpResponse.json();
+      if (tokenData?.name) {
+        const result = {
+          name: tokenData.name || '',
+          symbol: tokenData.symbol || '',
+          description: tokenData.description || '',
+          image_uri: tokenData.image_uri || tokenData.uri || '',
+          mint: tokenData.mint || cleanMint,
+          market_cap: tokenData.market_cap || 0,
+          usd_market_cap: tokenData.usd_market_cap || 0,
+          total_supply: tokenData.total_supply || 0,
+          website: tokenData.website || '',
+          twitter: tokenData.twitter || '',
+          telegram: tokenData.telegram || '',
+          complete: tokenData.complete || false,
+        };
+        return new Response(JSON.stringify(result), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
-    const tokenData = await response.json();
+    // Fallback: DexScreener API (works for any Solana token)
+    console.log('Pump.fun miss, trying DexScreener...');
+    const dexResponse = await fetch(`https://api.dexscreener.com/tokens/v1/solana/${cleanMint}`, {
+      headers: { 'Accept': 'application/json' },
+    });
 
-    // Extract relevant fields
-    const result = {
-      name: tokenData.name || '',
-      symbol: tokenData.symbol || '',
-      description: tokenData.description || '',
-      image_uri: tokenData.image_uri || tokenData.uri || '',
-      mint: tokenData.mint || cleanMint,
-      market_cap: tokenData.market_cap || 0,
-      usd_market_cap: tokenData.usd_market_cap || 0,
-      total_supply: tokenData.total_supply || 0,
-      website: tokenData.website || '',
-      twitter: tokenData.twitter || '',
-      telegram: tokenData.telegram || '',
-      bonding_curve: tokenData.bonding_curve || '',
-      raydium_pool: tokenData.raydium_pool || '',
-      complete: tokenData.complete || false,
-    };
+    if (dexResponse.ok) {
+      const dexData = await dexResponse.json();
+      const pair = Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0];
+      if (pair) {
+        const baseToken = pair.baseToken || {};
+        const info = pair.info || {};
+        const socials = info.socials || [];
+        const twitter = socials.find((s: any) => s.type === 'twitter')?.url || '';
+        const telegram = socials.find((s: any) => s.type === 'telegram')?.url || '';
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
+        const result = {
+          name: baseToken.name || '',
+          symbol: baseToken.symbol || '',
+          description: '',
+          image_uri: info.imageUrl || '',
+          mint: baseToken.address || cleanMint,
+          market_cap: pair.marketCap || 0,
+          usd_market_cap: pair.marketCap || 0,
+          total_supply: 0,
+          website: info.websites?.[0]?.url || '',
+          twitter,
+          telegram,
+          complete: false,
+        };
+        return new Response(JSON.stringify(result), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    return new Response(JSON.stringify({ error: 'Token not found on any platform' }), {
+      status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
