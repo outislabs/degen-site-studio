@@ -32,6 +32,7 @@ export interface CoinData {
   
   // Step 5
   theme: ThemeId;
+  layout: LayoutStyle;
   showCountdown: boolean;
   launchDate: Date | null;
 
