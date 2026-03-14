@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Image, Sticker, Share2, Type, Loader2 } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
+import StickerPacks from '@/components/studio/StickerPacks';
 import LandingHeader from '@/components/landing/LandingHeader';
 
 interface SiteOption {
