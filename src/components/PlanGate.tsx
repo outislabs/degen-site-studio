@@ -6,7 +6,7 @@ import { Lock } from 'lucide-react';
 interface Props {
   allowed: boolean;
   requiredPlan: string;
-  children: ReactNode;
+  children?: ReactNode;
   message?: string;
 }
 
