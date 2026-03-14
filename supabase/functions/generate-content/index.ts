@@ -30,13 +30,18 @@ serve(async (req) => {
 
     if (!type || !prompt) throw new Error("Missing type or prompt");
 
-    // For image generation types (meme, sticker, social_post)
-    if (type === "meme" || type === "sticker" || type === "social_post") {
+    // For image generation types
+    const imageTypes = ["meme", "sticker", "social_post", "dex_header", "x_header"];
+    if (imageTypes.includes(type)) {
       let systemPrompt = "";
       if (type === "meme") {
         systemPrompt = `Create a viral, funny meme image for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The meme should be attention-grabbing, humorous, and crypto-community appropriate. Style: bold text, exaggerated expressions, crypto culture references.`;
       } else if (type === "sticker") {
         systemPrompt = `Create a cute, bold sticker design for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The sticker should have clean edges, vibrant colors, and work well at small sizes. Style: cartoon/chibi, expressive, on a clean white background. No text unless specifically requested.`;
+      } else if (type === "dex_header") {
+        systemPrompt = `Create a wide banner header image (1500x500 pixels aspect ratio, 3:1 wide) for a cryptocurrency token called "${tokenName}" ($${tokenTicker}) to be used as a DexScreener profile header. The banner should be visually striking, include the token name/ticker prominently, and have a professional crypto/trading aesthetic. Style: wide panoramic banner, dark or vibrant background, chart/trading motifs, bold typography.`;
+      } else if (type === "x_header") {
+        systemPrompt = `Create a wide banner header image (1500x500 pixels aspect ratio, 3:1 wide) for a cryptocurrency token called "${tokenName}" ($${tokenTicker}) to be used as a Twitter/X profile header banner. The banner should be clean, branded, and professional. Include the token name and ticker. Style: wide panoramic banner, modern design, crypto branding, suitable for social media profile header.`;
       } else {
         systemPrompt = `Create a professional social media graphic for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The image should be eye-catching, professional, and suitable for Twitter/X or Telegram. Include the token name and ticker prominently.`;
       }

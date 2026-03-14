@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Image, Sticker, Share2, Type, Lock } from 'lucide-react';
+import { Image, Sticker, Share2, Type, Lock, BarChart3, Twitter } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
 import StickerPacks from '@/components/studio/StickerPacks';
