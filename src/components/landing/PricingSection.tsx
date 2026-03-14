@@ -79,8 +79,8 @@ const PricingSection = ({ onGetStarted }: Props) => {
           </p>
         </motion.div>
 
-        {/* Mobile: scroll horizontally. Desktop: grid */}
-        <div className="flex lg:grid lg:grid-cols-5 gap-4 sm:gap-5 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory scrollbar-none">
+        {/* Stack on mobile, grid on large screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
           {plans.map((plan, i) => {
             const Icon = plan.icon;
             return (
@@ -91,7 +91,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07 }}
                 className={cn(
-                  'relative gradient-card border rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300 hover:scale-[1.02] snap-center shrink-0 w-[260px] sm:w-[280px] lg:w-auto',
+                  'relative gradient-card border rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300 hover:scale-[1.02]',
                   plan.popular
                     ? 'border-primary/40 shadow-[0_0_50px_hsl(var(--primary)/0.1)] ring-1 ring-primary/30'
                     : 'border-border hover:border-primary/20'
