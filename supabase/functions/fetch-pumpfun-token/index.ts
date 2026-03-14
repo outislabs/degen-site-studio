@@ -63,7 +63,7 @@ async function fetchFromDexScreener(chain: string, mint: string) {
     if (!res.ok) return null;
     const dexData = await res.json();
     const pair = Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0];
-    if (!pair) return null;
+    if (!pair || !pair.baseToken?.name) return null;
     const baseToken = pair.baseToken || {};
     const info = pair.info || {};
     const socials = info.socials || [];
@@ -134,12 +134,25 @@ serve(async (req) => {
       }
     }
 
-    // 2. DexScreener (all chains)
+    // 2. DexScreener — try specified chain first, then auto-detect across EVM chains
     tokenData = await fetchFromDexScreener(chain, cleanMint);
     if (tokenData) {
       return new Response(JSON.stringify(buildResult(tokenData)), {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // 2b. If EVM address, try other common chains via DexScreener
+    if (!isSolana && cleanMint.startsWith('0x')) {
+      const evmChains = ['ethereum', 'base', 'bsc', 'arbitrum', 'polygon', 'optimism', 'avalanche'].filter(c => c !== chain);
+      for (const tryChain of evmChains) {
+        tokenData = await fetchFromDexScreener(tryChain, cleanMint);
+        if (tokenData) {
+          return new Response(JSON.stringify(buildResult(tokenData)), {
+            status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
     }
 
     // 3. Etherscan-compatible explorers (EVM chains)
