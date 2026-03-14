@@ -2,6 +2,26 @@ import { Button } from '@/components/ui/button';
 import { Zap, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import pumpfunLogo from '@/assets/integrations/pumpfun.png';
+import dexscreenerLogo from '@/assets/integrations/dexscreener.png';
+import raydiumLogo from '@/assets/integrations/raydium.png';
+import jupiterLogo from '@/assets/integrations/jupiter.png';
+import solanaLogo from '@/assets/integrations/solana.png';
+import ethereumLogo from '@/assets/integrations/ethereum.png';
+import baseLogo from '@/assets/integrations/base.png';
+import bscLogo from '@/assets/integrations/bsc.png';
+
+const integrations = [
+  { name: 'Pump.fun', logo: pumpfunLogo },
+  { name: 'DexScreener', logo: dexscreenerLogo },
+  { name: 'Raydium', logo: raydiumLogo },
+  { name: 'Jupiter', logo: jupiterLogo },
+  { name: 'Solana', logo: solanaLogo },
+  { name: 'Ethereum', logo: ethereumLogo },
+  { name: 'Base', logo: baseLogo },
+  { name: 'BSC', logo: bscLogo },
+];
+
 interface Props {
   onGetStarted: () => void;
 }
@@ -88,6 +108,33 @@ const HeroSection = ({ onGetStarted }: Props) => {
               <div className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{stat.label}</div>
             </div>
           ))}
+        </motion.div>
+
+        {/* Integrations logo bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="mt-14"
+        >
+          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-display mb-5">
+            Works with
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:gap-x-8">
+            {integrations.map((item) => (
+              <div
+                key={item.name}
+                className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src={item.logo}
+                  alt={item.name}
+                  className="h-8 w-8 sm:h-9 sm:w-9 object-contain"
+                />
+                <span className="text-[9px] text-muted-foreground font-medium">{item.name}</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
