@@ -48,7 +48,12 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { plan, planId } = usePlan();
+  const { isAdmin } = useAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const allNavItems = isAdmin
+    ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
+    : navItems;
 
   const email = user?.email || '';
   const initials = email
