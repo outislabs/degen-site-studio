@@ -139,10 +139,10 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     // Birdeye
     const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
     if (birdMatch) return { mint: birdMatch[1], chain: 'solana', source: 'birdeye' };
+    // Raw EVM address (0x...) — must check BEFORE generic address pattern
+    if (/^0x[A-Fa-f0-9]{40}$/i.test(trimmed)) return { mint: trimmed, chain: 'ethereum', source: 'address' };
     // Raw Solana address
     if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
-    // Raw EVM address (0x...) — default to ethereum, DexScreener will auto-detect
-    if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, chain: 'ethereum', source: 'address' };
     return null;
   };
 
