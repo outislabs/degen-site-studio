@@ -42,6 +42,8 @@ export interface CoinData {
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix';
 
+export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal';
+
 export interface RoadmapPhase {
   id: string;
   title: string;
