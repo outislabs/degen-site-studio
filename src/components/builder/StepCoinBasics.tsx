@@ -167,6 +167,12 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       if (result.telegram) updates.socials = { ...(updates.socials || data.socials), telegram: result.telegram };
 
       onChange(updates);
+      if (result.security) {
+        setSecurityData(result.security);
+        setShowSecurity(true);
+      } else {
+        setSecurityData(null);
+      }
       toast.success(`Imported "${result.name}" from ${tokenInfo.source}! 🎉`);
       setPumpLink('');
     } catch (err: any) {
