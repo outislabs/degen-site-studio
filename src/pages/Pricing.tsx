@@ -222,6 +222,14 @@ const Pricing = () => {
           })}
         </div>
 
+        {/* Comparison Table */}
+        <div className="mb-20">
+          <h2 className="font-display text-sm text-primary text-glow text-center mb-6">COMPARE PLANS</h2>
+          <div className="overflow-x-auto">
+            <ComparisonTable />
+          </div>
+        </div>
+
         {/* One-Time Purchases */}
         <div className="mb-16">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">ONE-TIME PURCHASES</h2>
