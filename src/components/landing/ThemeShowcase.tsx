@@ -64,7 +64,7 @@ const ThemeShowcase = () => {
   const goPrev = () => setActiveIndex(i => (i - 1 + themeList.length) % themeList.length);
 
   return (
-    <section id="themes" className="section-padding py-16 sm:py-24 relative overflow-hidden">
+    <section id="themes" className="section-padding py-10 sm:py-24 relative overflow-hidden">
       {/* Background ambient */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] blur-[200px] rounded-full opacity-30" style={{ backgroundColor: activeTheme?.accentHex }} />
