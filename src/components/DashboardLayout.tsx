@@ -90,7 +90,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-1 ml-4">
-            {navItems.map((item) => (
+            {allNavItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
