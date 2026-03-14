@@ -8,7 +8,7 @@ import StepTheme from '@/components/builder/StepTheme';
 import LivePreview from '@/components/builder/LivePreview';
 import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Rocket, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
