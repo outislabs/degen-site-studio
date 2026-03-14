@@ -82,7 +82,7 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
                 <p className="text-[9px] uppercase tracking-[0.3em] text-white/25 mb-1.5 font-medium">Contract Address</p>
                 <code className="text-sm text-white/60 truncate block font-mono">{data.contractAddress}</code>
               </div>
-              <button className={cn('px-6 py-2.5 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] relative z-10 flex items-center gap-2', style.button, style.buttonText)}>
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('px-6 py-2.5 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] relative z-10 flex items-center gap-2', style.button, style.buttonText)}>
                 <Copy className="w-3.5 h-3.5" /> Copy
               </button>
             </div>
