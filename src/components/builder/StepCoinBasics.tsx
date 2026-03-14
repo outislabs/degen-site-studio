@@ -217,7 +217,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
 
       <div className="space-y-2">
         <Label>Tagline / Slogan</Label>
-        <Input placeholder="To the moon and beyond 🚀" value={data.tagline} onChange={e => onChange({ tagline: e.target.value })} />
+        <Input placeholder="To the moon and beyond 🚀" value={data.tagline} maxLength={200} onChange={e => onChange({ tagline: e.target.value })} />
       </div>
 
       <div className="space-y-2">
