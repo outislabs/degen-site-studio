@@ -91,7 +91,7 @@ const Auth = () => {
           >
             <AnimatePresence mode="wait">
               <motion.div
-                key={isSignUp ? 'signup' : 'signin'}
+                key={view}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
@@ -100,12 +100,14 @@ const Auth = () => {
                 {/* Heading */}
                 <div className="text-center mb-7">
                   <h2 className="text-xl font-bold text-foreground mb-1.5">
-                    {isSignUp ? 'Create your account' : 'Welcome back'}
+                    {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {isSignUp
-                      ? 'Start building your degen empire'
-                      : 'Sign in to your dashboard'}
+                    {isForgot
+                      ? "Enter your email and we'll send a reset link"
+                      : isSignUp
+                        ? 'Start building your degen empire'
+                        : 'Sign in to your dashboard'}
                   </p>
                 </div>
 
@@ -127,31 +129,37 @@ const Auth = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-foreground block">Password</label>
-                        {!isSignUp && (
-                          <button type="button" className="text-[10px] text-primary hover:underline">
-                            Forgot password?
-                          </button>
+                    {!isForgot && (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-medium text-foreground block">Password</label>
+                          {!isSignUp && (
+                            <button
+                              type="button"
+                              onClick={() => setView('forgot')}
+                              className="text-[10px] text-primary hover:underline"
+                            >
+                              Forgot password?
+                            </button>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
+                          <Input
+                            type="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                            minLength={6}
+                            className="pl-11 h-12 bg-background/60 border-border text-sm rounded-xl"
+                          />
+                        </div>
+                        {isSignUp && (
+                          <p className="text-[10px] text-muted-foreground/50 pl-1">Minimum 6 characters</p>
                         )}
                       </div>
-                      <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
-                        <Input
-                          type="password"
-                          value={password}
-                          onChange={e => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          minLength={6}
-                          className="pl-11 h-12 bg-background/60 border-border text-sm rounded-xl"
-                        />
-                      </div>
-                      {isSignUp && (
-                        <p className="text-[10px] text-muted-foreground/50 pl-1">Minimum 6 characters</p>
-                      )}
-                    </div>
+                    )}
 
                     <Button
                       type="submit"
@@ -162,7 +170,7 @@ const Auth = () => {
                         <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Please wait...</>
                       ) : (
                         <>
-                          {isSignUp ? 'Create Account' : 'Sign In'}
+                          {isForgot ? 'Send Reset Link' : isSignUp ? 'Create Account' : 'Sign In'}
                           <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                         </>
                       )}
@@ -182,16 +190,26 @@ const Auth = () => {
                   </div>
 
                   {/* Toggle */}
-                  <p className="text-sm text-center text-muted-foreground">
-                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                  {isForgot ? (
                     <button
                       type="button"
-                      onClick={() => setIsSignUp(!isSignUp)}
-                      className="text-primary font-semibold hover:underline"
+                      onClick={() => setView('signin')}
+                      className="flex items-center justify-center gap-1.5 text-sm text-primary font-semibold hover:underline w-full"
                     >
-                      {isSignUp ? 'Sign in' : 'Sign up free'}
+                      <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
                     </button>
-                  </p>
+                  ) : (
+                    <p className="text-sm text-center text-muted-foreground">
+                      {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                      <button
+                        type="button"
+                        onClick={() => setView(isSignUp ? 'signin' : 'signup')}
+                        className="text-primary font-semibold hover:underline"
+                      >
+                        {isSignUp ? 'Sign in' : 'Sign up free'}
+                      </button>
+                    </p>
+                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
