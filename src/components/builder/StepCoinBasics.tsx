@@ -82,12 +82,27 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
-  const extractMintFromLink = (input: string): string | null => {
-    // Handle pump.fun URLs like https://pump.fun/coin/MINT or https://pump.fun/MINT
-    const pumpFunMatch = input.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,50})/);
-    if (pumpFunMatch) return pumpFunMatch[1];
-    // If it looks like a raw mint address
-    if (/^[A-Za-z0-9]{32,50}$/.test(input.trim())) return input.trim();
+  const extractTokenInfo = (input: string): { mint?: string; dexPair?: string; source: string } | null => {
+    const trimmed = input.trim();
+    // pump.fun: https://pump.fun/coin/MINT or https://pump.fun/MINT
+    const pumpMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,50})/);
+    if (pumpMatch) return { mint: pumpMatch[1], source: 'pumpfun' };
+    // DexScreener: https://dexscreener.com/solana/PAIR_OR_MINT
+    const dexMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,50})/);
+    if (dexMatch) return { mint: dexMatch[2], source: 'dexscreener' };
+    // Jupiter: https://jup.ag/swap/SOL-MINT or https://jup.ag/tokens/MINT
+    const jupSwapMatch = trimmed.match(/jup\.ag\/swap\/[A-Za-z0-9]+-([A-Za-z0-9]{32,50})/);
+    if (jupSwapMatch) return { mint: jupSwapMatch[1], source: 'jupiter' };
+    const jupTokenMatch = trimmed.match(/jup\.ag\/tokens\/([A-Za-z0-9]{32,50})/);
+    if (jupTokenMatch) return { mint: jupTokenMatch[1], source: 'jupiter' };
+    // Raydium: https://raydium.io/swap/?inputMint=...&outputMint=MINT
+    const rayMatch = trimmed.match(/raydium\.io\/.*[?&]outputMint=([A-Za-z0-9]{32,50})/);
+    if (rayMatch) return { mint: rayMatch[1], source: 'raydium' };
+    // Birdeye: https://birdeye.so/token/MINT
+    const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
+    if (birdMatch) return { mint: birdMatch[1], source: 'birdeye' };
+    // Raw mint address
+    if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
     return null;
   };
 
