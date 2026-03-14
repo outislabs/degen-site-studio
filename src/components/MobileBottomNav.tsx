@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Globe, Image, CreditCard, UserCog } from 'lucide-react';
+import { Globe, Image, CreditCard, UserCog, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -9,7 +9,11 @@ const navItems = [
   { label: 'Account', icon: UserCog, path: '/account' },
 ];
 
-const MobileBottomNav = () => {
+interface Props {
+  onNewSite?: () => void;
+}
+
+const MobileBottomNav = ({ onNewSite }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,7 +30,7 @@ const MobileBottomNav = () => {
             key={item.path}
             onClick={() => navigate(item.path)}
             className={cn(
-              'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[60px]',
+              'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors min-w-[50px]',
               isActive(item.path) ? 'text-primary' : 'text-muted-foreground'
             )}
           >
@@ -34,6 +38,17 @@ const MobileBottomNav = () => {
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         ))}
+        {onNewSite && (
+          <button
+            onClick={onNewSite}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-primary min-w-[50px]"
+          >
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+              <Plus className="w-3.5 h-3.5 text-primary-foreground" />
+            </div>
+            <span className="text-[10px] font-medium">New</span>
+          </button>
+        )}
       </div>
     </div>
   );

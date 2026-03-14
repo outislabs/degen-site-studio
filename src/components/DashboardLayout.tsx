@@ -228,7 +228,6 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
       )}
 
       <MobileBottomNav onNewSite={onNewSite} />
-      </div>
 
       {/* Main content */}
       <main className="flex-1 pb-20 lg:pb-0">
