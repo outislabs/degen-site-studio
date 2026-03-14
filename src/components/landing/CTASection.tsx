@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Rocket, ArrowRight } from 'lucide-react';
+import { Bot, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
@@ -21,7 +21,7 @@ const CTASection = ({ onGetStarted }: Props) => {
           </div>
 
           <div className="relative z-10">
-            <div className="text-4xl sm:text-5xl mb-5 sm:mb-6">🚀</div>
+            <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary mb-5 sm:mb-6" />
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
               Ready to <span className="text-primary text-glow">launch</span>?
             </h2>
@@ -33,7 +33,7 @@ const CTASection = ({ onGetStarted }: Props) => {
               onClick={onGetStarted}
               className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[9px] sm:text-[10px] md:text-[11px] px-8 sm:px-12 py-6 sm:py-7 box-glow rounded-xl group"
             >
-              <Rocket className="w-4 h-4 mr-2" /> CREATE YOUR SITE
+              <Bot className="w-4 h-4 mr-2" /> CREATE YOUR SITE
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
