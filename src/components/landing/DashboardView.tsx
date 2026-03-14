@@ -42,7 +42,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
           <div>
             <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
             <span className="text-xs text-muted-foreground ml-2">
-              {sites.length}/{siteLimit} sites used
+              {sites.length}/{siteLimit} sites
             </span>
           </div>
         </div>
