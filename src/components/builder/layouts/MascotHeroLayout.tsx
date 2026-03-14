@@ -12,6 +12,10 @@ interface Props {
   countdown: { d: number; h: number; m: number; s: number };
 }
 
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const MascotHeroLayout = ({ data, style, countdown }: Props) => {
   const hasSocials = data.socials.telegram || data.socials.twitter || data.socials.discord || data.socials.dex;
 
@@ -28,6 +32,13 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
           <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${data.ticker}` : data.name || 'TOKEN'}</span>
         </div>
         <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-3">
+            <span onClick={() => scrollTo('mascot-about')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
+            <span className="text-white/20">•</span>
+            <span onClick={() => scrollTo('mascot-tokenomics')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
+            <span className="text-white/20">•</span>
+            <span onClick={() => scrollTo('mascot-roadmap')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
+          </div>
           {hasSocials && (
             <div className="hidden sm:flex items-center gap-1.5 mr-3">
               {data.socials.telegram && <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><Send className={cn('w-3.5 h-3.5', style.accent)} /></a>}
@@ -106,7 +117,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* How to Buy Steps */}
-      <div className="px-6 sm:px-10 py-12">
+      <div id="mascot-about" className="px-6 sm:px-10 py-12">
         <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
           How to Buy
         </h2>
@@ -129,7 +140,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* Tokenomics Section */}
-      <div className="px-6 sm:px-10 py-12 relative">
+      <div id="mascot-tokenomics" className="px-6 sm:px-10 py-12 relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[200px] h-[200px] rounded-full blur-[120px] opacity-[0.04] pointer-events-none" style={{ backgroundColor: style.accentHex2 }} />
         <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
           Tokenomics
@@ -158,7 +169,7 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
 
       {/* Roadmap */}
       {data.roadmap.length > 0 && (
-        <div className="px-6 sm:px-10 py-12">
+        <div id="mascot-roadmap" className="px-6 sm:px-10 py-12">
           <h2 className={cn('font-display text-lg md:text-xl text-center mb-8', style.accent)} style={{ textShadow: `0 0 30px ${style.accentHex}20` }}>
             Roadmap
           </h2>

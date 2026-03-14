@@ -12,6 +12,10 @@ interface Props {
   countdown: { d: number; h: number; m: number; s: number };
 }
 
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const CartoonLayout = ({ data, style, countdown }: Props) => {
   // Determine if this is a "light" theme based on bg color
   const textColor = 'text-white';
@@ -33,11 +37,11 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
         </div>
         <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-2">
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
+            <span onClick={() => scrollTo('cartoon-about')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
             <span className="text-white/20">•</span>
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
+            <span onClick={() => scrollTo('cartoon-tokenomics')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
             <span className="text-white/20">•</span>
-            <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
+            <span onClick={() => scrollTo('cartoon-roadmap')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
           </div>
           <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `2px solid ${style.accentHex}30` }}>
@@ -113,7 +117,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
       )}
 
       {/* How to Buy - Cartoon step cards */}
-      <div className="px-6 sm:px-10 py-10">
+      <div id="cartoon-about" className="px-6 sm:px-10 py-10">
         <h2 className={cn('font-display text-xl md:text-2xl text-center mb-8', style.accent)}
           style={{ textShadow: `2px 2px 0px ${style.accentHex}20` }}>
           How to Buy 🛒
@@ -138,7 +142,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
       </div>
 
       {/* Tokenomics - Fun card */}
-      <div className="px-6 sm:px-10 py-10">
+      <div id="cartoon-tokenomics" className="px-6 sm:px-10 py-10">
         <h2 className={cn('font-display text-xl md:text-2xl text-center mb-8', style.accent)}
           style={{ textShadow: `2px 2px 0px ${style.accentHex}20` }}>
           Tokenomics 📊
@@ -171,7 +175,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
 
       {/* Roadmap - Cartoon timeline */}
       {data.roadmap.length > 0 && (
-        <div className="px-6 sm:px-10 py-10">
+        <div id="cartoon-roadmap" className="px-6 sm:px-10 py-10">
           <h2 className={cn('font-display text-xl md:text-2xl text-center mb-8', style.accent)}
             style={{ textShadow: `2px 2px 0px ${style.accentHex}20` }}>
             Roadmap 🗺️
