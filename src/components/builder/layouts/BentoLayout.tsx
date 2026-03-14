@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
-import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock } from './shared';
+import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard } from './shared';
 import { Copy } from 'lucide-react';
 import DonutChart from '../DonutChart';
 
@@ -40,8 +40,8 @@ const BentoLayout = ({ data, style, countdown }: Props) => (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* CTA Card */}
         <div className={cn('rounded-2xl p-6 flex flex-col justify-center items-center gap-4', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
-          <button className={cn('px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full', style.button, style.buttonText)}>🚀 Buy Now</button>
-          <button className={cn('px-8 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full', style.border, style.accent)}>📊 Chart</button>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full inline-flex items-center justify-center', style.button, style.buttonText)}>🚀 Buy Now</a>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full inline-flex items-center justify-center', style.border, style.accent)}>📊 Chart</a>
         </div>
 
         {/* Countdown or Contract */}
@@ -55,7 +55,7 @@ const BentoLayout = ({ data, style, countdown }: Props) => (
             <div className="w-full">
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/30 mb-2 font-medium">Contract</p>
               <code className="text-xs text-white/60 truncate block font-mono mb-2">{data.contractAddress}</code>
-              <button className={cn('p-2 rounded-lg transition-all hover:bg-white/5 border', style.border)}>
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('p-2 rounded-lg transition-all hover:bg-white/5 border', style.border)}>
                 <Copy className={cn('w-3.5 h-3.5', style.accent)} />
               </button>
             </div>

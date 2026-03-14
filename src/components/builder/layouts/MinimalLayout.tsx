@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
-import { CountdownBlock } from './shared';
+import { CountdownBlock, ensureUrl, copyToClipboard } from './shared';
 
 interface Props {
   data: CoinData;
@@ -38,8 +38,8 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
       </p>
 
       <div className="flex gap-4">
-        <button className={cn('px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 transform hover:scale-[1.03]', style.button, style.buttonText)}>Buy Now</button>
-        <button className={cn('px-10 py-4 rounded-full font-bold text-sm border transition-all duration-300 hover:bg-white/5', style.border, style.accent)}>Chart</button>
+        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
+        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>Chart</a>
       </div>
 
       {data.showCountdown && data.launchDate && <div className="mt-12"><CountdownBlock countdown={countdown} style={style} /></div>}
@@ -58,7 +58,7 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
             <p className="text-[9px] uppercase tracking-[0.3em] text-white/20 mb-1">Contract</p>
             <code className="text-xs text-white/50 truncate block font-mono">{data.contractAddress}</code>
           </div>
-          <button className="p-2 rounded-lg hover:bg-white/5 transition-all">
+          <button onClick={() => copyToClipboard(data.contractAddress)} className="p-2 rounded-lg hover:bg-white/5 transition-all">
             <Copy className={cn('w-4 h-4', style.accent)} />
           </button>
         </div>
@@ -111,22 +111,22 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
     <div className="max-w-lg mx-auto px-8 py-16 text-center">
       <div className="flex justify-center gap-4">
         {data.socials.telegram && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <Send className="w-5 h-5" />
           </a>
         )}
         {data.socials.twitter && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 text-lg', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 text-lg', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             𝕏
           </a>
         )}
         {data.socials.discord && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <MessageCircle className="w-5 h-5" />
           </a>
         )}
         {data.socials.dex && (
-          <a href="#" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110', style.accent)} style={{ border: `1px solid ${style.accentHex}15` }}>
             <ExternalLink className="w-5 h-5" />
           </a>
         )}

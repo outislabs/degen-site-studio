@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowDown, ShieldCheck } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard } from './shared';
 
 interface Props {
   data: CoinData;
@@ -39,10 +39,10 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
             <span className="text-white/20">•</span>
             <span className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
           </div>
-          <button className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05]', style.button, style.buttonText)}
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-4 py-2 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `2px solid ${style.accentHex}30` }}>
             Buy ${data.ticker || 'TOKEN'}
-          </button>
+          </a>
         </div>
       </div>
 
@@ -78,14 +78,14 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
 
         {/* Big chunky CTA buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative z-10">
-          <button className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] hover:rotate-1', style.button, style.buttonText)}
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] hover:rotate-1 inline-flex items-center', style.button, style.buttonText)}
             style={{ border: `3px solid ${style.accentHex}30`, boxShadow: `0 6px 0 ${style.accentHex}30, 0 10px 30px ${style.accentHex}15` }}>
             🚀 Buy ${data.ticker || 'TOKEN'} Now!
-          </button>
-          <button className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 hover:scale-[1.05] hover:-rotate-1', style.accent)}
+          </a>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-2xl font-bold text-sm transition-all duration-300 hover:scale-[1.05] hover:-rotate-1 inline-flex items-center', style.accent)}
             style={{ border: `3px solid ${style.accentHex}25`, boxShadow: `0 6px 0 ${style.accentHex}15` }}>
             📊 View Chart
-          </button>
+          </a>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
                 <p className={cn('text-[10px] uppercase tracking-[0.2em] font-bold mb-1', style.accent)}>Contract Address 📋</p>
                 <code className="text-xs text-white/60 truncate block font-mono">{data.contractAddress}</code>
               </div>
-              <button className={cn('px-4 py-2.5 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] flex items-center gap-1.5', style.button, style.buttonText)}
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('px-4 py-2.5 rounded-xl font-bold text-xs transition-all hover:scale-[1.05] flex items-center gap-1.5', style.button, style.buttonText)}
                 style={{ border: `2px solid ${style.accentHex}30` }}>
                 <Copy className="w-3.5 h-3.5" /> Copy
               </button>
@@ -206,25 +206,25 @@ const CartoonLayout = ({ data, style, countdown }: Props) => {
         </h2>
         <div className="flex justify-center gap-3 flex-wrap">
           {data.socials.telegram && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <Send className="w-4 h-4" /> Telegram
             </a>
           )}
           {data.socials.twitter && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               𝕏 Twitter
             </a>
           )}
           {data.socials.discord && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <MessageCircle className="w-4 h-4" /> Discord
             </a>
           )}
           {data.socials.dex && (
-            <a href="#" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-6 py-3 rounded-2xl text-sm font-bold transition-all hover:scale-[1.05] hover:-rotate-1 flex items-center gap-2', style.accent)}
               style={{ border: `3px solid ${style.accentHex}20`, background: `${style.accentHex}06`, boxShadow: `0 4px 0 ${style.accentHex}12` }}>
               <ExternalLink className="w-4 h-4" /> DEX
             </a>

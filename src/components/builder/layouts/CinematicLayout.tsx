@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard } from './shared';
 
 interface Props {
   data: CoinData;
@@ -57,13 +57,13 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-4 justify-center relative z-10 mb-6">
-          <button className={cn('px-10 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05]', style.button, style.buttonText)}
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ boxShadow: `0 0 40px ${style.accentHex}30, 0 10px 30px rgba(0,0,0,0.3)` }}>
             🚀 Buy Now
-          </button>
-          <button className={cn('px-10 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5', style.border, style.accent)}>
+          </a>
+          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>
             📊 Chart
-          </button>
+          </a>
         </div>
 
         {data.showCountdown && data.launchDate && <div className="relative z-10"><CountdownBlock countdown={countdown} style={style} /></div>}
@@ -82,7 +82,7 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
                 <p className="text-[9px] uppercase tracking-[0.3em] text-white/25 mb-1.5 font-medium">Contract Address</p>
                 <code className="text-sm text-white/60 truncate block font-mono">{data.contractAddress}</code>
               </div>
-              <button className={cn('px-6 py-2.5 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] relative z-10 flex items-center gap-2', style.button, style.buttonText)}>
+              <button onClick={() => copyToClipboard(data.contractAddress)} className={cn('px-6 py-2.5 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] relative z-10 flex items-center gap-2', style.button, style.buttonText)}>
                 <Copy className="w-3.5 h-3.5" /> Copy
               </button>
             </div>
@@ -194,25 +194,25 @@ const CinematicLayout = ({ data, style, countdown }: Props) => {
         </h2>
         <div className="flex justify-center gap-4 flex-wrap">
           {data.socials.telegram && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <Send className="w-4 h-4" /> Telegram
             </a>
           )}
           {data.socials.twitter && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               𝕏 Twitter
             </a>
           )}
           {data.socials.discord && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <MessageCircle className="w-4 h-4" /> Discord
             </a>
           )}
           {data.socials.dex && (
-            <a href="#" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-4 rounded-xl text-sm font-bold transition-all duration-300 hover:scale-[1.03] flex items-center gap-2', style.accent)}
               style={{ border: `1px solid ${style.accentHex}18`, background: `${style.accentHex}05` }}>
               <ExternalLink className="w-4 h-4" /> DEX
             </a>
