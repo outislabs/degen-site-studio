@@ -42,7 +42,7 @@ const features = [
 
 const FeaturesGrid = () => {
   return (
-    <section className="px-6 py-20 relative">
+    <section id="features" className="px-6 py-20 relative">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="font-display text-xs text-primary tracking-wider mb-3">FEATURES</h2>

@@ -9,6 +9,8 @@ import HeroSection from '@/components/landing/HeroSection';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import HowItWorks from '@/components/landing/HowItWorks';
+import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
+import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
 import DashboardView from '@/components/landing/DashboardView';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -64,7 +66,6 @@ const Index = () => {
     navigate('/builder');
   };
 
-  // Logged-in: Dashboard layout with nav
   if (user) {
     return (
       <DashboardLayout onNewSite={handleNewSite}>
@@ -73,7 +74,6 @@ const Index = () => {
     );
   }
 
-  // Logged-out: Landing page
   return (
     <div className="min-h-screen gradient-degen">
       <LandingHeader
@@ -84,7 +84,9 @@ const Index = () => {
       <HeroSection onGetStarted={handleNewSite} />
       <FeaturesGrid />
       <HowItWorks />
+      <ContentStudioShowcase />
       <ThemeShowcase />
+      <PricingSection onGetStarted={handleNewSite} />
       <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>

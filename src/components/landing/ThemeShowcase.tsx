@@ -3,7 +3,7 @@ import { themeList } from '@/lib/themes';
 
 const ThemeShowcase = () => {
   return (
-    <section className="px-6 py-20 relative">
+    <section id="themes" className="px-6 py-20 relative">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="font-display text-xs text-primary tracking-wider mb-3">THEMES</h2>
