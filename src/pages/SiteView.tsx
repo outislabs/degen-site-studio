@@ -30,14 +30,8 @@ const SiteView = () => {
       setData(site.data as unknown as CoinData);
 
       // Check if site owner has a paid plan (no watermark)
-      const { data: sub } = await supabase
-        .from('user_subscriptions')
-        .select('plan')
-        .eq('user_id', site.user_id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      const plan = sub?.plan || 'free';
+      const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
+      setShowWatermark(!plan || plan === 'free');
       setShowWatermark(plan === 'free');
       setLoading(false);
     });
