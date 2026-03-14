@@ -19,7 +19,6 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           <img src={logo} alt="Degen Tools" className="h-7 w-7" />
           <h1 className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider">DEGEN TOOLS</h1>
         </div>
-        </div>
         <button onClick={() => navigate('/pricing')} className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium">
           Pricing
         </button>
