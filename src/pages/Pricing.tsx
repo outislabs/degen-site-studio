@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import LandingHeader from '@/components/landing/LandingHeader';
@@ -6,7 +6,8 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Zap, Crown, Rocket, Star, Diamond } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Check, X, Zap, Crown, Rocket, Star, Diamond, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const plans = [
@@ -116,6 +117,103 @@ const addOns = [
   { name: 'Priority Support', price: '$19/mo', description: 'Fast-track assistance' },
 ];
 
+type FeatureValue = boolean | string;
+
+const comparisonFeatures: { category: string; features: { name: string; values: Record<string, FeatureValue> }[] }[] = [
+  {
+    category: 'Websites',
+    features: [
+      { name: 'Coin websites', values: { Free: '1', Degen: '1', Creator: '3', Pro: '10', Whale: 'Unlimited' } },
+      { name: 'Custom domain', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'All templates', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'No watermark', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+    ],
+  },
+  {
+    category: 'Content Studio',
+    features: [
+      { name: 'Meme downloads', values: { Free: '5/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
+      { name: 'Full content studio', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Sticker pack builder', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Shill templates', values: { Free: false, Degen: 'Basic', Creator: 'All', Pro: 'All', Whale: 'All' } },
+    ],
+  },
+  {
+    category: 'Branding & Launch',
+    features: [
+      { name: 'Brand kit', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Launch announcement kit', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Contract audit badge', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+    ],
+  },
+  {
+    category: 'Automation & Analytics',
+    features: [
+      { name: 'Telegram buy bot', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Smart whale alerts', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Multi-platform blast', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Analytics dashboard', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'API access', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+    ],
+  },
+  {
+    category: 'Support & Extras',
+    features: [
+      { name: 'White label option', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'Priority support', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+    ],
+  },
+];
+
+const planNames = ['Free', 'Degen', 'Creator', 'Pro', 'Whale'];
+
+const ComparisonTable = () => (
+  <Card className="border-border overflow-hidden">
+    <Table>
+      <TableHeader>
+        <TableRow className="border-border">
+          <TableHead className="min-w-[160px] text-xs font-bold text-foreground">Feature</TableHead>
+          {planNames.map((name) => (
+            <TableHead key={name} className={cn('text-center text-xs font-bold min-w-[90px]', name === 'Creator' ? 'text-primary' : 'text-foreground')}>
+              {name}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {comparisonFeatures.map((category) => (
+          <React.Fragment key={category.category}>
+            <TableRow className="border-border bg-secondary/30">
+              <TableCell colSpan={6} className="text-[10px] font-display text-primary tracking-wider py-2">
+                {category.category.toUpperCase()}
+              </TableCell>
+            </TableRow>
+            {category.features.map((feature) => (
+              <TableRow key={feature.name} className="border-border">
+                <TableCell className="text-xs text-muted-foreground">{feature.name}</TableCell>
+                {planNames.map((plan) => {
+                  const val = feature.values[plan];
+                  return (
+                    <TableCell key={plan} className="text-center">
+                      {val === true ? (
+                        <Check className="w-4 h-4 text-primary mx-auto" />
+                      ) : val === false ? (
+                        <Minus className="w-4 h-4 text-muted-foreground/30 mx-auto" />
+                      ) : (
+                        <span className="text-xs text-foreground font-medium">{val}</span>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </React.Fragment>
+        ))}
+      </TableBody>
+    </Table>
+  </Card>
+);
+
 const Pricing = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -219,6 +317,14 @@ const Pricing = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* Comparison Table */}
+        <div className="mb-20">
+          <h2 className="font-display text-sm text-primary text-glow text-center mb-6">COMPARE PLANS</h2>
+          <div className="overflow-x-auto">
+            <ComparisonTable />
+          </div>
         </div>
 
         {/* One-Time Purchases */}
