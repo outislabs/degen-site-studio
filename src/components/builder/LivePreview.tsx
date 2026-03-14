@@ -6,6 +6,9 @@ import ClassicLayout from './layouts/ClassicLayout';
 import SplitHeroLayout from './layouts/SplitHeroLayout';
 import BentoLayout from './layouts/BentoLayout';
 import MinimalLayout from './layouts/MinimalLayout';
+import MascotHeroLayout from './layouts/MascotHeroLayout';
+import CinematicLayout from './layouts/CinematicLayout';
+import CartoonLayout from './layouts/CartoonLayout';
 
 interface Props {
   data: CoinData;
@@ -39,6 +42,9 @@ const LivePreview = ({ data }: Props) => {
       {layout === 'split-hero' && <SplitHeroLayout {...layoutProps} />}
       {layout === 'bento' && <BentoLayout {...layoutProps} />}
       {layout === 'minimal' && <MinimalLayout {...layoutProps} />}
+      {layout === 'mascot-hero' && <MascotHeroLayout {...layoutProps} />}
+      {layout === 'cinematic' && <CinematicLayout {...layoutProps} />}
+      {layout === 'cartoon' && <CartoonLayout {...layoutProps} />}
     </div>
   );
 };

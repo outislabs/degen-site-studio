@@ -14,11 +14,14 @@ interface Props {
   onChange: (data: Partial<CoinData>) => void;
 }
 
-const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
+const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode; premium?: boolean }[] = [
   { id: 'classic', name: 'Classic', desc: 'Centered single-column layout', icon: <LayoutGrid className="w-5 h-5" /> },
   { id: 'split-hero', name: 'Split Hero', desc: 'Side-by-side hero with 2-col sections', icon: <Columns className="w-5 h-5" /> },
   { id: 'bento', name: 'Bento Grid', desc: 'Modern card grid layout', icon: <Grid3X3 className="w-5 h-5" /> },
   { id: 'minimal', name: 'Minimal', desc: 'Clean, spacious one-page scroll', icon: <Minus className="w-5 h-5" /> },
+  { id: 'mascot-hero', name: 'Mascot Hero', desc: 'Giant logo with nav bar & how-to-buy steps', icon: <Crown className="w-5 h-5" />, premium: true },
+  { id: 'cinematic', name: 'Cinematic', desc: 'Dramatic full-screen hero with metallic effects', icon: <Film className="w-5 h-5" />, premium: true },
+  { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
