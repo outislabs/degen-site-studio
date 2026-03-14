@@ -55,10 +55,17 @@ async function fetchGoPlus(chain: string, address: string) {
   const chainId = goplusChainIds[chain];
   if (!chainId) return null;
   try {
+    const baseUrl = 'https://api.gopluslabs.com';
     const url = chainId === 'solana'
-      ? `https://api.gopluslabs.com/api/v1/solana/token_security?contract_addresses=${address}`
-      : `https://api.gopluslabs.com/api/v1/token_security/${chainId}?contract_addresses=${address}`;
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      ? `${baseUrl}/api/v1/solana/token_security?contract_addresses=${address}`
+      : `${baseUrl}/api/v1/token_security/${chainId}?contract_addresses=${address}`;
+    console.log('GoPlus URL:', url);
+    const res = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0',
+      },
+    });
     if (!res.ok) return null;
     const data = await res.json();
     const tokenInfo = data?.result?.[address.toLowerCase()] || data?.result?.[address];
