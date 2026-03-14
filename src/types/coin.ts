@@ -55,6 +55,7 @@ export const defaultCoinData: CoinData = {
   name: '',
   ticker: '',
   tagline: '',
+  description: '',
   logoUrl: '',
   blockchain: 'solana',
   contractAddress: '',
