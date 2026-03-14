@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Rocket, ArrowRight } from 'lucide-react';
+import { Bot, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
