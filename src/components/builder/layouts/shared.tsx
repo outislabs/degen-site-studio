@@ -3,6 +3,17 @@ import { ThemeConfig } from '@/lib/themes';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DonutChart from '../DonutChart';
+import { toast } from 'sonner';
+
+export const ensureUrl = (url: string) => {
+  if (!url) return '#';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}`;
+};
+
+export const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text).then(() => toast.success('Copied to clipboard!')).catch(() => toast.error('Failed to copy'));
+};
 
 interface SectionHeaderProps {
   label: string;
