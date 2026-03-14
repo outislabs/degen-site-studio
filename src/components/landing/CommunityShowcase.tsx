@@ -91,7 +91,7 @@ const CommunityShowcase = () => {
             <span className="text-[9px] sm:text-[10px] font-display text-primary tracking-[0.3em]">COMMUNITY</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
-            Built with Degen Site Studio
+            Built with Degen Tools Studio
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-xl mx-auto px-2">
             Real websites and memes created by our community. See what's possible.
