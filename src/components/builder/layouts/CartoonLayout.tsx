@@ -10,13 +10,14 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-const CartoonLayout = ({ data, style, countdown }: Props) => {
+const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
   // Determine if this is a "light" theme based on bg color
   const textColor = 'text-white';
   const subTextColor = 'text-white/50';
