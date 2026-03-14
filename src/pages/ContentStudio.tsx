@@ -61,6 +61,8 @@ const ContentStudio = () => {
     { id: 'meme', label: 'Memes', icon: Image, locked: false },
     { id: 'sticker', label: 'Stickers', icon: Sticker, locked: !isFullStudio },
     { id: 'social_post', label: 'Social Posts', icon: Share2, locked: !isFullStudio },
+    { id: 'dex_header', label: 'DEX Header', icon: BarChart3, locked: !isFullStudio },
+    { id: 'x_header', label: 'X Header', icon: Twitter, locked: !isFullStudio },
     { id: 'marketing_copy', label: 'Copy', icon: Type, locked: !isFullStudio },
   ];
 
