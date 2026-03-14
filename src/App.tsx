@@ -25,6 +25,7 @@ const App = () => (
             <Route path="/builder" element={<Builder />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/site/:id" element={<SiteView />} />
+            <Route path="/studio" element={<ContentStudio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
