@@ -132,10 +132,7 @@ const Builder = () => {
       <header className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50 bg-background/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="text-lg">🛠️</span>
-            <span className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider">
-              DEGEN TOOLS
-            </span>
+            <img src={logo} alt="Degen Tools" className="h-8 sm:h-10 w-auto" />
           </button>
           <div className="hidden sm:block h-5 w-px bg-border" />
           <span className="hidden sm:block text-xs text-muted-foreground font-medium truncate max-w-[180px]">
