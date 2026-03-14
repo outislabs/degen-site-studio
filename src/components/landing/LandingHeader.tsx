@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut } from 'lucide-react';
-import logo from '@/assets/logo.png';
+
 
 interface Props {
   isLoggedIn: boolean;
