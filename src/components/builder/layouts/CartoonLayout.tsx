@@ -12,6 +12,10 @@ interface Props {
   countdown: { d: number; h: number; m: number; s: number };
 }
 
+const scrollTo = (id: string) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 const CartoonLayout = ({ data, style, countdown }: Props) => {
   // Determine if this is a "light" theme based on bg color
   const textColor = 'text-white';
