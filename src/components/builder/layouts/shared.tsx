@@ -12,6 +12,31 @@ export const ensureUrl = (url: string) => {
   return `https://${url}`;
 };
 
+/** Returns the best "Buy" URL for a token. Pump.fun tokens link to pump.fun, others to DEX link or DexScreener. */
+export const getBuyUrl = (data: CoinData): string => {
+  // If contract address looks like a Solana address and blockchain is solana, link to pump.fun
+  if (data.blockchain === 'solana' && data.contractAddress && !/^0x/i.test(data.contractAddress)) {
+    return `https://pump.fun/coin/${data.contractAddress}`;
+  }
+  // Otherwise use the user-provided DEX link, or fall back to DexScreener
+  if (data.socials.dex) return ensureUrl(data.socials.dex);
+  if (data.contractAddress) {
+    const chain = data.blockchain || 'solana';
+    return `https://dexscreener.com/${chain}/${data.contractAddress}`;
+  }
+  return '#';
+};
+
+/** Returns the best "Chart" URL — always DexScreener when possible. */
+export const getChartUrl = (data: CoinData): string => {
+  if (data.contractAddress) {
+    const chain = data.blockchain || 'solana';
+    return `https://dexscreener.com/${chain}/${data.contractAddress}`;
+  }
+  if (data.socials.dex) return ensureUrl(data.socials.dex);
+  return '#';
+};
+
 export const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text).then(() => toast.success('Copied to clipboard!')).catch(() => toast.error('Failed to copy'));
 };

@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
-import { SectionHeader, Divider, ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, DescriptionBlock, ensureUrl } from './shared';
+import { SectionHeader, Divider, ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, DescriptionBlock, getBuyUrl, getChartUrl } from './shared';
 
 interface Props {
   data: CoinData;
@@ -35,8 +35,8 @@ const ClassicLayout = ({ data, style, countdown, showWatermark }: Props) => (
       </div>
       <p className="text-base text-white/50 max-w-sm mx-auto leading-relaxed">{data.tagline || 'Your epic tagline goes here 🚀'}</p>
       <div className="flex flex-wrap justify-center gap-3 pt-3">
-        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-7 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>🚀 Buy Now</a>
-        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-7 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>📊 Chart</a>
+        <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-7 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>🚀 Buy Now</a>
+        <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-7 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>📊 Chart</a>
       </div>
       {data.showCountdown && data.launchDate && <div className="mt-8"><CountdownBlock countdown={countdown} style={style} /></div>}
     </div>

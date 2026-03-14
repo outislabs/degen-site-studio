@@ -2,7 +2,7 @@ import { CoinData } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
-import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock } from './shared';
+import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl } from './shared';
 
 interface Props {
   data: CoinData;
@@ -38,8 +38,8 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
       </p>
 
       <div className="flex gap-4">
-        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
-        <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>Chart</a>
+        <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
+        <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-full font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>Chart</a>
       </div>
 
       {data.showCountdown && data.launchDate && <div className="mt-12"><CountdownBlock countdown={countdown} style={style} /></div>}

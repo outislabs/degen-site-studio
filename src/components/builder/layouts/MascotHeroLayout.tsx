@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowRight, ShieldCheck } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
-import { CountdownBlock, Footer, ensureUrl, copyToClipboard } from './shared';
+import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl } from './shared';
 
 interface Props {
   data: CoinData;
@@ -47,7 +47,7 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
               {data.socials.discord && <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><MessageCircle className={cn('w-3.5 h-3.5', style.accent)} /></a>}
             </div>
           )}
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
+          <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-5 py-2 rounded-lg font-bold text-xs transition-all hover:scale-[1.03] inline-flex items-center', style.button, style.buttonText)}>Buy Now</a>
         </div>
       </div>
 
@@ -108,10 +108,10 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
       {/* CTA Buttons - Large */}
       <div className="px-6 sm:px-10 py-10">
         <div className="max-w-lg mx-auto flex flex-col sm:flex-row gap-4">
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center justify-center gap-2', style.button, style.buttonText)}>
+          <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] inline-flex items-center justify-center gap-2', style.button, style.buttonText)}>
             <Wallet className="w-4 h-4" /> Buy ${data.ticker || 'TOKEN'}
           </a>
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center justify-center gap-2', style.border, style.accent)}>
+          <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('flex-1 px-8 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center justify-center gap-2', style.border, style.accent)}>
             📊 View Chart <ArrowRight className="w-4 h-4" />
           </a>
         </div>
