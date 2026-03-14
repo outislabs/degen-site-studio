@@ -19,6 +19,8 @@ const placeholders: Record<string, string> = {
   meme: 'e.g. "A Pepe frog holding diamond hands with laser eyes"',
   sticker: 'e.g. "Happy moon emoji with rocket, kawaii style"',
   social_post: 'e.g. "Announcement graphic for our new listing on Raydium"',
+  dex_header: 'e.g. "Futuristic neon banner with our token logo and chart vibes"',
+  x_header: 'e.g. "Clean branded header with token name and rocket theme"',
   marketing_copy: 'e.g. "Write 5 shill tweets for our presale launch"',
 };
 
@@ -26,6 +28,8 @@ const titles: Record<string, string> = {
   meme: '🎭 Generate Meme',
   sticker: '✨ Create Sticker',
   social_post: '📱 Social Post',
+  dex_header: '📊 DEX Header',
+  x_header: '🐦 X Profile Header',
   marketing_copy: '✍️ Marketing Copy',
 };
 
@@ -33,6 +37,8 @@ const quickPrompts: Record<string, string[]> = {
   meme: ['Diamond hands meme', 'To the moon reaction', 'Rug pull survivor', 'WAGMI energy'],
   sticker: ['Happy coin mascot', 'Rocket launch', 'Moon landing celebration', 'Hold on tight'],
   social_post: ['Token launch announcement', 'New partnership graphic', 'Listing celebration', 'Community milestone'],
+  dex_header: ['Neon trading vibes', 'Clean minimal banner', 'Chart & moon theme', 'Cyberpunk style'],
+  x_header: ['Branded token header', 'Community celebration', 'Launch announcement', 'Moon mission theme'],
   marketing_copy: ['Shill tweets (5x)', 'Telegram welcome message', 'Token description', 'FOMO announcement'],
 };
 

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Image, Sticker, Share2, Type, Lock } from 'lucide-react';
+import { Image, Sticker, Share2, Type, Lock, BarChart3, Twitter } from 'lucide-react';
 import ContentGenerator from '@/components/studio/ContentGenerator';
 import ContentGallery from '@/components/studio/ContentGallery';
 import StickerPacks from '@/components/studio/StickerPacks';
@@ -61,6 +61,8 @@ const ContentStudio = () => {
     { id: 'meme', label: 'Memes', icon: Image, locked: false },
     { id: 'sticker', label: 'Stickers', icon: Sticker, locked: !isFullStudio },
     { id: 'social_post', label: 'Social Posts', icon: Share2, locked: !isFullStudio },
+    { id: 'dex_header', label: 'DEX Header', icon: BarChart3, locked: !isFullStudio },
+    { id: 'x_header', label: 'X Header', icon: Twitter, locked: !isFullStudio },
     { id: 'marketing_copy', label: 'Copy', icon: Type, locked: !isFullStudio },
   ];
 
