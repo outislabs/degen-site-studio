@@ -177,29 +177,6 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
-  const handleSecurityScan = async () => {
-    const address = data.contractAddress?.trim();
-    if (!address) return;
-    setSecurityLoading(true);
-    try {
-      const chain = data.blockchain || 'solana';
-      const [security, rugcheck] = await Promise.all([
-        fetchGoPlus(chain, address),
-        chain === 'solana' ? fetchRugCheck(address) : Promise.resolve(null),
-      ]);
-      setSecurityData(security || null);
-      setRugCheckData(rugcheck || null);
-      if (security || rugcheck) {
-        setShowSecurity(true);
-      } else {
-        toast.error('Could not retrieve security data for this token.');
-      }
-    } catch {
-      toast.error('Security scan failed.');
-    } finally {
-      setSecurityLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-5 animate-fade-in">
