@@ -59,7 +59,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </motion.div>
 
           {/* Heading */}
-          <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-6 sm:mb-8">
+          <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-4 sm:mb-8">
             YOUR TOOLKIT FOR<br />
             <span className="text-primary text-glow">MEME COIN</span> DOMINATION
           </h1>
