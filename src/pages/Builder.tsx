@@ -10,6 +10,7 @@ import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -151,7 +152,7 @@ const Builder = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className={cn('w-full lg:w-1/2 xl:w-[45%] border-r border-border overflow-y-auto flex flex-col', showPreview && 'hidden lg:flex')} style={{ height: 'calc(100vh - 49px)' }}>
+        <div className={cn('w-full lg:w-1/2 xl:w-[45%] border-r border-border overflow-y-auto flex flex-col pb-16 lg:pb-0', showPreview && 'hidden lg:flex')} style={{ height: 'calc(100vh - 49px)' }}>
           {/* Step Progress Bar */}
           <div className="px-4 pt-4 pb-3">
             <div className="flex items-center">
@@ -231,6 +232,7 @@ const Builder = () => {
         </div>
       </div>
 
+      <MobileBottomNav />
       <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} slug={slug} />
     </div>
   );
