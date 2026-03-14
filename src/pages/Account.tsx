@@ -22,6 +22,10 @@ import {
   CalendarDays,
   Mail,
   Shield,
+  CreditCard,
+  Clock,
+  Receipt,
+  AlertCircle,
 } from 'lucide-react';
 import { PLAN_ORDER, PLANS, PlanId } from '@/lib/plans';
 import { useEffect, useState } from 'react';
@@ -84,6 +88,17 @@ const Account = () => {
 
   const currentPlanIndex = PLAN_ORDER.indexOf(planId);
 
+  const subStatus = subscription?.status || 'active';
+  const subPlan = (subscription?.plan as PlanId) || 'free';
+  const subPlanConfig = PLANS[subPlan] || PLANS.free;
+  const isPending = subStatus === 'pending';
+  const isCancelled = subStatus === 'cancelled';
+  const billingPeriod = subscription?.billing_period || 'monthly';
+  const paymentId = subscription?.payment_id;
+  const subCreatedAt = subscription?.created_at
+    ? new Date(subscription.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
+
   const featureRows: { label: string; icon: React.ReactNode; included: boolean }[] = [
     { label: 'Custom Domain', icon: <Globe className="w-4 h-4" />, included: plan.hasCustomDomain },
     { label: 'No Watermark', icon: <Sparkles className="w-4 h-4" />, included: plan.hasNoWatermark },
@@ -96,6 +111,14 @@ const Account = () => {
     { label: 'Analytics', icon: <Zap className="w-4 h-4" />, included: plan.hasAnalyticsDashboard },
     { label: 'API Access', icon: <Zap className="w-4 h-4" />, included: plan.hasApiAccess },
   ];
+
+  const statusColor = isPending
+    ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30'
+    : isCancelled
+    ? 'text-destructive bg-destructive/10 border-destructive/30'
+    : 'text-primary bg-primary/10 border-primary/30';
+
+  const statusLabel = isPending ? 'Pending Payment' : isCancelled ? 'Cancelled' : 'Active';
 
   return (
     <DashboardLayout>
@@ -121,7 +144,7 @@ const Account = () => {
             </div>
           </div>
           <Badge
-            className="text-xs border-primary/30 text-primary bg-primary/10 px-3 py-1"
+            className={`text-xs px-3 py-1 ${statusColor}`}
             variant="outline"
           >
             <Crown className="w-3.5 h-3.5 mr-1.5" />
@@ -130,6 +153,34 @@ const Account = () => {
         </div>
 
         <Separator />
+
+        {/* Pending Payment Alert */}
+        {isPending && (
+          <Card className="border-yellow-400/30 bg-yellow-400/5">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-10 h-10 rounded-full bg-yellow-400/10 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-5 h-5 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Payment Pending</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your {subPlanConfig.name} plan ({billingPeriod}) subscription is awaiting payment confirmation.
+                    {paymentId && <span className="ml-1">Payment ID: <code className="text-yellow-400/80">{paymentId}</code></span>}
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10 shrink-0"
+                onClick={() => navigate('/pricing')}
+              >
+                Retry Payment
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Usage Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -186,29 +237,133 @@ const Account = () => {
           </Card>
         </div>
 
+        {/* Billing & Subscription */}
+        <Card className="border-border bg-card">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg text-foreground flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-primary" />
+                Billing & Subscription
+              </CardTitle>
+              <Badge variant="outline" className={`text-[10px] font-display tracking-wider ${statusColor}`}>
+                {statusLabel}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Subscription Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-lg border border-border bg-muted/20 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Current Plan</p>
+                <p className="text-sm font-bold text-foreground">{subPlanConfig.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {subPlanConfig.priceMonthly === 0
+                    ? 'Free'
+                    : billingPeriod === 'annual'
+                    ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/year`
+                    : `$${subPlanConfig.priceMonthly}/month`}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/20 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Billing Period</p>
+                <p className="text-sm font-bold text-foreground capitalize">{billingPeriod}</p>
+                <p className="text-xs text-muted-foreground">
+                  {billingPeriod === 'annual' ? '20% savings' : 'Billed monthly'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/20 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Next Reset</p>
+                <p className="text-sm font-bold text-foreground">{nextResetDate || '—'}</p>
+                <p className="text-xs text-muted-foreground">Download quota resets</p>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Transaction History */}
+            <div>
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-3">
+                <Receipt className="w-4 h-4 text-primary" />
+                Transaction History
+              </h3>
+              {subscription && subPlan !== 'free' ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/10 p-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      isPending ? 'bg-yellow-400/10' : 'bg-primary/10'
+                    }`}>
+                      {isPending ? (
+                        <Clock className="w-4 h-4 text-yellow-400" />
+                      ) : (
+                        <Check className="w-4 h-4 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">
+                        {subPlanConfig.name} Plan — {billingPeriod === 'annual' ? 'Annual' : 'Monthly'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {subCreatedAt}
+                        {paymentId && (
+                          <span className="ml-2 text-muted-foreground/60">
+                            ID: {paymentId}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-bold text-foreground">
+                        ${billingPeriod === 'annual'
+                          ? Math.round(subPlanConfig.priceMonthly * 12 * 0.8)
+                          : subPlanConfig.priceMonthly}
+                      </p>
+                      <Badge
+                        variant="outline"
+                        className={`text-[9px] ${isPending ? 'text-yellow-400 border-yellow-400/30' : isCancelled ? 'text-destructive border-destructive/30' : 'text-primary border-primary/30'}`}
+                      >
+                        {statusLabel}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Receipt className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">No transactions yet</p>
+                  <p className="text-xs mt-1">Upgrade your plan to see billing history</p>
+                </div>
+              )}
+            </div>
+
+            {planId !== 'whale' && (
+              <>
+                <Separator />
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => navigate('/pricing')}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <ArrowUpRight className="w-4 h-4 mr-1.5" />
+                    Upgrade Plan
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Current Plan Details */}
         <Card className="border-border bg-card">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-lg text-foreground">
-                  {plan.name} Plan
+                  Plan Features
                 </CardTitle>
                 <CardDescription>
-                  {plan.priceMonthly === 0
-                    ? 'Free forever'
-                    : `$${plan.priceMonthly}/mo · ${subscription?.billing_period || 'monthly'}`}
+                  What's included in your {plan.name} plan
                 </CardDescription>
               </div>
-              {planId !== 'whale' && (
-                <Button
-                  onClick={() => navigate('/pricing')}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <ArrowUpRight className="w-4 h-4 mr-1.5" />
-                  Upgrade Plan
-                </Button>
-              )}
             </div>
           </CardHeader>
           <CardContent>
