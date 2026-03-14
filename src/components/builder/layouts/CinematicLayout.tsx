@@ -222,7 +222,7 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
       </div>
 
       <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
-      <Footer style={style} />
+      <Footer style={style} showWatermark={showWatermark} />
     </>
   );
 };

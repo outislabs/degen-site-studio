@@ -104,7 +104,7 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
       </div>
     </div>
 
-    <Footer style={style} />
+    <Footer style={style} showWatermark={showWatermark} />
   </>
 );
 

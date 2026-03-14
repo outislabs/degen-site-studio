@@ -67,7 +67,7 @@ const ClassicLayout = ({ data, style, countdown, showWatermark }: Props) => (
       <SocialsBlock data={data} style={style} />
     </div>
 
-    <Footer style={style} />
+    <Footer style={style} showWatermark={showWatermark} />
   </>
 );
 

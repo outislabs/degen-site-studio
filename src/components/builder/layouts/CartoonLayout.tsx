@@ -240,7 +240,7 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
       <div className="my-2" style={{ transform: 'rotate(1deg)' }}>
         <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
       </div>
-      <Footer style={style} />
+      <Footer style={style} showWatermark={showWatermark} />
     </>
   );
 };
