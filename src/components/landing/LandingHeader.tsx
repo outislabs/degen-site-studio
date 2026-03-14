@@ -33,11 +33,12 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
     <header className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-8">
-          <h1
-            className="font-display text-[10px] sm:text-xs text-primary text-glow tracking-wider cursor-pointer"
+          <img
+            src={logo}
+            alt="Degen Tools"
+            className="h-6 sm:h-7 w-auto cursor-pointer"
             onClick={() => navigate('/')}
-          >
-            DEGEN TOOLS
+          />
           </h1>
 
           <nav className="hidden md:flex items-center gap-0.5">
