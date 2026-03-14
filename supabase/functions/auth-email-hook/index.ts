@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "degen-site-studio"
+const SITE_NAME = "Degen Tools"
 const SENDER_DOMAIN = "notify.degentools.co"
 const ROOT_DOMAIN = "degentools.co"
 const FROM_DOMAIN = "degentools.co" // Domain shown in From address (may be root or sender subdomain)
