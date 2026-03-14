@@ -26,7 +26,14 @@ const Auth = () => {
     setSubmitting(true);
 
     try {
-      if (isSignUp) {
+      if (view === 'forgot') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success('Check your email for a password reset link!');
+        setView('signin');
+      } else if (view === 'signup') {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -45,6 +52,9 @@ const Auth = () => {
       setSubmitting(false);
     }
   };
+
+  const isSignUp = view === 'signup';
+  const isForgot = view === 'forgot';
 
   return (
     <div className="min-h-screen gradient-degen relative overflow-hidden">
