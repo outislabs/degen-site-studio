@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useCustomDomain } from "@/hooks/useCustomDomain";
+import LivePreview from "@/components/builder/LivePreview";
 import Index from "./pages/Index.tsx";
 import Builder from "./pages/Builder.tsx";
 import Auth from "./pages/Auth.tsx";
@@ -19,28 +21,64 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
+  const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen gradient-degen flex items-center justify-center">
+        <div className="text-primary animate-pulse font-display text-sm">Loading...</div>
+      </div>
+    );
+  }
+
+  if (isCustomDomain) {
+    if (error || !siteData) {
+      return (
+        <div className="min-h-screen gradient-degen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-5xl mb-4">😵</div>
+            <p className="text-foreground font-semibold">Site not found</p>
+            <p className="text-sm text-muted-foreground mt-1">No site is configured for this domain</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen">
+        <LivePreview data={siteData} showWatermark={showWatermark} />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/builder" element={<Builder />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/site/:id" element={<SiteView />} />
-            <Route path="/studio" element={<ContentStudio />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <CustomDomainHandler>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/builder" element={<Builder />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/site/:id" element={<SiteView />} />
+              <Route path="/studio" element={<ContentStudio />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CustomDomainHandler>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
