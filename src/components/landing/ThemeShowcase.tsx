@@ -147,24 +147,24 @@ const ThemeShowcase = () => {
           </div>
 
           {/* Thumbnail selector */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {featured.map((t, i) => (
+          <div className="flex items-center justify-center gap-1.5 mt-6 flex-wrap max-w-xl mx-auto px-4">
+            {themeList.map((t, i) => (
               <button
                 key={t.id}
                 onClick={() => setActiveIndex(i)}
-                className="group relative rounded-lg overflow-hidden transition-all duration-300"
+                className="group relative rounded-md overflow-hidden transition-all duration-300"
                 style={{
-                  width: i === activeIndex ? 56 : 40,
-                  height: i === activeIndex ? 36 : 28,
+                  width: i === activeIndex ? 40 : 28,
+                  height: i === activeIndex ? 26 : 20,
                   border: i === activeIndex ? `2px solid ${t.accentHex}` : '1px solid transparent',
-                  boxShadow: i === activeIndex ? `0 0 16px ${t.accentHex}30` : 'none',
+                  boxShadow: i === activeIndex ? `0 0 12px ${t.accentHex}30` : 'none',
                 }}
               >
                 <div className="w-full h-full" style={{ background: t.bgGradient }}>
                   <div className="w-full h-full flex items-center justify-center">
                     <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: t.accentHex, opacity: i === activeIndex ? 1 : 0.5 }}
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: t.accentHex, opacity: i === activeIndex ? 1 : 0.4 }}
                     />
                   </div>
                 </div>
