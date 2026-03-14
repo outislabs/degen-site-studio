@@ -41,8 +41,8 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* CTA Card */}
         <div className={cn('rounded-2xl p-6 flex flex-col justify-center items-center gap-4', style.cardBg)} style={{ boxShadow: `0 0 40px ${style.accentHex}05` }}>
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full inline-flex items-center justify-center', style.button, style.buttonText)}>🚀 Buy Now</a>
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full inline-flex items-center justify-center', style.border, style.accent)}>📊 Chart</a>
+          <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.03] w-full inline-flex items-center justify-center', style.button, style.buttonText)}>🚀 Buy Now</a>
+          <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-8 py-3.5 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 w-full inline-flex items-center justify-center', style.border, style.accent)}>📊 Chart</a>
         </div>
 
         {/* Countdown or Contract */}

@@ -58,11 +58,11 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap gap-4 justify-center relative z-10 mb-6">
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
+          <a href={getBuyUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-[1.05] inline-flex items-center', style.button, style.buttonText)}
             style={{ boxShadow: `0 0 40px ${style.accentHex}30, 0 10px 30px rgba(0,0,0,0.3)` }}>
             🚀 Buy Now
           </a>
-          <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>
+          <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className={cn('px-10 py-4 rounded-xl font-bold text-sm border transition-all duration-300 hover:bg-white/5 inline-flex items-center', style.border, style.accent)}>
             📊 Chart
           </a>
         </div>
