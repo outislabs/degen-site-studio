@@ -32,6 +32,13 @@ const MascotHeroLayout = ({ data, style, countdown }: Props) => {
           <span className={cn('font-display text-xs tracking-wider', style.accent)}>{data.ticker ? `$${data.ticker}` : data.name || 'TOKEN'}</span>
         </div>
         <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold tracking-wider uppercase mr-3">
+            <span onClick={() => scrollTo('mascot-about')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>About</span>
+            <span className="text-white/20">•</span>
+            <span onClick={() => scrollTo('mascot-tokenomics')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Tokenomics</span>
+            <span className="text-white/20">•</span>
+            <span onClick={() => scrollTo('mascot-roadmap')} className={cn('cursor-pointer hover:opacity-70 transition-opacity', style.accent)}>Roadmap</span>
+          </div>
           {hasSocials && (
             <div className="hidden sm:flex items-center gap-1.5 mr-3">
               {data.socials.telegram && <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-all" style={{ border: `1px solid ${style.accentHex}12` }}><Send className={cn('w-3.5 h-3.5', style.accent)} /></a>}
