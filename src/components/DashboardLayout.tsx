@@ -83,7 +83,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
           <img
             src={logo}
             alt="Degen Tools"
-            className="h-8 sm:h-11 w-auto cursor-pointer"
+            className="h-10 sm:h-11 w-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
 
