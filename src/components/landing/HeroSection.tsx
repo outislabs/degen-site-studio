@@ -120,20 +120,34 @@ const HeroSection = ({ onGetStarted }: Props) => {
           <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-display mb-5">
             Works with
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 sm:gap-x-8">
+          {/* Desktop: grid layout */}
+          <div className="hidden sm:flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
             {integrations.map((item) => (
               <div
                 key={item.name}
                 className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity"
               >
-                <img
-                  src={item.logo}
-                  alt={item.name}
-                  className="h-8 w-8 sm:h-9 sm:w-9 object-contain"
-                />
+                <img src={item.logo} alt={item.name} className="h-9 w-9 object-contain" />
                 <span className="text-[9px] text-muted-foreground font-medium">{item.name}</span>
               </div>
             ))}
+          </div>
+
+          {/* Mobile: infinite scrolling carousel */}
+          <div className="sm:hidden overflow-hidden relative">
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+            <div className="flex animate-scroll-x gap-8 w-max">
+              {[...integrations, ...integrations].map((item, i) => (
+                <div
+                  key={`${item.name}-${i}`}
+                  className="flex flex-col items-center gap-1.5 opacity-70 shrink-0"
+                >
+                  <img src={item.logo} alt={item.name} className="h-8 w-8 object-contain" />
+                  <span className="text-[9px] text-muted-foreground font-medium">{item.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
