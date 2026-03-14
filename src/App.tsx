@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/site/:id" element={<SiteView />} />
             <Route path="/studio" element={<ContentStudio />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/account" element={<Account />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

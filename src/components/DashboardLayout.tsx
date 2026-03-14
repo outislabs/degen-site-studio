@@ -35,8 +35,9 @@ interface Props {
 
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
-  { label: 'Content Studio', icon: Image, path: '/studio' },
+  { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
+  { label: 'Account', icon: UserCog, path: '/account' },
 ];
 
 const DashboardLayout = ({ children, onNewSite }: Props) => {
