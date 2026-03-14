@@ -6,7 +6,8 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Zap, Crown, Rocket, Star, Diamond } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Check, X, Zap, Crown, Rocket, Star, Diamond, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const plans = [
