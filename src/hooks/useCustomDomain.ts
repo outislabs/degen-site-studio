@@ -7,6 +7,7 @@ const KNOWN_HOSTS = [
   'degentools.co',
   'www.degentools.co',
   'degen-site-studio.lovable.app',
+  'degen-site-studio.vercel.app',
 ];
 
 const SUBDOMAIN_BASE = 'degentools.co';
