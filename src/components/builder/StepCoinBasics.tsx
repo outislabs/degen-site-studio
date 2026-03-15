@@ -30,7 +30,6 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
   const { canUseCustomDomain } = usePlan();
   const navigate = useNavigate();
@@ -135,13 +134,12 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     // Birdeye
     const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
     if (birdMatch) return { mint: birdMatch[1], chain: 'solana', source: 'birdeye' };
-    // Raw EVM address (0x...) — must check BEFORE generic address pattern
+    // Raw EVM address
     if (/^0x[A-Fa-f0-9]{40}$/i.test(trimmed)) return { mint: trimmed, chain: 'ethereum', source: 'address' };
     // Raw Solana address
     if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, source: 'address' };
     return null;
   };
-
 
   const handlePumpImport = async () => {
     const tokenInfo = extractTokenInfo(pumpLink);
@@ -154,7 +152,11 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     setPumpLoading(true);
     try {
       const { data: result, error } = await supabase.functions.invoke('fetch-pumpfun-token', {
-        body: { mint, chain },
+        body: { 
+          mint, 
+          chain,
+          isPair: tokenInfo.source === 'dexscreener', // 👈 THE FIX
+        },
       });
       if (error) throw error;
       if (!result || result.error) throw new Error(result?.error || 'Token not found');
@@ -183,7 +185,6 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
-
   return (
     <div className="space-y-5 animate-fade-in">
       {/* PumpFun Import */}
@@ -207,8 +208,6 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           </Button>
         </div>
       </div>
-
-
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
