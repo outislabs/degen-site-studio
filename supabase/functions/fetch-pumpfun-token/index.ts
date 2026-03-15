@@ -1,14 +1,12 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// --- Rate Limiting (IP-based for public endpoint) ---
+// --- Rate Limiting ---
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 20; // 20 lookups per minute per IP
+const RATE_LIMIT_MAX = 20;
 
 function checkRateLimit(key: string): boolean {
   const now = Date.now();
@@ -22,23 +20,36 @@ function checkRateLimit(key: string): boolean {
   return true;
 }
 
-// --- Input Validation ---
 const VALID_CHAINS = ["solana", "ethereum", "base", "bsc", "arbitrum", "polygon", "optimism", "avalanche", "ton"];
-const MAX_MINT_LENGTH = 128;
 
-function validateInput(body: Record<string, unknown>): { valid: boolean; error?: string } {
-  const { mint, chain } = body;
-  if (!mint || typeof mint !== "string" || mint.trim().length === 0 || mint.trim().length > MAX_MINT_LENGTH) {
-    return { valid: false, error: `Missing or invalid mint address (max ${MAX_MINT_LENGTH} chars)` };
+// --- Extract mint address from URL or raw address ---
+function extractMintAndChain(input: string): { mint: string; chain: string } | null {
+  const trimmed = input.trim();
+
+  // Pump.fun URL: https://pump.fun/coin/MINTADDRESS
+  const pumpFunMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,})/);
+  if (pumpFunMatch) {
+    return { mint: pumpFunMatch[1], chain: 'solana' };
   }
-  // Only allow alphanumeric + 0x prefix for EVM
-  if (!/^(0x)?[A-Za-z0-9]{1,128}$/.test(mint.trim())) {
-    return { valid: false, error: "Invalid mint address format" };
+
+  // DexScreener URL: https://dexscreener.com/solana/MINTADDRESS
+  const dexScreenerMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,})/);
+  if (dexScreenerMatch) {
+    const chain = VALID_CHAINS.includes(dexScreenerMatch[1]) ? dexScreenerMatch[1] : 'solana';
+    return { mint: dexScreenerMatch[2], chain };
   }
-  if (chain !== undefined && (typeof chain !== "string" || !VALID_CHAINS.includes(chain))) {
-    return { valid: false, error: `Invalid chain. Must be one of: ${VALID_CHAINS.join(", ")}` };
+
+  // Raw Solana address (base58, 32-44 chars)
+  if (/^[A-Za-z0-9]{32,44}$/.test(trimmed)) {
+    return { mint: trimmed, chain: 'solana' };
   }
-  return { valid: true };
+
+  // Raw EVM address (0x...)
+  if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) {
+    return { mint: trimmed, chain: 'ethereum' };
+  }
+
+  return null;
 }
 
 const etherscanApis: Record<string, string> = {
@@ -144,13 +155,12 @@ async function fetchFromEtherscan(chain: string, mint: string) {
   } catch { return null; }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    // Rate limit by IP
     const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     if (!checkRateLimit(`ip:${clientIp}`)) {
       return new Response(JSON.stringify({ error: "Too many requests. Please wait and try again." }), {
@@ -159,15 +169,24 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const validation = validateInput(body);
-    if (!validation.valid) {
-      return new Response(JSON.stringify({ error: validation.error }), {
+    const input = (body.mint as string)?.trim() || (body.input as string)?.trim();
+
+    if (!input || input.length === 0) {
+      return new Response(JSON.stringify({ error: "Missing mint address, contract address, or URL" }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const cleanMint = (body.mint as string).trim();
-    const chain = (body.chain as string) || 'solana';
+    // Extract mint and chain from URL or raw address
+    const extracted = extractMintAndChain(input);
+    if (!extracted) {
+      return new Response(JSON.stringify({ error: "Invalid input. Paste a pump.fun URL, dexscreener URL, or contract address." }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { mint: cleanMint, chain: detectedChain } = extracted;
+    const chain = (body.chain as string) || detectedChain;
     const isSolana = chain === 'solana';
     let tokenData = null;
 
@@ -212,12 +231,13 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ error: 'Token not found on any platform' }), {
+    return new Response(JSON.stringify({ error: 'Token not found. Try pasting the contract address directly.' }), {
       status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
     console.error('Error fetching token:', error);
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'Internal error fetching token data.' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
