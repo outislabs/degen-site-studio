@@ -121,8 +121,9 @@ Deno.serve(async (req) => {
     const invoiceData = await invoiceRes.json();
 
     if (!invoiceRes.ok) {
-      console.error(`NOWPayments error [${invoiceRes.status}]`);
-      throw new Error("Payment provider error. Please try again.");
+      const errorBody = await invoiceRes.text();
+      console.error(`NOWPayments error [${invoiceRes.status}]:`, errorBody);
+      throw new Error(`Payment provider error: ${invoiceRes.status} - ${errorBody}`);
     }
 
     // Update subscription to pending
