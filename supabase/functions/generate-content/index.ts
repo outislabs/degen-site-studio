@@ -56,7 +56,7 @@ function sanitize(str: string): string {
 
 async function generateImage(prompt: string, geminiApiKey: string): Promise<string | null> {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${geminiApiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiApiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,7 +74,7 @@ async function generateImage(prompt: string, geminiApiKey: string): Promise<stri
 
   const data = await response.json();
   const parts = data.candidates?.[0]?.content?.parts || [];
-  
+
   for (const part of parts) {
     if (part.inlineData?.mimeType?.startsWith("image/")) {
       return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
@@ -94,13 +94,18 @@ async function generateText(prompt: string, system: string, anthropicApiKey: str
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
-      system,
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "user",
+          content: `${system}\n\n${prompt}`,
+        },
+      ],
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Anthropic error: ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`Anthropic error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
