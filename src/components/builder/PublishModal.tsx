@@ -15,6 +15,7 @@ interface Props {
 const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
   const baseUrl = 'https://degentools.co';
   const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
+  const subdomainUrl = slug ? `https://${slug}.degentools.co` : '';
   const customDomainUrl = data.customDomain ? `https://${data.customDomain.replace(/^https?:\/\//, '')}` : '';
 
   const copyLink = () => {
