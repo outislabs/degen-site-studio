@@ -288,7 +288,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
             <code className="text-xs text-primary font-mono block">degentools.co/site/{slug}</code>
             <p className="text-[11px] text-muted-foreground/70 mt-1">This is your shareable link — works instantly!</p>
             <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-[11px] text-muted-foreground">🌐 Subdomain ({slug}.degentools.co) — <span className="text-yellow-500 font-medium">coming soon</span>. Requires self-hosting. <a href="https://docs.lovable.dev/tips-tricks/self-hosting" target="_blank" rel="noopener noreferrer" className="text-primary underline">Learn more</a></p>
+              <p className="text-[11px] text-muted-foreground">🌐 Subdomain ({slug}.degentools.co) — <span className="text-yellow-500 font-medium">coming soon</span></p>
             </div>
           </div>
         )}
