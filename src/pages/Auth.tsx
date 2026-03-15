@@ -306,24 +306,3 @@ const Auth = () => {
 
 export default Auth;
 ```
-
----
-
-### Two Changes Made
-1. Removed `import { lovable }` line at the top
-2. Replaced `lovable.auth.signInWithOAuth` with `supabase.auth.signInWithOAuth`
-
----
-
-### Also Do This in Google Console
-
-Make sure your OAuth client has exactly:
-
-**Authorized redirect URIs:**
-```
-https://rxrgenpyiydwurvrdyzz.supabase.co/auth/v1/callback
-```
-
-**Authorized JavaScript origins:**
-```
-https://degentools.co
