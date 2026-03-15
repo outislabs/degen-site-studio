@@ -352,16 +352,18 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               onChange={e => onChange({ customDomain: e.target.value.trim() })}
             />
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 mt-2">
-              <p className="text-xs font-semibold text-foreground">📋 Quick Domain Setup</p>
-              <p className="text-xs text-muted-foreground">Add a <strong className="text-foreground">CNAME</strong> record at your DNS provider (Cloudflare, Namecheap, GoDaddy, etc.):</p>
-              <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
-                <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></div>
-                <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@ (or www)</span></div>
-                <div><span className="text-muted-foreground">Target:</span> <span className="text-primary">degen-site-studio.lovable.app</span></div>
-              </div>
-              <p className="text-[11px] text-muted-foreground/70">
-                If using Cloudflare, set Proxy to <span className="text-orange-400 font-semibold">Proxied ☁️</span> and SSL to <strong>Full</strong>. Other providers handle SSL automatically.
+              <p className="text-xs font-semibold text-foreground">⚠️ Custom Domains — Self-Hosting Required</p>
+              <p className="text-xs text-muted-foreground">
+                Custom domains require <strong className="text-foreground">self-hosting</strong> the app on your own server (VPS, Cloudflare Pages, Vercel, etc.). Once self-hosted, point your domain's A or CNAME record to your server.
               </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                <a href="https://docs.lovable.dev/tips-tricks/self-hosting" target="_blank" rel="noopener noreferrer" className="text-primary underline">Read the self-hosting guide →</a>
+              </p>
+              <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1 mt-2">
+                <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">A or CNAME</span></div>
+                <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@ (or www)</span></div>
+                <div><span className="text-muted-foreground">Target:</span> <span className="text-primary">Your server IP / hostname</span></div>
+              </div>
               {data.customDomain && (
                 <div className="flex items-center gap-2 pt-1">
                   <Button
@@ -374,25 +376,20 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                       setCustomDnsStatus('checking');
                       setCustomDnsMessage('');
                       try {
-                        const dnsRes = await fetch(`https://dns.google/resolve?name=${domain}&type=CNAME`);
+                        const dnsRes = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
                         const dnsData = await dnsRes.json();
-                        const hasCname = dnsData.Answer?.some((a: any) =>
-                          a.data?.replace(/\.$/, '').toLowerCase().includes('degentools') ||
-                          a.data?.replace(/\.$/, '').toLowerCase().includes('lovable')
-                        );
-                        if (hasCname) {
+                        if (dnsData.Answer && dnsData.Answer.length > 0) {
                           setCustomDnsStatus('ok');
-                          setCustomDnsMessage('CNAME is correctly configured!');
+                          setCustomDnsMessage('DNS is resolving (A record found). Ready for self-hosting!');
                         } else {
-                          // Check A record as fallback
-                          const aRes = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
-                          const aData = await aRes.json();
-                          if (aData.Answer && aData.Answer.length > 0) {
+                          const cnameRes = await fetch(`https://dns.google/resolve?name=${domain}&type=CNAME`);
+                          const cnameData = await cnameRes.json();
+                          if (cnameData.Answer && cnameData.Answer.length > 0) {
                             setCustomDnsStatus('ok');
-                            setCustomDnsMessage('DNS is resolving (A record found).');
+                            setCustomDnsMessage('CNAME found. Ready for self-hosting!');
                           } else {
                             setCustomDnsStatus('fail');
-                            setCustomDnsMessage('No CNAME or A record found. Add a CNAME pointing to degen-site-studio.lovable.app');
+                            setCustomDnsMessage('No DNS records found. Add an A or CNAME record pointing to your server.');
                           }
                         }
                       } catch {
