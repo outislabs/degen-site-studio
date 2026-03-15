@@ -21,7 +21,16 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   reauthentication: 'Your verification code',
 }
 
-// --- Simple HTML email templates (no React Email dependency needed) ---
+// Different redirect pages per email type
+const REDIRECT_PAGES: Record<string, string> = {
+  signup: '/',
+  invite: '/',
+  magiclink: '/',
+  email_change: '/',
+  recovery: '/reset-password',
+  reauthentication: '/',
+}
+
 function getEmailHTML(type: string, props: Record<string, any>): string {
   const baseStyle = `
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -180,17 +189,21 @@ Deno.serve(async (req) => {
     const payload = await req.json()
     console.log('Auth hook payload:', JSON.stringify(payload))
 
-    // Supabase auth hook format
     const emailType = payload.email_data?.email_action_type || payload.type
     const email = payload.user?.email || payload.email_data?.email
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+
+    // Use correct redirect page per email type
+    const redirectPage = REDIRECT_PAGES[emailType] || '/'
+    const redirectTo = `${SITE_URL}${redirectPage}`
+
     const confirmationUrl = payload.email_data?.token_hash
-      ? `${supabaseUrl}/auth/v1/verify?token=${payload.email_data.token_hash}&type=${emailType}&redirect_to=${SITE_URL}/reset-password`
+      ? `${supabaseUrl}/auth/v1/verify?token=${payload.email_data.token_hash}&type=${emailType}&redirect_to=${redirectTo}`
       : payload.email_data?.redirect_to || SITE_URL
 
     const token = payload.email_data?.token || ''
 
-    console.log('Processing email:', { emailType, email })
+    console.log('Processing email:', { emailType, email, confirmationUrl })
 
     if (!email) {
       console.error('No email address in payload')
