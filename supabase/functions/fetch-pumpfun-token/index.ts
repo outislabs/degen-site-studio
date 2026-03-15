@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
 
     let cleanMint = rawInput;
     let detectedChain = chainOverride || 'solana';
-    let isPairAddress = false;
+    let isPairAddress = (body.isPair as boolean) || false;
 
     if (rawInput.includes('.')) {
       const extracted = extractMintAndChain(rawInput);
