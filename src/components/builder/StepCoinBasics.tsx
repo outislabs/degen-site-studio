@@ -413,6 +413,10 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                 </div>
               )}
             </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
