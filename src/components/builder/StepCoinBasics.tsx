@@ -268,7 +268,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       </div>
 
       <div className="space-y-2">
-        <Label>Custom Slug (optional)</Label>
+        <Label>Site Slug</Label>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground whitespace-nowrap">/site/</span>
           <Input
@@ -278,6 +278,16 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           />
         </div>
         <p className="text-xs text-muted-foreground">Letters, numbers, and hyphens only. Leave empty to use default ID.</p>
+        {slug && (
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1">
+            <p className="text-xs font-medium text-foreground">🌐 Free Subdomain (auto-enabled)</p>
+            <p className="text-xs text-muted-foreground">
+              Your site is automatically available at:
+            </p>
+            <code className="text-xs text-primary font-mono block">{slug}.degentools.co</code>
+            <p className="text-[11px] text-muted-foreground/70">No DNS setup needed — it just works!</p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
