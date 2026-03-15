@@ -33,7 +33,7 @@ export const useCustomDomain = (): CustomDomainResult => {
     const hostname = window.location.hostname;
 
     // Check if this is a known/main domain
-    if (KNOWN_HOSTS.some(h => hostname === h || hostname.endsWith('.lovableproject.com') || hostname.endsWith('.lovable.app'))) {
+    if (KNOWN_HOSTS.some(h => hostname === h || hostname.endsWith('.lovableproject.com') || hostname.endsWith('.lovable.app') || hostname.endsWith('.vercel.app'))) {
       setState(prev => ({ ...prev, isCustomDomain: false, loading: false }));
       return;
     }
