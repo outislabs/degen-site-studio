@@ -8,7 +8,6 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles } from 'lucide-react';
-import { lovable } from '@/integrations/lovable/index';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
@@ -68,11 +67,8 @@ const Auth = () => {
     <div className="min-h-screen bg-background relative overflow-hidden flex">
       {/* Left panel — branding (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative flex-col justify-between p-10 xl:p-14">
-        {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-accent/5" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[200px]" />
-        
-        {/* Animated grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(hsl(var(--primary)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
@@ -130,7 +126,6 @@ const Auth = () => {
 
       {/* Right panel — auth form */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Mobile header */}
         <header className="lg:hidden px-6 py-5">
           <img
             src={logo}
@@ -155,7 +150,6 @@ const Auth = () => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {/* Heading */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-foreground mb-2">
                     {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
@@ -169,7 +163,7 @@ const Auth = () => {
                   </p>
                 </div>
 
-                {/* Google Sign-in (top, for sign in/up only) */}
+                {/* Google Sign-in */}
                 {!isForgot && (
                   <>
                     <Button
@@ -177,8 +171,11 @@ const Auth = () => {
                       variant="outline"
                       className="w-full h-12 rounded-xl font-medium text-sm border-border hover:bg-muted/50 transition-all"
                       onClick={async () => {
-                        const { error } = await lovable.auth.signInWithOAuth('google', {
-                          redirect_uri: window.location.origin,
+                        const { error } = await supabase.auth.signInWithOAuth({
+                          provider: 'google',
+                          options: {
+                            redirectTo: `${window.location.origin}`,
+                          },
                         });
                         if (error) toast.error(error.message);
                       }}
@@ -205,7 +202,6 @@ const Auth = () => {
                   </>
                 )}
 
-                {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-medium text-foreground/80 block">Email</label>
@@ -270,7 +266,6 @@ const Auth = () => {
                   </Button>
                 </form>
 
-                {/* Toggle view */}
                 <div className="mt-6 text-center">
                   {isForgot ? (
                     <button
@@ -296,7 +291,6 @@ const Auth = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Footer */}
             <p className="text-[10px] text-muted-foreground/30 text-center mt-8">
               By continuing, you agree to our{' '}
               <a href="/terms" className="underline hover:text-muted-foreground/50 transition-colors">Terms of Service</a>
@@ -311,3 +305,25 @@ const Auth = () => {
 };
 
 export default Auth;
+```
+
+---
+
+### Two Changes Made
+1. Removed `import { lovable }` line at the top
+2. Replaced `lovable.auth.signInWithOAuth` with `supabase.auth.signInWithOAuth`
+
+---
+
+### Also Do This in Google Console
+
+Make sure your OAuth client has exactly:
+
+**Authorized redirect URIs:**
+```
+https://rxrgenpyiydwurvrdyzz.supabase.co/auth/v1/callback
+```
+
+**Authorized JavaScript origins:**
+```
+https://degentools.co
