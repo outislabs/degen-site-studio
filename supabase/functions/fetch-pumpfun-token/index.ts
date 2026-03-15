@@ -21,21 +21,20 @@ function checkRateLimit(key: string): boolean {
 
 const VALID_CHAINS = ["solana", "ethereum", "base", "bsc", "arbitrum", "polygon", "optimism", "avalanche", "ton"];
 
-function extractMintAndChain(input: string): { mint: string; chain: string } | null {
+function extractMintAndChain(input: string): { mint: string; chain: string; isPair: boolean } | null {
   const trimmed = input.trim();
 
   const pumpFunMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,})/);
-  if (pumpFunMatch) return { mint: pumpFunMatch[1], chain: 'solana' };
+  if (pumpFunMatch) return { mint: pumpFunMatch[1], chain: 'solana', isPair: false };
 
   const dexScreenerMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,})/);
   if (dexScreenerMatch) {
     const chain = VALID_CHAINS.includes(dexScreenerMatch[1]) ? dexScreenerMatch[1] : 'solana';
-    return { mint: dexScreenerMatch[2], chain };
+    return { mint: dexScreenerMatch[2], chain, isPair: true };
   }
 
-  if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, chain: 'ethereum' };
-
-  if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, chain: 'solana' };
+  if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, chain: 'ethereum', isPair: false };
+  if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, chain: 'solana', isPair: false };
 
   return null;
 }
@@ -81,11 +80,7 @@ async function fetchFromPumpFun(mint: string) {
     const text = await res.text();
     if (!text || text.trim().length === 0) return null;
     let d: any;
-    try {
-      d = JSON.parse(text);
-    } catch {
-      return null;
-    }
+    try { d = JSON.parse(text); } catch { return null; }
     if (!d?.name) return null;
     return {
       name: d.name, symbol: d.symbol, description: d.description || '',
@@ -100,21 +95,26 @@ async function fetchFromPumpFun(mint: string) {
   }
 }
 
-async function fetchFromDexScreener(chain: string, mint: string) {
+async function fetchFromDexScreener(chain: string, mint: string, isPair = false) {
   try {
-    const res = await fetch(`https://api.dexscreener.com/tokens/v1/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`, {
-      headers: { 'Accept': 'application/json' },
-    });
+    // Use pairs endpoint for DexScreener URLs, tokens endpoint for contract addresses
+    const url = isPair
+      ? `https://api.dexscreener.com/latest/dex/pairs/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`
+      : `https://api.dexscreener.com/tokens/v1/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`;
+
+    console.log('DexScreener URL:', url);
+
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) { await res.text(); return null; }
     const text = await res.text();
     if (!text || text.trim().length === 0) return null;
     let dexData: any;
-    try {
-      dexData = JSON.parse(text);
-    } catch {
-      return null;
-    }
-    const pair = Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0];
+    try { dexData = JSON.parse(text); } catch { return null; }
+
+    const pair = isPair
+      ? (dexData?.pair || dexData?.pairs?.[0])
+      : (Array.isArray(dexData) ? dexData[0] : dexData?.pairs?.[0] || dexData[0]);
+
     if (!pair || !pair.baseToken?.name) return null;
     const baseToken = pair.baseToken || {};
     const info = pair.info || {};
@@ -197,6 +197,7 @@ Deno.serve(async (req) => {
 
     let cleanMint = rawInput;
     let detectedChain = chainOverride || 'solana';
+    let isPairAddress = false;
 
     if (rawInput.includes('.')) {
       const extracted = extractMintAndChain(rawInput);
@@ -207,6 +208,7 @@ Deno.serve(async (req) => {
       }
       cleanMint = extracted.mint;
       detectedChain = chainOverride || extracted.chain;
+      isPairAddress = extracted.isPair;
     } else {
       if (/^0x[A-Fa-f0-9]{40}$/.test(rawInput)) {
         detectedChain = chainOverride || 'ethereum';
@@ -215,13 +217,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('cleanMint:', cleanMint, 'detectedChain:', detectedChain);
+    console.log('cleanMint:', cleanMint, 'detectedChain:', detectedChain, 'isPairAddress:', isPairAddress);
 
     const chain = detectedChain;
     const isSolana = chain === 'solana';
     let tokenData = null;
 
-    if (isSolana) {
+    // 1. Pump.fun (Solana only, not for pair addresses)
+    if (isSolana && !isPairAddress) {
       console.log('Trying pump.fun...');
       tokenData = await fetchFromPumpFun(cleanMint);
       if (tokenData) {
@@ -232,8 +235,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('Trying DexScreener...');
-    tokenData = await fetchFromDexScreener(chain, cleanMint);
+    // 2. DexScreener — pass isPairAddress flag
+    console.log('Trying DexScreener isPair:', isPairAddress);
+    tokenData = await fetchFromDexScreener(chain, cleanMint, isPairAddress);
     if (tokenData) {
       console.log('Found on DexScreener:', tokenData.name);
       return new Response(JSON.stringify(buildResult(tokenData)), {
@@ -241,10 +245,11 @@ Deno.serve(async (req) => {
       });
     }
 
+    // 2b. Try other EVM chains via DexScreener
     if (!isSolana && cleanMint.startsWith('0x')) {
       const evmChains = ['ethereum', 'base', 'bsc', 'arbitrum', 'polygon', 'optimism', 'avalanche'].filter(c => c !== chain);
       for (const tryChain of evmChains) {
-        tokenData = await fetchFromDexScreener(tryChain, cleanMint);
+        tokenData = await fetchFromDexScreener(tryChain, cleanMint, false);
         if (tokenData) {
           console.log('Found on DexScreener chain:', tryChain, tokenData.name);
           return new Response(JSON.stringify(buildResult(tokenData)), {
@@ -254,6 +259,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    // 3. Etherscan-compatible explorers
     if (!isSolana) {
       console.log('Trying Etherscan...');
       tokenData = await fetchFromEtherscan(chain, cleanMint);
