@@ -337,9 +337,26 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               value={data.customDomain || ''}
               onChange={e => onChange({ customDomain: e.target.value.trim() })}
             />
-            <p className="text-xs text-muted-foreground">
-              Enter your domain, then add a CNAME record pointing to <code className="text-primary font-mono">degentools.co</code> at your DNS provider.
-            </p>
+            <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 mt-2">
+              <p className="text-xs font-semibold text-foreground">📋 Domain Setup (Cloudflare Required)</p>
+              <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+                <li>Add your domain to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">Cloudflare</a> (free plan works).</li>
+                <li>Update your registrar's nameservers to the ones Cloudflare assigns you.</li>
+                <li>In Cloudflare DNS, add a <strong className="text-foreground">CNAME</strong> record:
+                  <div className="mt-1 rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
+                    <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></div>
+                    <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@ (or www)</span></div>
+                    <div><span className="text-muted-foreground">Target:</span> <span className="text-primary">degen-site-studio.lovable.app</span></div>
+                  </div>
+                </li>
+                <li>Set the <strong className="text-foreground">Proxy status</strong> to <span className="text-orange-400 font-semibold">Proxied (orange cloud ☁️)</span> — this is required for SSL.</li>
+                <li>In Cloudflare SSL/TLS settings, set mode to <strong className="text-foreground">Full</strong>.</li>
+                <li>Wait 2-5 minutes for propagation, then visit your domain!</li>
+              </ol>
+              <p className="text-[11px] text-muted-foreground/70">
+                ⚠️ Do NOT use "DNS Only" (grey cloud) — SSL will not work without Cloudflare's proxy.
+              </p>
+            </div>
           </>
         )}
       </div>
