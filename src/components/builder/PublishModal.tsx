@@ -55,12 +55,20 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
             </div>
           )}
 
+          {subdomainUrl && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <p className="text-xs text-muted-foreground mb-1">🌐 Free Subdomain</p>
+              <span className="text-xs text-primary font-mono">{subdomainUrl}</span>
+              <p className="text-[11px] text-muted-foreground/70 mt-1">Works instantly — no setup needed!</p>
+            </div>
+          )}
+
           {customDomainUrl && (
             <div className="rounded-lg border border-accent/20 p-3">
               <p className="text-xs text-muted-foreground mb-1">Custom Domain</p>
               <span className="text-xs text-foreground font-mono">{customDomainUrl}</span>
               <p className="text-xs text-muted-foreground mt-2">
-                Point a CNAME record to <code className="text-primary">degentools.co</code> to activate.
+                Add a CNAME record pointing to <code className="text-primary">degen-site-studio.lovable.app</code> at your DNS provider.
               </p>
             </div>
           )}
