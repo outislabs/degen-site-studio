@@ -3,7 +3,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// --- Rate Limiting ---
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 20;
@@ -22,32 +21,22 @@ function checkRateLimit(key: string): boolean {
 
 const VALID_CHAINS = ["solana", "ethereum", "base", "bsc", "arbitrum", "polygon", "optimism", "avalanche", "ton"];
 
-// --- Extract mint address from URL or raw address ---
 function extractMintAndChain(input: string): { mint: string; chain: string } | null {
   const trimmed = input.trim();
 
-  // Pump.fun URL: https://pump.fun/coin/MINTADDRESS
   const pumpFunMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,})/);
-  if (pumpFunMatch) {
-    return { mint: pumpFunMatch[1], chain: 'solana' };
-  }
+  if (pumpFunMatch) return { mint: pumpFunMatch[1], chain: 'solana' };
 
-  // DexScreener URL: https://dexscreener.com/solana/MINTADDRESS
   const dexScreenerMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,})/);
   if (dexScreenerMatch) {
     const chain = VALID_CHAINS.includes(dexScreenerMatch[1]) ? dexScreenerMatch[1] : 'solana';
     return { mint: dexScreenerMatch[2], chain };
   }
 
-  // Raw Solana address (base58, 32-44 chars)
-  if (/^[A-Za-z0-9]{32,44}$/.test(trimmed)) {
-    return { mint: trimmed, chain: 'solana' };
-  }
+  if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, chain: 'ethereum' };
 
-  // Raw EVM address (0x...)
-  if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) {
-    return { mint: trimmed, chain: 'ethereum' };
-  }
+  // Raw Solana address — relaxed to 32-50 chars
+  if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, chain: 'solana' };
 
   return null;
 }
@@ -99,7 +88,10 @@ async function fetchFromPumpFun(mint: string) {
       total_supply: d.total_supply || 0, website: d.website || '',
       twitter: d.twitter || '', telegram: d.telegram || '',
     };
-  } catch { return null; }
+  } catch (e) {
+    console.error('fetchFromPumpFun error:', e);
+    return null;
+  }
 }
 
 async function fetchFromDexScreener(chain: string, mint: string) {
@@ -123,7 +115,10 @@ async function fetchFromDexScreener(chain: string, mint: string) {
       twitter: socials.find((s: any) => s.type === 'twitter')?.url || '',
       telegram: socials.find((s: any) => s.type === 'telegram')?.url || '',
     };
-  } catch { return null; }
+  } catch (e) {
+    console.error('fetchFromDexScreener error:', e);
+    return null;
+  }
 }
 
 async function fetchFromEtherscan(chain: string, mint: string) {
@@ -152,10 +147,15 @@ async function fetchFromEtherscan(chain: string, mint: string) {
       total_supply: parseFloat(totalSupply) || 0,
       website: '', twitter: '', telegram: '',
     };
-  } catch { return null; }
+  } catch (e) {
+    console.error('fetchFromEtherscan error:', e);
+    return null;
+  }
 }
 
 Deno.serve(async (req) => {
+  console.log('fetch-pumpfun-token called:', req.method);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -169,31 +169,56 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const input = (body.mint as string)?.trim() || (body.input as string)?.trim();
+    console.log('Request body:', JSON.stringify(body));
 
-    if (!input || input.length === 0) {
+    // Frontend already extracts mint — use it directly, fall back to input field
+    const rawInput = (body.mint as string)?.trim() || (body.input as string)?.trim();
+    const chainOverride = (body.chain as string)?.trim();
+
+    console.log('rawInput:', rawInput, 'chainOverride:', chainOverride);
+
+    if (!rawInput || rawInput.length === 0) {
       return new Response(JSON.stringify({ error: "Missing mint address, contract address, or URL" }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Extract mint and chain from URL or raw address
-    const extracted = extractMintAndChain(input);
-    if (!extracted) {
-      return new Response(JSON.stringify({ error: "Invalid input. Paste a pump.fun URL, dexscreener URL, or contract address." }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // If mint looks like a raw address already, use it directly
+    // Otherwise try to extract from URL
+    let cleanMint = rawInput;
+    let detectedChain = chainOverride || 'solana';
+
+    if (rawInput.includes('.')) {
+      // Looks like a URL — extract from it
+      const extracted = extractMintAndChain(rawInput);
+      if (!extracted) {
+        return new Response(JSON.stringify({ error: "Invalid URL. Paste a pump.fun URL, dexscreener URL, or contract address." }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      cleanMint = extracted.mint;
+      detectedChain = chainOverride || extracted.chain;
+    } else {
+      // Raw address — detect chain from format
+      if (/^0x[A-Fa-f0-9]{40}$/.test(rawInput)) {
+        detectedChain = chainOverride || 'ethereum';
+      } else {
+        detectedChain = chainOverride || 'solana';
+      }
     }
 
-    const { mint: cleanMint, chain: detectedChain } = extracted;
-    const chain = (body.chain as string) || detectedChain;
+    console.log('cleanMint:', cleanMint, 'detectedChain:', detectedChain);
+
+    const chain = detectedChain;
     const isSolana = chain === 'solana';
     let tokenData = null;
 
     // 1. Pump.fun (Solana only)
     if (isSolana) {
+      console.log('Trying pump.fun...');
       tokenData = await fetchFromPumpFun(cleanMint);
       if (tokenData) {
+        console.log('Found on pump.fun:', tokenData.name);
         return new Response(JSON.stringify(buildResult(tokenData)), {
           status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -201,8 +226,10 @@ Deno.serve(async (req) => {
     }
 
     // 2. DexScreener
+    console.log('Trying DexScreener...');
     tokenData = await fetchFromDexScreener(chain, cleanMint);
     if (tokenData) {
+      console.log('Found on DexScreener:', tokenData.name);
       return new Response(JSON.stringify(buildResult(tokenData)), {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -214,6 +241,7 @@ Deno.serve(async (req) => {
       for (const tryChain of evmChains) {
         tokenData = await fetchFromDexScreener(tryChain, cleanMint);
         if (tokenData) {
+          console.log('Found on DexScreener chain:', tryChain, tokenData.name);
           return new Response(JSON.stringify(buildResult(tokenData)), {
             status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -223,14 +251,17 @@ Deno.serve(async (req) => {
 
     // 3. Etherscan-compatible explorers
     if (!isSolana) {
+      console.log('Trying Etherscan...');
       tokenData = await fetchFromEtherscan(chain, cleanMint);
       if (tokenData) {
+        console.log('Found on Etherscan:', tokenData.name);
         return new Response(JSON.stringify(buildResult(tokenData)), {
           status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
 
+    console.log('Token not found anywhere for:', cleanMint);
     return new Response(JSON.stringify({ error: 'Token not found. Try pasting the contract address directly.' }), {
       status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
