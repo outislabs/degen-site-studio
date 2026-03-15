@@ -17,64 +17,26 @@ const ResetPassword = () => {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
-    const exchangeToken = async () => {
-      // Check for token_hash in query params (our custom email hook format)
-      const params = new URLSearchParams(window.location.search);
-      const tokenHash = params.get('token_hash');
-      const type = params.get('type');
-
-      console.log('Reset password params:', { tokenHash, type });
-
-      if (tokenHash && type === 'recovery') {
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: 'recovery',
-        });
-
-        console.log('verifyOtp result:', JSON.stringify(data));
-
-        if (error) {
-          console.error('OTP verification error:', error);
-          toast.error('Reset link is invalid or expired. Please request a new one.');
-          setTimeout(() => navigate('/auth'), 3000);
-          return;
-        }
-
-        // Explicitly set the session so updateUser works
-        if (data?.session) {
-          await supabase.auth.setSession({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          });
-        }
-
+    // Listen for PASSWORD_RECOVERY event from Supabase
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session);
+      if (event === 'PASSWORD_RECOVERY') {
         setIsRecovery(true);
         setSessionReady(true);
-        return;
       }
+    });
 
-      // Fallback — check URL hash (Supabase default format)
-      const hash = window.location.hash;
-      if (hash && hash.includes('type=recovery')) {
+    // Also check if session already exists from redirect
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session:', session);
+      if (session) {
         setIsRecovery(true);
         setSessionReady(true);
-        return;
       }
+    });
 
-      // Listen for PASSWORD_RECOVERY event
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth state change:', event, session);
-        if (event === 'PASSWORD_RECOVERY') {
-          setIsRecovery(true);
-          setSessionReady(true);
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    };
-
-    exchangeToken();
-  }, [navigate]);
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
