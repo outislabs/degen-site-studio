@@ -183,10 +183,11 @@ Deno.serve(async (req) => {
     // Supabase auth hook format
     const emailType = payload.email_data?.email_action_type || payload.type
     const email = payload.user?.email || payload.email_data?.email
-    const confirmationUrl = payload.email_data?.redirect_to 
-      || (payload.email_data?.token_hash 
-        ? `${SITE_URL}/reset-password?token_hash=${payload.email_data.token_hash}&type=${emailType}`
-        : SITE_URL)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const confirmationUrl = payload.email_data?.token_hash
+      ? `${supabaseUrl}/auth/v1/verify?token=${payload.email_data.token_hash}&type=${emailType}&redirect_to=${SITE_URL}/reset-password`
+      : payload.email_data?.redirect_to || SITE_URL
+
     const token = payload.email_data?.token || ''
 
     console.log('Processing email:', { emailType, email })
