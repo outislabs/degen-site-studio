@@ -118,12 +118,19 @@ Deno.serve(async (req) => {
       }),
     });
 
-    const invoiceData = await invoiceRes.json();
+    // Read body once as text then parse
+    const invoiceText = await invoiceRes.text();
+    let invoiceData: any;
+
+    try {
+      invoiceData = JSON.parse(invoiceText);
+    } catch {
+      throw new Error(`Payment provider returned invalid response: ${invoiceText}`);
+    }
 
     if (!invoiceRes.ok) {
-      const errorBody = await invoiceRes.text();
-      console.error(`NOWPayments error [${invoiceRes.status}]:`, errorBody);
-      throw new Error(`Payment provider error: ${invoiceRes.status} - ${errorBody}`);
+      console.error(`NOWPayments error [${invoiceRes.status}]:`, invoiceText);
+      throw new Error(`Payment provider error: ${invoiceRes.status} - ${invoiceText}`);
     }
 
     // Update subscription to pending
@@ -154,7 +161,7 @@ Deno.serve(async (req) => {
     );
   } catch (error: unknown) {
     console.error("Error creating subscription:", error);
-    return new Response(JSON.stringify({ error: "Subscription creation failed. Please try again." }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Subscription creation failed. Please try again." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
