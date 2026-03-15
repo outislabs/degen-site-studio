@@ -413,6 +413,64 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               <p className="text-[11px] text-muted-foreground/70">
                 If using Cloudflare, set Proxy to <span className="text-orange-400 font-semibold">Proxied ☁️</span> and SSL to <strong>Full</strong>. Other providers handle SSL automatically.
               </p>
+              {data.customDomain && (
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-7"
+                    disabled={customDnsStatus === 'checking'}
+                    onClick={async () => {
+                      const domain = data.customDomain!.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+                      setCustomDnsStatus('checking');
+                      setCustomDnsMessage('');
+                      try {
+                        const dnsRes = await fetch(`https://dns.google/resolve?name=${domain}&type=CNAME`);
+                        const dnsData = await dnsRes.json();
+                        const hasCname = dnsData.Answer?.some((a: any) =>
+                          a.data?.replace(/\.$/, '').toLowerCase().includes('degentools') ||
+                          a.data?.replace(/\.$/, '').toLowerCase().includes('lovable')
+                        );
+                        if (hasCname) {
+                          setCustomDnsStatus('ok');
+                          setCustomDnsMessage('CNAME is correctly configured!');
+                        } else {
+                          // Check A record as fallback
+                          const aRes = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
+                          const aData = await aRes.json();
+                          if (aData.Answer && aData.Answer.length > 0) {
+                            setCustomDnsStatus('ok');
+                            setCustomDnsMessage('DNS is resolving (A record found).');
+                          } else {
+                            setCustomDnsStatus('fail');
+                            setCustomDnsMessage('No CNAME or A record found. Add a CNAME pointing to degen-site-studio.lovable.app');
+                          }
+                        }
+                      } catch {
+                        setCustomDnsStatus('fail');
+                        setCustomDnsMessage('Could not verify DNS. Check your network connection.');
+                      }
+                    }}
+                  >
+                    {customDnsStatus === 'checking' ? (
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                    )}
+                    Verify DNS
+                  </Button>
+                  {customDnsStatus === 'ok' && (
+                    <span className="flex items-center gap-1 text-xs text-green-500">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {customDnsMessage}
+                    </span>
+                  )}
+                  {customDnsStatus === 'fail' && (
+                    <span className="flex items-center gap-1 text-xs text-destructive">
+                      <XCircle className="w-3.5 h-3.5" /> {customDnsMessage}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </>
         )}
