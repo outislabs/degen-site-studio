@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2, Lock, ExternalLink, Zap } from 'lucide-react';
+import { Copy, Upload, Loader2, Lock, ExternalLink, Zap, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
@@ -38,6 +38,8 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [uploading, setUploading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [pumpLink, setPumpLink] = useState('');
+  const [dnsStatus, setDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
+  const [dnsMessage, setDnsMessage] = useState('');
   const [pumpLoading, setPumpLoading] = useState(false);
   const { user } = useAuth();
 
@@ -279,13 +281,64 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         </div>
         <p className="text-xs text-muted-foreground">Letters, numbers, and hyphens only. Leave empty to use default ID.</p>
         {slug && (
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1">
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
             <p className="text-xs font-medium text-foreground">🌐 Free Subdomain (auto-enabled)</p>
             <p className="text-xs text-muted-foreground">
               Your site is automatically available at:
             </p>
             <code className="text-xs text-primary font-mono block">{slug}.degentools.co</code>
             <p className="text-[11px] text-muted-foreground/70">No DNS setup needed — it just works!</p>
+            <div className="flex items-center gap-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7"
+                disabled={dnsStatus === 'checking'}
+                onClick={async () => {
+                  setDnsStatus('checking');
+                  setDnsMessage('');
+                  try {
+                    const res = await fetch(`https://${slug}.degentools.co`, { method: 'HEAD', mode: 'no-cors' });
+                    // no-cors won't give us status, but if it doesn't throw, the domain resolved
+                    setDnsStatus('ok');
+                    setDnsMessage('Subdomain is resolving! Your site should be live.');
+                  } catch {
+                    // Try via DNS lookup API as fallback
+                    try {
+                      const dnsRes = await fetch(`https://dns.google/resolve?name=${slug}.degentools.co&type=A`);
+                      const dnsData = await dnsRes.json();
+                      if (dnsData.Answer && dnsData.Answer.length > 0) {
+                        setDnsStatus('ok');
+                        setDnsMessage('DNS is resolving correctly!');
+                      } else {
+                        setDnsStatus('fail');
+                        setDnsMessage('DNS not resolving yet. Wildcard DNS (*.degentools.co) may not be configured.');
+                      }
+                    } catch {
+                      setDnsStatus('fail');
+                      setDnsMessage('Could not verify DNS. Check your network connection.');
+                    }
+                  }
+                }}
+              >
+                {dnsStatus === 'checking' ? (
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                )}
+                Verify DNS
+              </Button>
+              {dnsStatus === 'ok' && (
+                <span className="flex items-center gap-1 text-xs text-green-500">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> {dnsMessage}
+                </span>
+              )}
+              {dnsStatus === 'fail' && (
+                <span className="flex items-center gap-1 text-xs text-destructive">
+                  <XCircle className="w-3.5 h-3.5" /> {dnsMessage}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
