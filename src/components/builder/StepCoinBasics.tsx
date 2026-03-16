@@ -349,11 +349,67 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           </div>
         ) : (
           <>
-            <Input
-              placeholder="e.g. mytoken.com"
-              value={data.customDomain || ''}
-              onChange={e => onChange({ customDomain: e.target.value.trim() })}
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="e.g. mytoken.com"
+                value={data.customDomain || ''}
+                onChange={e => {
+                  onChange({ customDomain: e.target.value.trim() });
+                  setProvisionResult(null);
+                }}
+                className="flex-1"
+              />
+              <Button
+                size="sm"
+                disabled={provisionLoading || !data.customDomain?.trim() || !siteId || domainPaymentStatus !== 'paid'}
+                onClick={async () => {
+                  setProvisionLoading(true);
+                  setProvisionResult(null);
+                  try {
+                    const { data: result, error } = await supabase.functions.invoke('provision-custom-domain', {
+                      body: { domain: data.customDomain, site_id: siteId, action: 'add' },
+                    });
+                    if (error) throw error;
+                    if (result?.error) throw new Error(result.error);
+                    setProvisionResult({ success: true, ownership_verification: result?.ownership_verification });
+                    toast.success('Domain connected!');
+                  } catch (err: any) {
+                    setProvisionResult({ error: err.message || 'Failed to connect domain' });
+                  } finally {
+                    setProvisionLoading(false);
+                  }
+                }}
+              >
+                {provisionLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+                {provisionLoading ? 'Connecting...' : 'Connect Domain'}
+              </Button>
+            </div>
+
+            {provisionResult?.success && (
+              <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-3 space-y-2 mt-2">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-green-500">
+                  <CheckCircle2 className="w-4 h-4" /> Domain connected!
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  Point your domain's DNS to <strong className="text-foreground">degentools.co</strong> using a CNAME record.
+                </p>
+                {provisionResult.ownership_verification && (
+                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1 mt-1">
+                    <p className="text-xs font-medium text-foreground mb-1">Ownership Verification:</p>
+                    <pre className="text-[10px] text-muted-foreground whitespace-pre-wrap break-all">
+                      {JSON.stringify(provisionResult.ownership_verification, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {provisionResult?.error && (
+              <p className="flex items-center gap-1.5 text-xs text-destructive mt-2">
+                <XCircle className="w-4 h-4" /> {provisionResult.error}
+              </p>
+            )}
+
             <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 mt-2">
               <p className="text-xs font-semibold text-foreground">📋 DNS Setup</p>
               <p className="text-xs text-muted-foreground">Add a <strong className="text-foreground">CNAME</strong> or <strong className="text-foreground">A</strong> record at your DNS provider:</p>
