@@ -366,8 +366,13 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                   setProvisionLoading(true);
                   setProvisionResult(null);
                   try {
+                    console.log('[Connect Domain] domain:', data.customDomain, 'site_id:', siteId);
                     const { data: result, error } = await supabase.functions.invoke('provision-custom-domain', {
-                      body: { domain: data.customDomain, site_id: siteId, action: 'add' },
+                      body: {
+                        domain: data.customDomain,
+                        site_id: siteId,
+                        action: 'add'
+                      },
                     });
                     if (error) throw error;
                     if (result?.error) throw new Error(result.error);
