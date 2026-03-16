@@ -374,9 +374,12 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                         action: 'add'
                       },
                     });
+                    console.log('[Connect Domain] full response:', JSON.stringify(result));
                     if (error) throw error;
                     if (result?.error) throw new Error(result.error);
-                    setProvisionResult({ success: true, ownership_verification: result?.ownership_verification });
+                    const ov = result?.ownership_verification;
+                    console.log('[Connect Domain] ownership_verification:', JSON.stringify(ov));
+                    setProvisionResult({ success: true, ownership_verification: ov });
                     toast.success('Domain connected!');
                   } catch (err: any) {
                     setProvisionResult({ error: err.message || 'Failed to connect domain' });
