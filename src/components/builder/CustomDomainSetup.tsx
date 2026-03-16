@@ -21,7 +21,7 @@ interface Props {
   onPaymentStatusChange?: (status: string) => void;
 }
 
-type FlowStep = 'input' | 'dns' | 'verify';
+type FlowStep = 'connected' | 'input' | 'dns' | 'verify';
 
 const CopyButton = ({ value, label }: { value: string; label: string }) => (
   <Button
