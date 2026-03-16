@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
