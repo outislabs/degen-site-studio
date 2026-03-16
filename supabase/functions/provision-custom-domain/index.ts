@@ -34,7 +34,31 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { domain, site_id, action } = await req.json();
+    // Read body once as text then parse
+    const bodyText = await req.text();
+    console.log('Request body:', bodyText);
+
+    if (!bodyText || bodyText.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Empty request body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    let domain: string, site_id: string, action: string;
+    try {
+      const parsed = JSON.parse(bodyText);
+      domain = parsed.domain;
+      site_id = parsed.site_id;
+      action = parsed.action || 'add';
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log('Parsed values:', { domain, site_id, action });
 
     if (!domain || !site_id) {
       return new Response(JSON.stringify({ error: "Missing domain or site_id" }), {
@@ -49,6 +73,13 @@ Deno.serve(async (req) => {
     const CLOUDFLARE_ZONE_ID = Deno.env.get("CLOUDFLARE_ZONE_ID")!;
     const CLOUDFLARE_API_TOKEN = Deno.env.get("CLOUDFLARE_API_TOKEN")!;
 
+    if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_TOKEN) {
+      return new Response(JSON.stringify({ error: "Cloudflare credentials not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const cfHeaders = {
       "Authorization": `Bearer ${CLOUDFLARE_API_TOKEN}`,
       "Content-Type": "application/json",
@@ -56,7 +87,6 @@ Deno.serve(async (req) => {
 
     // Remove custom domain
     if (action === 'remove') {
-      // Find the hostname ID first
       const listRes = await fetch(
         `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/custom_hostnames?hostname=${cleanDomain}`,
         { headers: cfHeaders }
@@ -71,7 +101,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Update site in database
       const serviceClient = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -111,7 +140,6 @@ Deno.serve(async (req) => {
     console.log("Cloudflare response:", JSON.stringify(cfData));
 
     if (!cfRes.ok && cfData.errors?.[0]?.code !== 1406) {
-      // 1406 = hostname already exists, that's fine
       return new Response(
         JSON.stringify({ error: cfData.errors?.[0]?.message || "Cloudflare error" }),
         {
