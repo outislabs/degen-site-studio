@@ -11,6 +11,7 @@ interface SavedSite {
   id: string;
   name: string;
   ticker: string;
+  slug?: string | null;
   data: Record<string, any>;
   created_at: string;
 }
