@@ -54,10 +54,14 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
           )}
 
           {slug && (
-            <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground mb-1">🌐 Subdomain</p>
-              <span className="text-xs text-muted-foreground font-mono">{slug}.degentools.co</span>
-              <p className="text-[11px] text-yellow-500 mt-1">Coming soon — requires self-hosting</p>
+            <div className="rounded-lg border border-border bg-muted/30 p-3 flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">🌐 Subdomain</p>
+                <a href={`https://${slug}.degentools.co`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-mono hover:underline">{slug}.degentools.co</a>
+              </div>
+              <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => { navigator.clipboard.writeText(`https://${slug}.degentools.co`); toast.success('Subdomain link copied!'); }}>
+                <Copy className="w-4 h-4" />
+              </Button>
             </div>
           )}
 
