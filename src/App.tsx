@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 import { useCustomDomain } from "@/hooks/useCustomDomain";
 import LivePreview from "@/components/builder/LivePreview";
 import Index from "./pages/Index.tsx";
@@ -23,6 +24,12 @@ const queryClient = new QueryClient();
 
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
+
+  useEffect(() => {
+    if (isCustomDomain && siteData?.name) {
+      document.title = `${siteData.name} ${siteData.ticker ? `(${siteData.ticker})` : ''} | DegenTools`;
+    }
+  }, [isCustomDomain, siteData]);
 
   if (loading) {
     return (
