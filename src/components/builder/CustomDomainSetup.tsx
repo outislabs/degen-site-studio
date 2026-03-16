@@ -71,7 +71,9 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [flowStep, setFlowStep] = useState<FlowStep>(data.customDomain ? 'dns' : 'input');
+  // Determine initial step: if domain already saved in DB, show "connected" status
+  const existingDomain = data.customDomain?.trim();
+  const [flowStep, setFlowStep] = useState<FlowStep>(existingDomain ? 'connected' : 'input');
   const [provisionLoading, setProvisionLoading] = useState(false);
   const [provisionResult, setProvisionResult] = useState<{
     success?: boolean;
@@ -82,9 +84,43 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
   const [verifyMessage, setVerifyMessage] = useState('');
+  const [disconnectLoading, setDisconnectLoading] = useState(false);
 
   const domainPaid = domainPaymentStatus === 'paid';
   const hasAccess = canUseCustomDomain() || domainPaid;
+
+  // Auto-check DNS on mount if domain already exists
+  const checkDns = useCallback(async (domain: string) => {
+    const clean = domain.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    setVerifyStatus('checking');
+    setVerifyMessage('');
+    try {
+      const aRes = await fetch(`https://dns.google/resolve?name=${clean}&type=A`);
+      const aData = await aRes.json();
+      if (aData.Answer?.length > 0) {
+        setVerifyStatus('ok');
+        setVerifyMessage('DNS is resolving correctly.');
+        return;
+      }
+      const cRes = await fetch(`https://dns.google/resolve?name=${clean}&type=CNAME`);
+      const cData = await cRes.json();
+      if (cData.Answer?.length > 0) {
+        setVerifyStatus('ok');
+        setVerifyMessage('CNAME configured correctly.');
+        return;
+      }
+      setVerifyStatus('fail');
+      setVerifyMessage('DNS not pointing yet — may take up to 48h.');
+    } catch {
+      setVerifyStatus('idle');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (existingDomain && flowStep === 'connected') {
+      checkDns(existingDomain);
+    }
+  }, [existingDomain, flowStep, checkDns]);
 
   const handleBuyDomain = async () => {
     if (!siteId || !user) {
