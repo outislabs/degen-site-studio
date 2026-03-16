@@ -66,10 +66,18 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
           )}
 
           {data.customDomain && (
-            <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground mb-1">Custom Domain</p>
-              <span className="text-xs text-foreground font-mono">{data.customDomain}</span>
-              <p className="text-[11px] text-yellow-500 mt-1">Requires self-hosting to activate</p>
+            <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+                  <CheckCircle className="w-3 h-3 text-green-500" /> Custom Domain Connected
+                </p>
+                <a href={`https://${data.customDomain}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-mono hover:underline">
+                  https://{data.customDomain}
+                </a>
+              </div>
+              <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => { navigator.clipboard.writeText(`https://${data.customDomain}`); toast.success('Custom domain link copied!'); }}>
+                <Copy className="w-4 h-4" />
+              </Button>
             </div>
           )}
 
