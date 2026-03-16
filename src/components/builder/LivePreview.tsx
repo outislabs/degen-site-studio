@@ -37,8 +37,16 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
   const layout = data.layout || 'classic';
   const layoutProps = { data, style, countdown, showWatermark };
 
+  const pageTitle = useMemo(() => {
+    if (!data.name) return '';
+    return `${data.name}${data.ticker ? ` ($${data.ticker})` : ''}`;
+  }, [data.name, data.ticker]);
+
   return (
     <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style.bgGradient }}>
+      {pageTitle && (
+        <h1 className="sr-only">{pageTitle}</h1>
+      )}
       {layout === 'classic' && <ClassicLayout {...layoutProps} />}
       {layout === 'split-hero' && <SplitHeroLayout {...layoutProps} />}
       {layout === 'bento' && <BentoLayout {...layoutProps} />}
