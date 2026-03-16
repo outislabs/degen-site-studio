@@ -25,6 +25,12 @@ const queryClient = new QueryClient();
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
 
+  useEffect(() => {
+    if (isCustomDomain && siteData?.name) {
+      document.title = `${siteData.name} ${siteData.ticker ? `(${siteData.ticker})` : ''} | DegenTools`;
+    }
+  }, [isCustomDomain, siteData]);
+
   if (loading) {
     return (
       <div className="min-h-screen gradient-degen flex items-center justify-center">

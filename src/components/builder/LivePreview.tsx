@@ -1,6 +1,6 @@
 import { CoinData } from '@/types/coin';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { themes } from '@/lib/themes';
 import ClassicLayout from './layouts/ClassicLayout';
 import SplitHeroLayout from './layouts/SplitHeroLayout';
