@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Lock, ExternalLink, Loader2, Copy, CheckCircle2, XCircle,
-  RefreshCw, Globe, ArrowRight, Shield, Clock, AlertCircle,
+  RefreshCw, Globe, ArrowRight, Shield, Clock, AlertCircle, Unlink,
 } from 'lucide-react';
 
 interface Props {
