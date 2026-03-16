@@ -308,7 +308,7 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
                   <div className="flex-1">
                     <p className="text-xs text-yellow-600 font-medium">{verifyMessage}</p>
                     <p className="text-[11px] text-muted-foreground mt-0.5">
-                      Make sure your CNAME record points to <span className="font-mono text-foreground">degentools.co</span>
+                      Make sure your CNAME record points to <span className="font-mono text-foreground">fallback.degentools.co</span>
                     </p>
                   </div>
                 </>
