@@ -173,27 +173,46 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
     }
   };
 
+  const handleDisconnect = async () => {
+    if (!siteId || !data.customDomain) return;
+    setDisconnectLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('provision-custom-domain', {
+        body: { domain: data.customDomain, site_id: siteId, action: 'remove' },
+      });
+      if (error) throw error;
+      if (result?.error) throw new Error(result.error);
+      onChange({ customDomain: '' });
+      setFlowStep('input');
+      setProvisionResult(null);
+      setVerifyStatus('idle');
+      toast.success('Domain disconnected.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to disconnect domain');
+    } finally {
+      setDisconnectLoading(false);
+    }
+  };
+
   const handleVerifyDns = async () => {
     const domain = data.customDomain!.replace(/^https?:\/\//, '').replace(/\/+$/, '');
     setVerifyStatus('checking');
     setVerifyMessage('');
     try {
-      // Check A record
       const aRes = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
       const aData = await aRes.json();
       if (aData.Answer?.length > 0) {
         setVerifyStatus('ok');
         setVerifyMessage('DNS is resolving! Your domain is pointing correctly.');
-        setFlowStep('verify');
+        if (flowStep === 'dns') setFlowStep('verify');
         return;
       }
-      // Check CNAME
       const cRes = await fetch(`https://dns.google/resolve?name=${domain}&type=CNAME`);
       const cData = await cRes.json();
       if (cData.Answer?.length > 0) {
         setVerifyStatus('ok');
         setVerifyMessage('CNAME configured correctly!');
-        setFlowStep('verify');
+        if (flowStep === 'dns') setFlowStep('verify');
         return;
       }
       setVerifyStatus('fail');
