@@ -427,9 +427,9 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                   </div>
 
                   {/* Record 2 — TXT verification */}
-                  {provisionResult.ownership_verification && (
-                    <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
-                      <p className="text-xs font-medium text-foreground mb-1">Record 2 — Verify ownership</p>
+                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
+                    <p className="text-xs font-medium text-foreground mb-1">Record 2 — Verify ownership</p>
+                    {provisionResult.ownership_verification ? (
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5 min-w-0 flex-1">
                           <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">TXT</span></div>
@@ -449,8 +449,12 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
                           <Copy className="w-3.5 h-3.5" />
                         </Button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground">
+                        TXT verification record was not returned. This may mean the domain was already verified or the provider handles verification automatically. Check your domain provider's DNS settings.
+                      </p>
+                    )}
+                  </div>
 
                   <p className="text-[11px] text-muted-foreground/80 italic">
                     🔒 SSL certificate will activate within 24 hours after DNS is configured.
