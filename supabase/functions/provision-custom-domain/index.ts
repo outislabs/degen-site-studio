@@ -34,7 +34,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Read body once as text then parse
     const bodyText = await req.text();
     console.log('Request body:', bodyText);
 
@@ -67,44 +66,37 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Clean domain
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/+$/, '').toLowerCase();
 
-    const CLOUDFLARE_ZONE_ID = Deno.env.get("CLOUDFLARE_ZONE_ID")!;
-    const CLOUDFLARE_API_TOKEN = Deno.env.get("CLOUDFLARE_API_TOKEN")!;
+    const VERCEL_API_TOKEN = Deno.env.get("VERCEL_API_TOKEN")!;
+    const VERCEL_PROJECT_ID = Deno.env.get("VERCEL_PROJECT_ID")!;
 
-    if (!CLOUDFLARE_ZONE_ID || !CLOUDFLARE_API_TOKEN) {
-      return new Response(JSON.stringify({ error: "Cloudflare credentials not configured" }), {
+    if (!VERCEL_API_TOKEN || !VERCEL_PROJECT_ID) {
+      return new Response(JSON.stringify({ error: "Vercel credentials not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const cfHeaders = {
-      "Authorization": `Bearer ${CLOUDFLARE_API_TOKEN}`,
+    const vercelHeaders = {
+      "Authorization": `Bearer ${VERCEL_API_TOKEN}`,
       "Content-Type": "application/json",
     };
 
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     // Remove custom domain
     if (action === 'remove') {
-      const listRes = await fetch(
-        `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/custom_hostnames?hostname=${cleanDomain}`,
-        { headers: cfHeaders }
+      const removeRes = await fetch(
+        `https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/domains/${cleanDomain}`,
+        { method: "DELETE", headers: vercelHeaders }
       );
-      const listData = await listRes.json();
-      const hostnameId = listData.result?.[0]?.id;
 
-      if (hostnameId) {
-        await fetch(
-          `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/custom_hostnames/${hostnameId}`,
-          { method: "DELETE", headers: cfHeaders }
-        );
-      }
+      console.log('Vercel remove response:', removeRes.status);
 
-      const serviceClient = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
       await serviceClient
         .from("sites")
         .update({ custom_domain: null })
@@ -116,45 +108,40 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Add custom domain
-    const cfRes = await fetch(
-      `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/custom_hostnames`,
+    // Add custom domain to Vercel
+    const vercelRes = await fetch(
+      `https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/domains`,
       {
         method: "POST",
-        headers: cfHeaders,
-        body: JSON.stringify({
-          hostname: cleanDomain,
-          ssl: {
-            method: "http",
-            type: "dv",
-            settings: {
-              http2: "on",
-              min_tls_version: "1.2",
-            },
-          },
-        }),
+        headers: vercelHeaders,
+        body: JSON.stringify({ name: cleanDomain }),
       }
     );
 
-    const cfData = await cfRes.json();
-    console.log("Cloudflare response:", JSON.stringify(cfData));
+    const vercelText = await vercelRes.text();
+    console.log('Vercel response:', vercelRes.status, vercelText);
 
-    if (!cfRes.ok && cfData.errors?.[0]?.code !== 1406) {
-      return new Response(
-        JSON.stringify({ error: cfData.errors?.[0]?.message || "Cloudflare error" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+    let vercelData: any;
+    try {
+      vercelData = JSON.parse(vercelText);
+    } catch {
+      throw new Error(`Vercel returned invalid response: ${vercelText}`);
+    }
+
+    if (!vercelRes.ok) {
+      // Domain already exists on project — that's fine
+      if (vercelData?.error?.code !== 'domain_already_in_use') {
+        return new Response(
+          JSON.stringify({ error: vercelData?.error?.message || "Vercel error" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
     }
 
     // Save to database
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
     await serviceClient
       .from("sites")
       .update({
@@ -164,13 +151,23 @@ Deno.serve(async (req) => {
       .eq("id", site_id)
       .eq("user_id", user.id);
 
+    // Get DNS configuration instructions from Vercel
+    const verification = vercelData?.verification || [];
+    const apexVerification = verification.find((v: any) => v.type === 'TXT');
+
     return new Response(
       JSON.stringify({
         success: true,
         hostname: cleanDomain,
-        status: cfData.result?.status || "pending",
-        ownership_verification: cfData.result?.ownership_verification,
-        ssl_verification: cfData.result?.ssl?.validation_records,
+        verified: vercelData?.verified || false,
+        dns_instructions: {
+          cname: {
+            type: 'CNAME',
+            name: '@',
+            value: 'cname.vercel-dns.com',
+          },
+          verification: apexVerification || null,
+        },
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
