@@ -391,21 +391,68 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
             </div>
 
             {provisionResult?.success && (
-              <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-3 space-y-2 mt-2">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-green-500">
-                  <CheckCircle2 className="w-4 h-4" /> Domain connected!
+              <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4 space-y-4 mt-2">
+                <p className="flex items-center gap-2 text-sm font-semibold text-green-500">
+                  <CheckCircle2 className="w-5 h-5" /> Domain connected to DegenTools!
                 </p>
-                <p className="text-[11px] text-muted-foreground">
-                  Point your domain's DNS to <strong className="text-foreground">degentools.co</strong> using a CNAME record.
-                </p>
-                {provisionResult.ownership_verification && (
-                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1 mt-1">
-                    <p className="text-xs font-medium text-foreground mb-1">Ownership Verification:</p>
-                    <pre className="text-[10px] text-muted-foreground whitespace-pre-wrap break-all">
-                      {JSON.stringify(provisionResult.ownership_verification, null, 2)}
-                    </pre>
+
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-foreground">📋 Complete DNS Setup</p>
+                  <p className="text-[11px] text-muted-foreground">Add these records at your DNS provider to finish setup:</p>
+
+                  {/* Record 1 — CNAME */}
+                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
+                    <p className="text-xs font-medium text-foreground mb-1">Record 1 — Point your domain</p>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></div>
+                        <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@</span></div>
+                        <div><span className="text-muted-foreground">Value:</span> <span className="text-primary">degentools.co</span></div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0"
+                        onClick={() => {
+                          navigator.clipboard.writeText('degentools.co');
+                          toast.success('CNAME value copied!');
+                        }}
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                )}
+
+                  {/* Record 2 — TXT verification */}
+                  {provisionResult.ownership_verification && (
+                    <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
+                      <p className="text-xs font-medium text-foreground mb-1">Record 2 — Verify ownership</p>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 min-w-0 flex-1">
+                          <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">TXT</span></div>
+                          <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground break-all">{provisionResult.ownership_verification.name || '_cf-custom-hostname'}</span></div>
+                          <div><span className="text-muted-foreground">Value:</span> <span className="text-primary break-all">{provisionResult.ownership_verification.value || JSON.stringify(provisionResult.ownership_verification)}</span></div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 shrink-0"
+                          onClick={() => {
+                            const val = provisionResult.ownership_verification?.value || JSON.stringify(provisionResult.ownership_verification);
+                            navigator.clipboard.writeText(val);
+                            toast.success('TXT value copied!');
+                          }}
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-muted-foreground/80 italic">
+                    🔒 SSL certificate will activate within 24 hours after DNS is configured.
+                  </p>
+                </div>
               </div>
             )}
 
