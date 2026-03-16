@@ -287,7 +287,9 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
             <code className="text-xs text-primary font-mono block">degentools.co/site/{slug}</code>
             <p className="text-[11px] text-muted-foreground/70 mt-1">This is your shareable link — works instantly!</p>
             <div className="mt-2 pt-2 border-t border-border">
-              <p className="text-[11px] text-muted-foreground">🌐 Subdomain ({slug}.degentools.co) — <span className="text-yellow-500 font-medium">coming soon</span></p>
+              <p className="text-[11px] text-muted-foreground">🌐 Subdomain</p>
+              <a href={`https://${slug}.degentools.co`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-mono hover:underline">{slug}.degentools.co</a>
+              <p className="text-[10px] text-muted-foreground/70 mt-0.5">Share this link — works instantly!</p>
             </div>
           </div>
         )}
