@@ -3,14 +3,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2, Lock, ExternalLink, Zap, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Copy, Upload, Loader2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePlan } from '@/hooks/usePlan';
-import { useNavigate } from 'react-router-dom';
+import CustomDomainSetup from '@/components/builder/CustomDomainSetup';
 
 interface Props {
   data: CoinData;
