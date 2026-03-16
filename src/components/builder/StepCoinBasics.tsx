@@ -30,22 +30,11 @@ const blockchains = [
 ];
 
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
-  const { canUseCustomDomain } = usePlan();
-  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
   const [pumpLink, setPumpLink] = useState('');
-  const [dnsStatus, setDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
-  const [dnsMessage, setDnsMessage] = useState('');
-  const [customDnsStatus, setCustomDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
-  const [customDnsMessage, setCustomDnsMessage] = useState('');
-  const [provisionLoading, setProvisionLoading] = useState(false);
-  const [provisionResult, setProvisionResult] = useState<{ success?: boolean; error?: string; ownership_verification?: any } | null>(null);
   const [pumpLoading, setPumpLoading] = useState(false);
   const { user } = useAuth();
-
-  const domainPaid = domainPaymentStatus === 'paid';
 
   const handleBuyDomain = async () => {
     if (!siteId || !user) {
