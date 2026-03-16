@@ -361,7 +361,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
               />
               <Button
                 size="sm"
-                disabled={provisionLoading || !data.customDomain?.trim() || !siteId || domainPaymentStatus !== 'paid'}
+                disabled={provisionLoading || !data.customDomain?.trim() || !siteId || (!canUseCustomDomain() && domainPaymentStatus !== 'paid')}
                 onClick={async () => {
                   setProvisionLoading(true);
                   setProvisionResult(null);
