@@ -3,14 +3,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2, Lock, ExternalLink, Zap, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Copy, Upload, Loader2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePlan } from '@/hooks/usePlan';
-import { useNavigate } from 'react-router-dom';
+import CustomDomainSetup from '@/components/builder/CustomDomainSetup';
 
 interface Props {
   data: CoinData;
@@ -31,47 +30,12 @@ const blockchains = [
 ];
 
 const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
-  const { canUseCustomDomain } = usePlan();
-  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
   const [pumpLink, setPumpLink] = useState('');
-  const [dnsStatus, setDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
-  const [dnsMessage, setDnsMessage] = useState('');
-  const [customDnsStatus, setCustomDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
-  const [customDnsMessage, setCustomDnsMessage] = useState('');
-  const [provisionLoading, setProvisionLoading] = useState(false);
-  const [provisionResult, setProvisionResult] = useState<{ success?: boolean; error?: string; ownership_verification?: any } | null>(null);
   const [pumpLoading, setPumpLoading] = useState(false);
   const { user } = useAuth();
 
-  const domainPaid = domainPaymentStatus === 'paid';
-
-  const handleBuyDomain = async () => {
-    if (!siteId || !user) {
-      toast.error('Please publish your site first before purchasing a custom domain.');
-      return;
-    }
-    setPaymentLoading(true);
-    try {
-      const { data: result, error } = await supabase.functions.invoke('create-payment', {
-        body: { site_id: siteId },
-      });
-      if (error) throw error;
-      if (result?.invoice_url) {
-        onPaymentStatusChange?.('pending');
-        window.open(result.invoice_url, '_blank');
-        toast.success('Payment page opened! Complete the payment to unlock custom domains.');
-      } else {
-        throw new Error('No invoice URL returned');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create payment');
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -305,235 +269,13 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          Custom Domain
-          {!canUseCustomDomain() ? (
-            <span className="inline-flex items-center gap-1 text-xs font-normal bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-              <Lock className="w-3 h-3" /> $10 Add-on
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
-              ✓ Included in Plan
-            </span>
-          )}
-        </Label>
-
-        {!canUseCustomDomain() ? (
-          <div className="rounded-lg border border-border p-4 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Custom domains require the Degen plan or higher — or pay a one-time $10 add-on.
-            </p>
-            <div className="flex flex-col gap-2">
-              <Button onClick={() => navigate('/pricing')} className="w-full" variant="outline">
-                Upgrade Plan
-              </Button>
-              <Button
-                onClick={handleBuyDomain}
-                disabled={paymentLoading || !siteId}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                {paymentLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                )}
-                {!siteId ? 'Publish site first to unlock' : 'Pay $10 with Crypto'}
-              </Button>
-            </div>
-            {domainPaymentStatus === 'pending' && (
-              <p className="text-xs text-yellow-500 text-center">
-                ⏳ Payment pending — refresh after completing payment.
-              </p>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="flex gap-2">
-              <Input
-                placeholder="e.g. mytoken.com"
-                value={data.customDomain || ''}
-                onChange={e => {
-                  onChange({ customDomain: e.target.value.trim() });
-                  setProvisionResult(null);
-                }}
-                className="flex-1"
-              />
-              <Button
-                size="sm"
-                disabled={provisionLoading || !data.customDomain?.trim() || !siteId || (!canUseCustomDomain() && domainPaymentStatus !== 'paid')}
-                onClick={async () => {
-                  setProvisionLoading(true);
-                  setProvisionResult(null);
-                  try {
-                    console.log('[Connect Domain] domain:', data.customDomain, 'site_id:', siteId);
-                    const { data: result, error } = await supabase.functions.invoke('provision-custom-domain', {
-                      body: {
-                        domain: data.customDomain,
-                        site_id: siteId,
-                        action: 'add'
-                      },
-                    });
-                    console.log('[Connect Domain] full response:', JSON.stringify(result));
-                    if (error) throw error;
-                    if (result?.error) throw new Error(result.error);
-                    const ov = result?.ownership_verification;
-                    console.log('[Connect Domain] ownership_verification:', JSON.stringify(ov));
-                    setProvisionResult({ success: true, ownership_verification: ov });
-                    toast.success('Domain connected!');
-                  } catch (err: any) {
-                    setProvisionResult({ error: err.message || 'Failed to connect domain' });
-                  } finally {
-                    setProvisionLoading(false);
-                  }
-                }}
-              >
-                {provisionLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
-                {provisionLoading ? 'Connecting...' : 'Connect Domain'}
-              </Button>
-            </div>
-
-            {provisionResult?.success && (
-              <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4 space-y-4 mt-2">
-                <p className="flex items-center gap-2 text-sm font-semibold text-green-500">
-                  <CheckCircle2 className="w-5 h-5" /> Domain connected to DegenTools!
-                </p>
-
-                <div className="space-y-3">
-                  <p className="text-xs font-semibold text-foreground">📋 Complete DNS Setup</p>
-                  <p className="text-[11px] text-muted-foreground">Add these records at your DNS provider to finish setup:</p>
-
-                  {/* Record 1 — CNAME */}
-                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
-                    <p className="text-xs font-medium text-foreground mb-1">Record 1 — Point your domain</p>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></div>
-                        <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@</span></div>
-                        <div><span className="text-muted-foreground">Value:</span> <span className="text-primary">degentools.co</span></div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0"
-                        onClick={() => {
-                          navigator.clipboard.writeText('degentools.co');
-                          toast.success('CNAME value copied!');
-                        }}
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Record 2 — TXT verification */}
-                  <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
-                    <p className="text-xs font-medium text-foreground mb-1">Record 2 — Verify ownership</p>
-                    {provisionResult.ownership_verification ? (
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5 min-w-0 flex-1">
-                          <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">TXT</span></div>
-                          <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground break-all">{provisionResult.ownership_verification.name || '_cf-custom-hostname'}</span></div>
-                          <div><span className="text-muted-foreground">Value:</span> <span className="text-primary break-all">{provisionResult.ownership_verification.value || JSON.stringify(provisionResult.ownership_verification)}</span></div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 shrink-0"
-                          onClick={() => {
-                            const val = provisionResult.ownership_verification?.value || JSON.stringify(provisionResult.ownership_verification);
-                            navigator.clipboard.writeText(val);
-                            toast.success('TXT value copied!');
-                          }}
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-[11px] text-muted-foreground">
-                        TXT verification record was not returned. This may mean the domain was already verified or the provider handles verification automatically. Check your domain provider's DNS settings.
-                      </p>
-                    )}
-                  </div>
-
-                  <p className="text-[11px] text-muted-foreground/80 italic">
-                    🔒 SSL certificate will activate within 24 hours after DNS is configured.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {provisionResult?.error && (
-              <p className="flex items-center gap-1.5 text-xs text-destructive mt-2">
-                <XCircle className="w-4 h-4" /> {provisionResult.error}
-              </p>
-            )}
-
-            <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3 mt-2">
-              <p className="text-xs font-semibold text-foreground">📋 DNS Setup</p>
-              <p className="text-xs text-muted-foreground">Add a <strong className="text-foreground">CNAME</strong> or <strong className="text-foreground">A</strong> record at your DNS provider:</p>
-              <div className="rounded bg-background border border-border px-3 py-2 font-mono text-[11px] space-y-1">
-                <div><span className="text-muted-foreground">Type:</span> <span className="text-foreground">CNAME</span></div>
-                <div><span className="text-muted-foreground">Name:</span> <span className="text-foreground">@ (or www)</span></div>
-                <div><span className="text-muted-foreground">Target:</span> <span className="text-primary">degentools.co</span></div>
-              </div>
-              {data.customDomain && (
-                <div className="flex items-center gap-2 pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7"
-                    disabled={customDnsStatus === 'checking'}
-                    onClick={async () => {
-                      const domain = data.customDomain!.replace(/^https?:\/\//, '').replace(/\/+$/, '');
-                      setCustomDnsStatus('checking');
-                      setCustomDnsMessage('');
-                      try {
-                        const dnsRes = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
-                        const dnsData = await dnsRes.json();
-                        if (dnsData.Answer && dnsData.Answer.length > 0) {
-                          setCustomDnsStatus('ok');
-                          setCustomDnsMessage('DNS is resolving!');
-                        } else {
-                          const cnameRes = await fetch(`https://dns.google/resolve?name=${domain}&type=CNAME`);
-                          const cnameData = await cnameRes.json();
-                          if (cnameData.Answer && cnameData.Answer.length > 0) {
-                            setCustomDnsStatus('ok');
-                            setCustomDnsMessage('CNAME configured correctly!');
-                          } else {
-                            setCustomDnsStatus('fail');
-                            setCustomDnsMessage('No DNS records found. Add a CNAME or A record for your domain.');
-                          }
-                        }
-                      } catch {
-                        setCustomDnsStatus('fail');
-                        setCustomDnsMessage('Could not verify DNS. Check your network connection.');
-                      }
-                    }}
-                  >
-                    {customDnsStatus === 'checking' ? (
-                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                    )}
-                    Verify DNS
-                  </Button>
-                  {customDnsStatus === 'ok' && (
-                    <span className="flex items-center gap-1 text-xs text-green-500">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> {customDnsMessage}
-                    </span>
-                  )}
-                  {customDnsStatus === 'fail' && (
-                    <span className="flex items-center gap-1 text-xs text-destructive">
-                      <XCircle className="w-3.5 h-3.5" /> {customDnsMessage}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+      <CustomDomainSetup
+        data={data}
+        onChange={onChange}
+        siteId={siteId}
+        domainPaymentStatus={domainPaymentStatus}
+        onPaymentStatusChange={onPaymentStatusChange}
+      />
     </div>
   );
 };
