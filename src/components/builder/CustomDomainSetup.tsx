@@ -258,6 +258,105 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
     );
   }
 
+  // --- Connected state (existing domain) ---
+  if (flowStep === 'connected' && existingDomain) {
+    return (
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <Globe className="w-4 h-4" />
+          Custom Domain
+          <span className="inline-flex items-center gap-1 text-xs font-normal bg-green-500/10 text-green-500 px-2 py-0.5 rounded-full">
+            ✓ Connected
+          </span>
+        </Label>
+
+        <div className="rounded-lg border border-border overflow-hidden">
+          <div className="p-4 space-y-4">
+            {/* Domain status */}
+            <div className="flex items-start gap-3 rounded-md bg-green-500/10 border border-green-500/20 p-4">
+              <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-semibold text-foreground">Domain connected</p>
+                <a
+                  href={`https://${existingDomain}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-mono text-xs hover:underline inline-flex items-center gap-1"
+                >
+                  https://{existingDomain} <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* DNS status indicator */}
+            <div className="flex items-center gap-2 rounded-md bg-muted/50 border border-border p-3">
+              {verifyStatus === 'checking' && (
+                <>
+                  <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                  <p className="text-xs text-muted-foreground">Checking DNS status…</p>
+                </>
+              )}
+              {verifyStatus === 'ok' && (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <p className="text-xs text-green-500 font-medium">{verifyMessage}</p>
+                </>
+              )}
+              {verifyStatus === 'fail' && (
+                <>
+                  <AlertCircle className="w-4 h-4 text-yellow-500" />
+                  <div className="flex-1">
+                    <p className="text-xs text-yellow-600 font-medium">{verifyMessage}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Make sure your CNAME record points to <span className="font-mono text-foreground">degentools.co</span>
+                    </p>
+                  </div>
+                </>
+              )}
+              {verifyStatus === 'idle' && (
+                <>
+                  <Shield className="w-4 h-4 text-primary" />
+                  <p className="text-xs text-muted-foreground">DNS status not yet checked.</p>
+                </>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => checkDns(existingDomain)}
+                disabled={verifyStatus === 'checking'}
+              >
+                <RefreshCw className="w-3.5 h-3.5" /> Re-check DNS
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => setFlowStep('dns')}
+              >
+                <Shield className="w-3.5 h-3.5" /> DNS Instructions
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-destructive hover:text-destructive"
+                onClick={handleDisconnect}
+                disabled={disconnectLoading}
+              >
+                {disconnectLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Unlink className="w-3.5 h-3.5" />}
+                Disconnect
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // --- Step indicators ---
   const stepConfig = [
     { key: 'input' as const, label: 'Enter Domain', num: 1 },
@@ -287,7 +386,6 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
               <button
                 key={s.key}
                 onClick={() => {
-                  // Allow going back, but only forward if steps are completed
                   if (i <= stepIndex || (i === 1 && provisionResult?.success) || (i === 2 && verifyStatus === 'ok')) {
                     setFlowStep(s.key);
                   }
