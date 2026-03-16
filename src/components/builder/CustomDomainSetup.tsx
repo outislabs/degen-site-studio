@@ -478,7 +478,7 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
                 label="1. Point your domain"
                 type="CNAME"
                 name="@"
-                value="degentools.co"
+                value="fallback.degentools.co"
               />
 
               {provisionResult?.ownership_verification ? (
