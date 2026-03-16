@@ -136,6 +136,17 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                     </div>
                   </div>
 
+                  {site.slug && (
+                    <a
+                      href={`https://${site.slug}.degentools.co`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-primary font-mono hover:underline truncate block mb-2"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      🌐 {site.slug}.degentools.co
+                    </a>
+                  )}
                   {(site.data as any)?.tagline && (
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{(site.data as any).tagline}</p>
                   )}
