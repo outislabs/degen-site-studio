@@ -41,6 +41,8 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
   const [dnsMessage, setDnsMessage] = useState('');
   const [customDnsStatus, setCustomDnsStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
   const [customDnsMessage, setCustomDnsMessage] = useState('');
+  const [provisionLoading, setProvisionLoading] = useState(false);
+  const [provisionResult, setProvisionResult] = useState<{ success?: boolean; error?: string; ownership_verification?: any } | null>(null);
   const [pumpLoading, setPumpLoading] = useState(false);
   const { user } = useAuth();
 
