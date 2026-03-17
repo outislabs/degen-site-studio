@@ -56,7 +56,7 @@ function sanitize(str: string): string {
 
 async function generateImage(prompt: string, geminiApiKey: string): Promise<string | null> {
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiApiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-image-generation:generateContent?key=${geminiApiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -83,33 +83,29 @@ async function generateImage(prompt: string, geminiApiKey: string): Promise<stri
   return null;
 }
 
-async function generateText(prompt: string, system: string, anthropicApiKey: string): Promise<string> {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": anthropicApiKey,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `${system}\n\n${prompt}`,
+async function generateText(prompt: string, system: string, geminiApiKey: string): Promise<string> {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `${system}\n\n${prompt}` }] }],
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 1024,
         },
-      ],
-    }),
-  });
+      }),
+    }
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Anthropic error: ${response.status} - ${errorText}`);
+    throw new Error(`Gemini text error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
-  return data.content?.[0]?.text || "";
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 Deno.serve(async (req) => {
@@ -126,10 +122,8 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-    const anthropicApiKey = Deno.env.get("ANTHROPIC_API_KEY");
 
     if (!geminiApiKey) throw new Error("GEMINI_API_KEY not configured");
-    if (!anthropicApiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -224,7 +218,7 @@ Deno.serve(async (req) => {
     if (type === "marketing_copy") {
       const system = `You are a crypto marketing expert. Generate compelling marketing copy for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The copy should be engaging, hype-worthy, and suitable for crypto communities on Twitter/X and Telegram. Use emojis, crypto slang, and create FOMO. Keep it concise and punchy.`;
 
-      const generatedText = await generateText(prompt, system, anthropicApiKey);
+      const generatedText = await generateText(prompt, system, geminiApiKey);
 
       const { data: record, error: insertError } = await supabase
         .from("generated_content")
