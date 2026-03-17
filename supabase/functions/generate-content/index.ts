@@ -93,7 +93,7 @@ async function generateText(prompt: string, system: string, geminiApiKey: string
         contents: [{ parts: [{ text: `${system}\n\n${prompt}` }] }],
         generationConfig: {
           temperature: 0.9,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
         },
       }),
     }
