@@ -173,7 +173,7 @@ const ContentGallery = ({ type, refreshKey }: Props) => {
                 </Button>
               </div>
             </div>
-            <div className="text-sm text-foreground prose prose-invert prose-sm max-w-none">
+            <div className="text-sm text-foreground prose prose-invert prose-sm max-w-none whitespace-pre-wrap [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_p]:mb-2 [&_li]:mb-1 [&_strong]:text-foreground [&_hr]:border-border">
               <ReactMarkdown>{item.content_text || ''}</ReactMarkdown>
             </div>
           </motion.div>
