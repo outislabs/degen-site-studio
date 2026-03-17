@@ -475,28 +475,11 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
               </div>
 
               <DnsRecord
-                label="1. Point your domain"
+                label="Point your domain"
                 type="CNAME"
                 name="@"
-                value="fallback.degentools.co"
+                value="cname.vercel-dns.com"
               />
-
-              {provisionResult?.ownership_verification ? (
-                <DnsRecord
-                  label="2. Verify ownership"
-                  type="TXT"
-                  name={provisionResult.ownership_verification.name || '_cf-custom-hostname'}
-                  value={provisionResult.ownership_verification.value || JSON.stringify(provisionResult.ownership_verification)}
-                  copyValue={provisionResult.ownership_verification.value || JSON.stringify(provisionResult.ownership_verification)}
-                />
-              ) : (
-                <div className="rounded-md border border-border bg-background p-3 space-y-2">
-                  <p className="text-xs font-semibold text-foreground">2. Verify ownership</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    No TXT verification was required — your domain may already be verified. Proceed to step 3.
-                  </p>
-                </div>
-              )}
 
               <div className="flex items-center gap-3 pt-1">
                 <Button size="sm" onClick={handleVerifyDns} disabled={verifyStatus === 'checking'} className="gap-1.5">
