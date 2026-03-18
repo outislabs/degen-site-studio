@@ -28,6 +28,7 @@ const ContentStudio = () => {
   const [selectedSiteId, setSelectedSiteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('meme');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
   const { plan, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
@@ -37,6 +38,17 @@ const ContentStudio = () => {
     }
     fetchSites();
   }, [user]);
+
+  // Auto-load logo when selected site changes
+  useEffect(() => {
+    if (!selectedSiteId) {
+      setReferenceImageUrl('');
+      return;
+    }
+    const site = sites.find(s => s.id === selectedSiteId);
+    const logoUrl = site?.data?.logoUrl as string | undefined;
+    setReferenceImageUrl(logoUrl || '');
+  }, [selectedSiteId, sites]);
 
   const fetchSites = async () => {
     const { data } = await supabase
@@ -146,6 +158,8 @@ const ContentStudio = () => {
                       }}
                       canGenerate={canDownloadMeme()}
                       remaining={remaining}
+                      referenceImageUrl={referenceImageUrl}
+                      onReferenceImageChange={setReferenceImageUrl}
                     />
                     {t.id === 'sticker' && canAccessStickerPacks() && (
                       <StickerPacks refreshKey={refreshKey} />
