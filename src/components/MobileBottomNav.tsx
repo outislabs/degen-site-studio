@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Globe, Image, CreditCard, UserCog, Plus, Rocket, X } from 'lucide-react';
+import { Globe, Image, UserCog, Plus, Rocket, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Launch', icon: Rocket, path: '/launch' },
+  { label: 'My Bags', icon: Wallet, path: '/bags' },
   { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'Account', icon: UserCog, path: '/account' },
 ];

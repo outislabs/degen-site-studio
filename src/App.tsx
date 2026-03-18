@@ -25,6 +25,7 @@ import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import LaunchToken from "./pages/LaunchToken.tsx";
+import BagsWallet from "./pages/BagsWallet.tsx";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,7 @@ const App = () => {
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/admin" element={<Admin />} />
                       <Route path="/launch" element={<LaunchToken />} />
+                      <Route path="/bags" element={<BagsWallet />} />
                       <Route path="/privacy" element={<Privacy />} />
                       <Route path="/terms" element={<Terms />} />
                       <Route path="*" element={<NotFound />} />
