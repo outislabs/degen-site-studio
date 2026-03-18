@@ -6,7 +6,7 @@ const solanaWeb3JsAdapter = new SolanaAdapter({
   wallets: []
 })
 
-const projectId = import.meta.env.VITE_REOWN_PROJECT_ID || 'YOUR_REOWN_PROJECT_ID'
+const projectId = '46f2509c102c8015b2a19c0cf4038f11'
 
 export const modal = createAppKit({
   adapters: [solanaWeb3JsAdapter],
