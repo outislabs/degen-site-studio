@@ -210,7 +210,13 @@ const Builder = () => {
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
             <Button
-              onClick={() => step < 4 ? setStep(s => s + 1) : handlePublish()}
+              onClick={() => {
+                if (step === 0 && !slug.trim()) {
+                  toast.error('Please enter a site slug before continuing.');
+                  return;
+                }
+                step < 4 ? setStep(s => s + 1) : handlePublish();
+              }}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {step < 4 ? (
