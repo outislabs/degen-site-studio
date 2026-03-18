@@ -14,11 +14,11 @@ const faqs = [
   },
   {
     q: 'Do I need coding experience?',
-    a: 'Not at all. Just paste your token link (Pump.fun, DexScreener, Jupiter, or Raydium), pick a theme, customize your content, and publish. It takes under 5 minutes.',
+    a: 'Not at all. Just paste your token link (Bags.fm, Pump.fun, DexScreener, Jupiter, or Raydium), pick a theme, customize your content, and publish. It takes under 5 minutes.',
   },
   {
     q: 'Which blockchains are supported?',
-    a: 'We support Solana, Ethereum, Base, and BSC. You can import token data directly from Pump.fun, DexScreener, Jupiter, and Raydium.',
+    a: 'We support Solana, Ethereum, Base, and BSC. You can import token data directly from Bags.fm, Pump.fun, DexScreener, Jupiter, and Raydium.',
   },
   {
     q: 'Can I use my own custom domain?',
