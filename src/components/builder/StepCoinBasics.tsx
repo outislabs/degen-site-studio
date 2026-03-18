@@ -100,6 +100,9 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     // Birdeye
     const birdMatch = trimmed.match(/birdeye\.so\/token\/([A-Za-z0-9]{32,50})/);
     if (birdMatch) return { mint: birdMatch[1], chain: 'solana', source: 'birdeye' };
+    // Bags.fm
+    const bagsMatch = trimmed.match(/bags\.fm\/token\/([A-Za-z0-9]{32,50})/);
+    if (bagsMatch) return { mint: bagsMatch[1], chain: 'solana', source: 'bags' };
     // Raw EVM address
     if (/^0x[A-Fa-f0-9]{40}$/i.test(trimmed)) return { mint: trimmed, chain: 'ethereum', source: 'address' };
     // Raw Solana address
