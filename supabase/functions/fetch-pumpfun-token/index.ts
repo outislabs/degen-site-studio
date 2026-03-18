@@ -21,17 +21,21 @@ function checkRateLimit(key: string): boolean {
 
 const VALID_CHAINS = ["solana", "ethereum", "base", "bsc", "arbitrum", "polygon", "optimism", "avalanche", "ton"];
 
-function extractMintAndChain(input: string): { mint: string; chain: string; isPair: boolean } | null {
+function extractMintAndChain(input: string): { mint: string; chain: string; isPair: boolean; source?: string } | null {
   const trimmed = input.trim();
 
   const pumpFunMatch = trimmed.match(/pump\.fun\/(?:coin\/)?([A-Za-z0-9]{32,})/);
-  if (pumpFunMatch) return { mint: pumpFunMatch[1], chain: 'solana', isPair: false };
+  if (pumpFunMatch) return { mint: pumpFunMatch[1], chain: 'solana', isPair: false, source: 'pumpfun' };
 
   const dexScreenerMatch = trimmed.match(/dexscreener\.com\/([a-z]+)\/([A-Za-z0-9]{32,})/);
   if (dexScreenerMatch) {
     const chain = VALID_CHAINS.includes(dexScreenerMatch[1]) ? dexScreenerMatch[1] : 'solana';
-    return { mint: dexScreenerMatch[2], chain, isPair: true };
+    return { mint: dexScreenerMatch[2], chain, isPair: true, source: 'dexscreener' };
   }
+
+  // Bags.fm URL: https://bags.fm/token/MINTADDRESS
+  const bagsMatch = trimmed.match(/bags\.fm\/(?:token\/)?([A-Za-z0-9]{32,})/);
+  if (bagsMatch) return { mint: bagsMatch[1], chain: 'solana', isPair: false, source: 'bags' };
 
   if (/^0x[A-Fa-f0-9]{40}$/.test(trimmed)) return { mint: trimmed, chain: 'ethereum', isPair: false };
   if (/^[A-Za-z0-9]{32,50}$/.test(trimmed)) return { mint: trimmed, chain: 'solana', isPair: false };
@@ -95,9 +99,94 @@ async function fetchFromPumpFun(mint: string) {
   }
 }
 
+async function fetchFromBags(mint: string) {
+  try {
+    const BAGS_API_KEY = Deno.env.get('BAGS_API_KEY');
+    if (!BAGS_API_KEY) {
+      console.error('BAGS_API_KEY not configured');
+      return null;
+    }
+
+    // First try to get token directly from the launch feed
+    const feedRes = await fetch(
+      `https://public-api-v2.bags.fm/api/v1/token-launch/feed`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'x-api-key': BAGS_API_KEY,
+        },
+      }
+    );
+
+    if (feedRes.ok) {
+      const feedText = await feedRes.text();
+      if (feedText && feedText.trim().length > 0) {
+        let feedData: any;
+        try { feedData = JSON.parse(feedText); } catch { /* continue */ }
+        if (feedData?.success && Array.isArray(feedData.response)) {
+          const token = feedData.response.find((t: any) => t.tokenMint === mint);
+          if (token) {
+            console.log('Found on Bags.fm feed:', token.name);
+            return {
+              name: token.name || '',
+              symbol: token.symbol || '',
+              description: token.description || '',
+              image_uri: token.image || '',
+              mint: token.tokenMint || mint,
+              chain: 'solana',
+              market_cap: 0,
+              total_supply: 0,
+              website: token.website || '',
+              twitter: token.twitter || '',
+              telegram: '',
+            };
+          }
+        }
+      }
+    }
+
+    // Fallback — try pool lookup by token mint
+    const poolRes = await fetch(
+      `https://public-api-v2.bags.fm/api/v1/solana/bags/pools/token-mint?tokenMint=${encodeURIComponent(mint)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'x-api-key': BAGS_API_KEY,
+        },
+      }
+    );
+
+    if (!poolRes.ok) { await poolRes.text(); return null; }
+    const poolText = await poolRes.text();
+    if (!poolText || poolText.trim().length === 0) return null;
+    let poolData: any;
+    try { poolData = JSON.parse(poolText); } catch { return null; }
+
+    if (!poolData?.success || !poolData?.response) return null;
+
+    // Pool exists — return basic data with mint address
+    // Name/symbol will fall through to DexScreener for enrichment
+    return {
+      name: '',
+      symbol: '',
+      description: '',
+      image_uri: '',
+      mint: poolData.response.tokenMint || mint,
+      chain: 'solana',
+      market_cap: 0,
+      total_supply: 0,
+      website: '',
+      twitter: '',
+      telegram: '',
+    };
+  } catch (e) {
+    console.error('fetchFromBags error:', e);
+    return null;
+  }
+}
+
 async function fetchFromDexScreener(chain: string, mint: string, isPair = false) {
   try {
-    // Use pairs endpoint for DexScreener URLs, tokens endpoint for contract addresses
     const url = isPair
       ? `https://api.dexscreener.com/latest/dex/pairs/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`
       : `https://api.dexscreener.com/tokens/v1/${encodeURIComponent(chain)}/${encodeURIComponent(mint)}`;
@@ -198,17 +287,19 @@ Deno.serve(async (req) => {
     let cleanMint = rawInput;
     let detectedChain = chainOverride || 'solana';
     let isPairAddress = (body.isPair as boolean) || false;
+    let isBagsUrl = false;
 
     if (rawInput.includes('.')) {
       const extracted = extractMintAndChain(rawInput);
       if (!extracted) {
-        return new Response(JSON.stringify({ error: "Invalid URL. Paste a pump.fun URL, dexscreener URL, or contract address." }), {
+        return new Response(JSON.stringify({ error: "Invalid URL. Paste a pump.fun, bags.fm, dexscreener URL, or contract address." }), {
           status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       cleanMint = extracted.mint;
       detectedChain = chainOverride || extracted.chain;
       isPairAddress = extracted.isPair;
+      isBagsUrl = extracted.source === 'bags';
     } else {
       if (/^0x[A-Fa-f0-9]{40}$/.test(rawInput)) {
         detectedChain = chainOverride || 'ethereum';
@@ -217,18 +308,30 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('cleanMint:', cleanMint, 'detectedChain:', detectedChain, 'isPairAddress:', isPairAddress);
+    console.log('cleanMint:', cleanMint, 'detectedChain:', detectedChain, 'isPairAddress:', isPairAddress, 'isBagsUrl:', isBagsUrl);
 
     const chain = detectedChain;
     const isSolana = chain === 'solana';
     let tokenData = null;
 
     // 1. Pump.fun (Solana only, not for pair addresses)
-    if (isSolana && !isPairAddress) {
+    if (isSolana && !isPairAddress && !isBagsUrl) {
       console.log('Trying pump.fun...');
       tokenData = await fetchFromPumpFun(cleanMint);
       if (tokenData) {
         console.log('Found on pump.fun:', tokenData.name);
+        return new Response(JSON.stringify(buildResult(tokenData)), {
+          status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    // 1b. Bags.fm (Solana only)
+    if (isSolana && (isBagsUrl || !isPairAddress)) {
+      console.log('Trying Bags.fm...');
+      tokenData = await fetchFromBags(cleanMint);
+      if (tokenData && tokenData.name) {
+        console.log('Found on Bags.fm:', tokenData.name);
         return new Response(JSON.stringify(buildResult(tokenData)), {
           status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
