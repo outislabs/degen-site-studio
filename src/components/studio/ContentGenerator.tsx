@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Sparkles, Wand2, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, Sparkles, Wand2, AlertTriangle, Upload, X, ImageIcon } from 'lucide-react';
 
 interface Props {
   type: string;
@@ -13,6 +14,8 @@ interface Props {
   onGenerated: () => void;
   canGenerate?: boolean;
   remaining?: number | null;
+  referenceImageUrl?: string;
+  onReferenceImageChange?: (url: string) => void;
 }
 
 const placeholders: Record<string, string> = {
@@ -42,11 +45,56 @@ const quickPrompts: Record<string, string[]> = {
   marketing_copy: ['Shill tweets (5x)', 'Telegram welcome message', 'Token description', 'FOMO announcement'],
 };
 
-const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining }: Props) => {
+const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange }: Props) => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_PROMPT_LENGTH = 1000;
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `reference/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('generated-content').upload(path, file);
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage.from('generated-content').getPublicUrl(path);
+      onReferenceImageChange?.(urlData.publicUrl);
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUrlSubmit = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    try {
+      new URL(trimmed);
+      onReferenceImageChange?.(trimmed);
+      setUrlInput('');
+    } catch {
+      toast.error('Please enter a valid URL');
+    }
+  };
 
   const generate = async (customPrompt?: string) => {
     const finalPrompt = (customPrompt || prompt).trim();
@@ -67,7 +115,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-content', {
-        body: { type, prompt: finalPrompt, tokenName, tokenTicker, siteId },
+        body: { type, prompt: finalPrompt, tokenName, tokenTicker, siteId, referenceImageUrl },
       });
 
       if (error) throw error;
@@ -94,6 +142,81 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
       <p className="text-xs text-muted-foreground mb-4">
         For <span className="text-primary">{tokenName}</span> (${tokenTicker})
       </p>
+
+      {/* Reference Image Section */}
+      <div className="mb-4">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Reference Image (optional)</p>
+        
+        {referenceImageUrl ? (
+          <div className="relative inline-block mb-2">
+            <img
+              src={referenceImageUrl}
+              alt="Reference"
+              className="w-16 h-16 rounded-lg border border-border object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/placeholder.svg';
+              }}
+            />
+            <button
+              onClick={() => onReferenceImageChange?.('')}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/80 transition-colors"
+            >
+              <X className="w-3 h-3" />
+            </button>
+            <p className="text-[9px] text-muted-foreground mt-1 max-w-[200px]">
+              AI will use this as visual reference for generated content
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-12 h-12 rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/30">
+              <ImageIcon className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <span className="text-[10px] text-muted-foreground">No reference image</span>
+          </div>
+        )}
+
+        <div className="flex gap-1.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="text-[10px] h-7 px-2"
+          >
+            {uploading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Upload className="w-3 h-3 mr-1" />}
+            Upload image
+          </Button>
+        </div>
+
+        <div className="flex gap-1.5 mt-1.5">
+          <Input
+            value={urlInput}
+            onChange={e => setUrlInput(e.target.value)}
+            placeholder="Paste image URL"
+            className="text-[10px] h-7 bg-background border-border"
+            onKeyDown={e => e.key === 'Enter' && handleUrlSubmit()}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleUrlSubmit}
+            disabled={!urlInput.trim()}
+            className="text-[10px] h-7 px-2 shrink-0"
+          >
+            Use
+          </Button>
+        </div>
+      </div>
 
       {!canGenerate && (
         <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2 mb-3">
