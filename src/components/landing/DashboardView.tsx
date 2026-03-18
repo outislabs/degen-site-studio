@@ -82,6 +82,27 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
         ))}
       </div>
 
+      {/* Launch CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 gradient-card border border-primary/20 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:border-primary/40 transition-colors"
+        onClick={() => navigate('/launch')}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Rocket className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Launch a Token on Bags.fm</p>
+            <p className="text-xs text-muted-foreground">Deploy a Solana token in minutes — no code needed</p>
+          </div>
+        </div>
+        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0">
+          <Rocket className="w-3.5 h-3.5 mr-1" /> Launch Now
+        </Button>
+      </motion.div>
+
       {/* Section Title */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-xs text-primary tracking-wider">YOUR SITES</h2>
