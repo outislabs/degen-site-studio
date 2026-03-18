@@ -14,8 +14,9 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import type { Provider } from '@reown/appkit-utils/solana';
 import {
   Rocket, ArrowLeft, ArrowRight, Check, Wallet, Info,
-  ExternalLink, Copy, Loader2, CheckCircle2
+  ExternalLink, Copy, Loader2, CheckCircle2, Upload
 } from 'lucide-react';
+import { useRef } from 'react';
 
 const STEPS = ['Token Details', 'Connect Wallet', 'Review & Launch'];
 
