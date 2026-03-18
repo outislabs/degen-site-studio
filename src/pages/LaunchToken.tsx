@@ -267,11 +267,57 @@ const LaunchToken = () => {
                     <span className="text-[10px] text-muted-foreground">{description.length}/1000</span>
                   </div>
                   <div>
-                    <Label className="text-xs">Logo URL *</Label>
-                    <div className="flex items-center gap-3 mt-1">
-                      {imageUrl && <img src={imageUrl} alt="" className="w-10 h-10 rounded-full object-cover ring-1 ring-primary/30" />}
-                      <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." className="flex-1" />
+                    <Label className="text-xs">Logo *</Label>
+                    <input
+                      type="file"
+                      ref={fileRef}
+                      className="hidden"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      onChange={handleLogoUpload}
+                    />
+                    <div
+                      onClick={() => fileRef.current?.click()}
+                      onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && fileRef.current) {
+                          const dt = new DataTransfer();
+                          dt.items.add(file);
+                          fileRef.current.files = dt.files;
+                          fileRef.current.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                      }}
+                      className="mt-1 border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
+                    >
+                      {uploading ? (
+                        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                      ) : imageUrl ? (
+                        <img src={imageUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover ring-2 ring-primary/30" />
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Drag & drop or click to upload</span>
+                          <span className="text-[10px] text-muted-foreground/60">PNG, JPG, GIF, WEBP</span>
+                        </>
+                      )}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowUrlFallback(v => !v)}
+                      className="text-[10px] text-primary hover:underline mt-1.5"
+                    >
+                      Or paste image URL
+                    </button>
+                    {showUrlFallback && (
+                      <Input
+                        value={imageUrl}
+                        onChange={e => setImageUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="mt-1"
+                      />
+                    )}
                   </div>
                 </div>
 
