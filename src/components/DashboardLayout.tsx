@@ -27,6 +27,7 @@ import {
   Menu,
   X,
   UserCog,
+  Rocket,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -39,6 +40,7 @@ interface Props {
 
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
+  { label: 'Launch', icon: Rocket, path: '/launch' },
   { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
   { label: 'Account', icon: UserCog, path: '/account' },
