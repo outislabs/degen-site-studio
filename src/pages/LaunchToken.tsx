@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,8 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana/react';
 import {
   Rocket, ArrowLeft, ArrowRight, Check, Wallet, Info,
   ExternalLink, Copy, Loader2, CheckCircle2
@@ -24,7 +24,8 @@ const LaunchToken = () => {
   const [searchParams] = useSearchParams();
   const siteId = searchParams.get('siteId');
   const { user } = useAuth();
-  const { publicKey, signTransaction, connected } = useWallet();
+  const { address, isConnected } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
 
   const [step, setStep] = useState(0);
   const [launching, setLaunching] = useState(false);
@@ -63,10 +64,10 @@ const LaunchToken = () => {
   }, [siteId, user]);
 
   const canProceedStep0 = name.trim() && symbol.trim() && description.trim() && imageUrl.trim();
-  const canProceedStep1 = connected && publicKey && parseFloat(solAmount) >= 0.05;
+  const canProceedStep1 = isConnected && address && parseFloat(solAmount) >= 0.05;
 
   const handleLaunch = async () => {
-    if (!publicKey || !signTransaction) {
+    if (!address || !walletProvider) {
       toast.error('Wallet not connected');
       return;
     }
@@ -93,7 +94,7 @@ const LaunchToken = () => {
         body: {
           action: 'create_launch_transaction',
           ipfs, tokenMint,
-          wallet: publicKey.toString(),
+          wallet: address,
           initialBuyLamports: Math.floor(parseFloat(solAmount) * 1e9),
           configKey
         }
@@ -106,7 +107,7 @@ const LaunchToken = () => {
       const bs58 = await import('bs58');
       const txBuffer = bs58.default.decode(txData.transaction);
       const tx = Transaction.from(txBuffer);
-      const signed = await signTransaction(tx);
+      const signed = await walletProvider.signTransaction(tx);
       const txid = await connection.sendRawTransaction(signed.serialize());
 
       // 5. Confirm
@@ -278,12 +279,12 @@ const LaunchToken = () => {
                 <div className="gradient-card border border-border rounded-xl p-6 space-y-5">
                   <h3 className="text-xs font-display text-primary tracking-wider">CONNECT YOUR WALLET</h3>
                   <div className="flex flex-col items-center gap-4 py-4">
-                    <WalletMultiButton style={{ background: 'hsl(var(--primary))', borderRadius: '0.5rem', height: '44px', fontSize: '14px' }} />
-                    {connected && publicKey && (
+                    <appkit-button />
+                    {isConnected && address && (
                       <div className="flex items-center gap-2">
                         <Wallet className="w-4 h-4 text-primary" />
                         <code className="text-xs text-muted-foreground font-mono">
-                          {publicKey.toString().slice(0, 6)}...{publicKey.toString().slice(-4)}
+                          {address.slice(0, 6)}...{address.slice(-4)}
                         </code>
                         <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Connected</Badge>
                       </div>
@@ -317,7 +318,7 @@ const LaunchToken = () => {
                       ['Name', name],
                       ['Symbol', symbol],
                       ['Logo', imageUrl ? '✅ Set' : '❌ Missing'],
-                      ['Wallet', publicKey ? `${publicKey.toString().slice(0, 6)}...${publicKey.toString().slice(-4)}` : '—'],
+                      ['Wallet', address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '—'],
                     ].map(([k, v]) => (
                       <div key={k}>
                         <p className="text-[10px] text-muted-foreground">{k}</p>
@@ -373,7 +374,11 @@ const LaunchToken = () => {
               disabled={launching}
               className="bg-primary text-primary-foreground min-w-[200px]"
             >
-              {launching ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Launching...</> : <><Rocket className="w-4 h-4 mr-1" /> Launch on Bags.fm</>}
+              {launching ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
+              ) : (
+                <><Rocket className="w-4 h-4 mr-2" /> Launch Token 🚀</>
+              )}
             </Button>
           )}
         </div>

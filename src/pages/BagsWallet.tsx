@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana/react';
 import { supabase } from '@/integrations/supabase/client';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,24 +20,24 @@ interface BagsToken {
 
 const BagsWallet = () => {
   const navigate = useNavigate();
-  const { publicKey, connected } = useWallet();
+  const { address, isConnected } = useAppKitAccount();
   const [tokens, setTokens] = useState<BagsToken[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (connected && publicKey) {
+    if (isConnected && address) {
       fetchTokens();
     } else {
       setTokens([]);
     }
-  }, [connected, publicKey]);
+  }, [isConnected, address]);
 
   const fetchTokens = async () => {
-    if (!publicKey) return;
+    if (!address) return;
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'get_user_tokens', wallet: publicKey.toString() },
+        body: { action: 'get_user_tokens', wallet: address },
       });
       if (error) throw error;
       setTokens(data?.tokens || []);
@@ -77,7 +77,7 @@ const BagsWallet = () => {
         </div>
 
         {/* Wallet Connection */}
-        {!connected ? (
+        {!isConnected ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Wallet className="w-8 h-8 text-primary" />
@@ -86,14 +86,13 @@ const BagsWallet = () => {
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
               Connect your Solana wallet to view tokens you've launched on Bags.fm
             </p>
-            <WalletMultiButton />
+            <appkit-button />
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 text-primary animate-spin" />
           </div>
         ) : tokens.length === 0 ? (
-          /* Empty state */
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="text-5xl mb-4">🪙</div>
             <h2 className="text-lg font-semibold text-foreground mb-2">No tokens found</h2>
@@ -106,7 +105,6 @@ const BagsWallet = () => {
             </Button>
           </div>
         ) : (
-          /* Token grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {tokens.map((token) => (
               <Card key={token.tokenMint} className="bg-card border-border hover:border-primary/30 transition-colors">
