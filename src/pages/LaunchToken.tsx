@@ -43,8 +43,10 @@ const LaunchToken = () => {
   const [telegram, setTelegram] = useState('');
   const [website, setWebsite] = useState('');
 
-  // Step 2
   const [solAmount, setSolAmount] = useState('0.1');
+  const [uploading, setUploading] = useState(false);
+  const [showUrlFallback, setShowUrlFallback] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Auto-populate from site
   useEffect(() => {
