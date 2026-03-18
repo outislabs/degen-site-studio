@@ -35,9 +35,10 @@ Deno.serve(async (req) => {
     }
 
     const BAGS_API_KEY = Deno.env.get("BAGS_API_KEY")!;
-    if (!BAGS_API_KEY) {
-      throw new Error("BAGS_API_KEY not configured");
-    }
+    const BAGS_PARTNER_CONFIG = Deno.env.get("BAGS_PARTNER_CONFIG");
+    const BAGS_PARTNER_WALLET = Deno.env.get("BAGS_PARTNER_WALLET");
+
+    if (!BAGS_API_KEY) throw new Error("BAGS_API_KEY not configured");
 
     const body = await req.json();
     const { action } = body;
@@ -53,7 +54,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Validate field lengths
       if (name.length > 32) {
         return new Response(
           JSON.stringify({ error: "Token name must be 32 characters or fewer" }),
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      if (symbol.length > 10) {
+      if (symbol.replace('$', '').length > 10) {
         return new Response(
           JSON.stringify({ error: "Token symbol must be 10 characters or fewer" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -70,10 +70,9 @@ Deno.serve(async (req) => {
 
       console.log("Creating token info for:", name, symbol);
 
-      // Use multipart form data as required by Bags API
       const formData = new FormData();
       formData.append("name", name);
-      formData.append("symbol", symbol.toUpperCase());
+      formData.append("symbol", symbol.toUpperCase().replace("$", ""));
       formData.append("description", description.slice(0, 1000));
       formData.append("imageUrl", imageUrl);
       if (twitter) formData.append("twitter", twitter);
@@ -115,7 +114,78 @@ Deno.serve(async (req) => {
       );
     }
 
-    // --- STEP 2: Create Launch Transaction ---
+    // --- STEP 2: Create Fee Share Config ---
+    if (action === "create_fee_config") {
+      const { tokenMint, wallet, initialBuyLamports } = body;
+
+      if (!tokenMint || !wallet) {
+        return new Response(
+          JSON.stringify({ error: "Missing required fields: tokenMint, wallet" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log("Creating fee share config for:", tokenMint);
+
+      // Build fee claimers — creator gets all fees
+      // Partner key is embedded separately via partner/partnerConfig params
+      const feeClaimers = [
+        { user: wallet, userBps: 10000 } // Creator gets 100% of user fees
+      ];
+
+      // Build request body
+      const configBody: any = {
+        payer: wallet,
+        baseMint: tokenMint,
+        feeClaimers,
+      };
+
+      // Embed DegenTools partner key if configured
+      if (BAGS_PARTNER_WALLET && BAGS_PARTNER_CONFIG) {
+        configBody.partner = BAGS_PARTNER_WALLET;
+        configBody.partnerConfig = BAGS_PARTNER_CONFIG;
+        console.log("Partner key embedded:", BAGS_PARTNER_CONFIG);
+      }
+
+      const res = await fetch(
+        "https://public-api-v2.bags.fm/api/v1/fee-share/create-config",
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": BAGS_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(configBody),
+        }
+      );
+
+      const resText = await res.text();
+      console.log("Fee config response:", res.status, resText);
+
+      let resData: any;
+      try { resData = JSON.parse(resText); } catch {
+        throw new Error(`Bags API returned invalid response: ${resText}`);
+      }
+
+      if (!res.ok || !resData.success) {
+        return new Response(
+          JSON.stringify({ error: resData.error || "Failed to create fee config" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          configKey: resData.response?.meteoraConfigKey || resData.response?.configKey,
+          transactions: resData.response?.transactions || [],
+          bundles: resData.response?.bundles || [],
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // --- STEP 3: Create Launch Transaction ---
     if (action === "create_launch_transaction") {
       const { ipfs, tokenMint, wallet, initialBuyLamports, configKey } = body;
 
@@ -147,7 +217,7 @@ Deno.serve(async (req) => {
       );
 
       const resText = await res.text();
-      console.log("Bags create-launch-transaction response:", res.status, resText);
+      console.log("Launch transaction response:", res.status, resText);
 
       let resData: any;
       try { resData = JSON.parse(resText); } catch {
@@ -164,43 +234,82 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          transaction: resData.response, // base58 encoded serialized transaction
+          transaction: resData.response,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // --- STEP 3: Get Config Key ---
-    if (action === "get_config") {
-      const res = await fetch(
-        "https://public-api-v2.bags.fm/api/v1/solana/bags/pools",
-        {
-          headers: { "x-api-key": BAGS_API_KEY },
-        }
-      );
-
-      const resText = await res.text();
-      let resData: any;
-      try { resData = JSON.parse(resText); } catch { return null; }
-
-      if (!res.ok || !resData.success) {
+    // --- GET PARTNER STATS ---
+    if (action === "get_partner_stats") {
+      if (!BAGS_PARTNER_CONFIG) {
         return new Response(
-          JSON.stringify({ error: "Failed to get config" }),
+          JSON.stringify({ error: "Partner key not configured" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Return first available config key
-      const configKey = resData.response?.[0]?.configKey || resData.response?.[0]?.dbcConfigKey;
+      const res = await fetch(
+        `https://public-api-v2.bags.fm/api/v1/partner/stats?partnerConfig=${BAGS_PARTNER_CONFIG}`,
+        { headers: { "x-api-key": BAGS_API_KEY } }
+      );
+
+      const resText = await res.text();
+      let resData: any;
+      try { resData = JSON.parse(resText); } catch {
+        throw new Error(`Bags API returned invalid response: ${resText}`);
+      }
 
       return new Response(
-        JSON.stringify({ success: true, configKey }),
+        JSON.stringify({
+          success: true,
+          stats: resData.response,
+          partnerConfig: BAGS_PARTNER_CONFIG,
+          partnerWallet: BAGS_PARTNER_WALLET,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // --- GET USER TOKENS ---
+    if (action === "get_user_tokens") {
+      const res = await fetch(
+        "https://public-api-v2.bags.fm/api/v1/token-launch/feed",
+        { headers: { "x-api-key": BAGS_API_KEY } }
+      );
+
+      const resText = await res.text();
+      let resData: any;
+      try { resData = JSON.parse(resText); } catch {
+        throw new Error(`Bags API returned invalid response: ${resText}`);
+      }
+
+      if (!res.ok || !resData.success) {
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch tokens" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Filter by wallet if provided
+      const { wallet } = body;
+      let tokens = resData.response || [];
+      if (wallet) {
+        tokens = tokens.filter((t: any) =>
+          t.launchWallet === wallet ||
+          t.userId === wallet ||
+          t.accountKeys?.includes(wallet)
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, tokens }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use: create_token_info, create_launch_transaction, get_config" }),
+      JSON.stringify({ error: "Invalid action" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
