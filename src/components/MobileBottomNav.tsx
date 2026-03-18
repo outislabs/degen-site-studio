@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Globe, Image, CreditCard, UserCog, Plus, Rocket, X } from 'lucide-react';
+import { Globe, Image, UserCog, Plus, Rocket, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
