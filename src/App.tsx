@@ -4,9 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useCustomDomain } from "@/hooks/useCustomDomain";
 import LivePreview from "@/components/builder/LivePreview";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { clusterApiUrl } from "@solana/web3.js";
+import "@solana/wallet-adapter-react-ui/styles.css";
 import Index from "./pages/Index.tsx";
 import Builder from "./pages/Builder.tsx";
 import Auth from "./pages/Auth.tsx";
@@ -62,33 +67,45 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <CustomDomainHandler>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/builder" element={<Builder />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/site/:id" element={<SiteView />} />
-              <Route path="/studio" element={<ContentStudio />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </CustomDomainHandler>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const network = WalletAdapterNetwork.Mainnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const wallets = useMemo(() => [], []);
+
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <CustomDomainHandler>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/builder" element={<Builder />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/site/:id" element={<SiteView />} />
+                      <Route path="/studio" element={<ContentStudio />} />
+                      <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/account" element={<Account />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/admin" element={<Admin />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </BrowserRouter>
+                </CustomDomainHandler>
+              </TooltipProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
+};
 
 export default App;
