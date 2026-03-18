@@ -67,6 +67,25 @@ const LaunchToken = () => {
   }, [siteId, user]);
 
   const canProceedStep0 = name.trim() && symbol.trim() && description.trim() && imageUrl.trim();
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/launch_${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('logos').getPublicUrl(path);
+      setImageUrl(urlData.publicUrl);
+      toast.success('Logo uploaded!');
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
   const canProceedStep1 = isConnected && address && parseFloat(solAmount) >= 0.05;
 
   const handleLaunch = async () => {
