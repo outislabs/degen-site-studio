@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
-import type { Provider } from '@reown/appkit-adapter-solana/react';
+import type { Provider } from '@reown/appkit-utils/solana';
 import {
   Rocket, ArrowLeft, ArrowRight, Check, Wallet, Info,
   ExternalLink, Copy, Loader2, CheckCircle2
