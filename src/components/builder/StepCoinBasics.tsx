@@ -162,7 +162,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           <Zap className="w-4 h-4" /> Quick Import Token
         </Label>
         <p className="text-xs text-muted-foreground">
-          Paste a link from Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, Etherscan, BSCScan, BaseScan, or a raw contract address. Security is auto-checked via GoPlus & RugCheck.
+          Paste a link from Bags.fm, Pump.fun, DexScreener, Jupiter, Raydium, Birdeye, Etherscan, BSCScan, BaseScan, or a raw contract address. Security is auto-checked via GoPlus & RugCheck.
         </p>
         <div className="flex gap-2">
           <Input
