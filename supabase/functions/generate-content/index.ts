@@ -54,14 +54,59 @@ function sanitize(str: string): string {
   return str.replace(/<[^>]*>/g, "").trim();
 }
 
-async function generateImage(prompt: string, geminiApiKey: string): Promise<string | null> {
+// Fetch image from URL and convert to base64
+async function fetchImageAsBase64(imageUrl: string): Promise<{ data: string; mimeType: string } | null> {
+  try {
+    const res = await fetch(imageUrl);
+    if (!res.ok) return null;
+    const contentType = res.headers.get('content-type') || 'image/png';
+    const mimeType = contentType.split(';')[0].trim();
+    if (!mimeType.startsWith('image/')) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64 = btoa(binary);
+    return { data: base64, mimeType };
+  } catch (e) {
+    console.error('fetchImageAsBase64 error:', e);
+    return null;
+  }
+}
+
+async function generateImage(
+  prompt: string,
+  geminiApiKey: string,
+  referenceImageUrl?: string
+): Promise<string | null> {
+  // Build parts array — text prompt first, then optional reference image
+  const parts: any[] = [{ text: prompt }];
+
+  if (referenceImageUrl) {
+    console.log('Fetching reference image:', referenceImageUrl);
+    const imageData = await fetchImageAsBase64(referenceImageUrl);
+    if (imageData) {
+      parts.push({
+        inlineData: {
+          mimeType: imageData.mimeType,
+          data: imageData.data,
+        }
+      });
+      console.log('Reference image attached successfully');
+    } else {
+      console.log('Could not fetch reference image, proceeding without it');
+    }
+  }
+
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiApiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ parts }],
         generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
       }),
     }
@@ -73,9 +118,9 @@ async function generateImage(prompt: string, geminiApiKey: string): Promise<stri
   }
 
   const data = await response.json();
-  const parts = data.candidates?.[0]?.content?.parts || [];
+  const responseParts = data.candidates?.[0]?.content?.parts || [];
 
-  for (const part of parts) {
+  for (const part of responseParts) {
     if (part.inlineData?.mimeType?.startsWith("image/")) {
       return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
     }
@@ -156,24 +201,30 @@ Deno.serve(async (req) => {
     const tokenTicker = sanitize((body.tokenTicker as string) || "TOKEN");
     const siteId = (body.siteId as string) || null;
 
+    // Optional reference image — can be token logo URL or user uploaded image URL
+    const referenceImageUrl = (body.referenceImageUrl as string) || null;
+
     // --- IMAGE GENERATION ---
     const imageTypes = ["meme", "sticker", "social_post", "dex_header", "x_header"];
     if (imageTypes.includes(type)) {
       let imagePrompt = "";
+      const referenceNote = referenceImageUrl
+        ? `Use the provided reference image as the token's logo/mascot and incorporate its visual identity, colors, and character into the generated image.`
+        : '';
 
       if (type === "meme") {
-        imagePrompt = `Create a viral, funny meme image for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The meme should be attention-grabbing, humorous, and crypto-community appropriate. Style: bold text, exaggerated expressions, crypto culture references. User request: ${prompt}`;
+        imagePrompt = `Create a viral, funny meme image for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). ${referenceNote} The meme should be attention-grabbing, humorous, and crypto-community appropriate. Style: bold text, exaggerated expressions, crypto culture references. User request: ${prompt}`;
       } else if (type === "sticker") {
-        imagePrompt = `Create a cute, bold sticker design for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). Clean edges, vibrant colors, works well at small sizes. Style: cartoon/chibi, expressive, white background. User request: ${prompt}`;
+        imagePrompt = `Create a cute, bold sticker design for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). ${referenceNote} Clean edges, vibrant colors, works well at small sizes. Style: cartoon/chibi, expressive, white background. User request: ${prompt}`;
       } else if (type === "dex_header") {
-        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for DexScreener. Visually striking, token name/ticker prominent, professional crypto/trading aesthetic. Dark or vibrant background, chart motifs, bold typography. User request: ${prompt}`;
+        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for DexScreener. ${referenceNote} Visually striking, token name/ticker prominent, professional crypto/trading aesthetic. Dark or vibrant background, chart motifs, bold typography. User request: ${prompt}`;
       } else if (type === "x_header") {
-        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for Twitter/X profile. Clean, branded, professional. Include token name and ticker. Modern design, crypto branding. User request: ${prompt}`;
+        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for Twitter/X profile. ${referenceNote} Clean, branded, professional. Include token name and ticker. Modern design, crypto branding. User request: ${prompt}`;
       } else {
-        imagePrompt = `Create a professional social media graphic for cryptocurrency token "${tokenName}" ($${tokenTicker}). Eye-catching, suitable for Twitter/X or Telegram. Include token name and ticker prominently. User request: ${prompt}`;
+        imagePrompt = `Create a professional social media graphic for cryptocurrency token "${tokenName}" ($${tokenTicker}). ${referenceNote} Eye-catching, suitable for Twitter/X or Telegram. Include token name and ticker prominently. User request: ${prompt}`;
       }
 
-      const base64Image = await generateImage(imagePrompt, geminiApiKey);
+      const base64Image = await generateImage(imagePrompt, geminiApiKey, referenceImageUrl || undefined);
       let imageUrl = null;
 
       if (base64Image) {
@@ -202,7 +253,7 @@ Deno.serve(async (req) => {
           title: prompt.slice(0, 100),
           prompt,
           image_url: imageUrl,
-          metadata: { tokenName, tokenTicker },
+          metadata: { tokenName, tokenTicker, referenceImageUrl },
         })
         .select()
         .single();
