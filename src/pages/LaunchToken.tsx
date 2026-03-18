@@ -96,22 +96,44 @@ const LaunchToken = () => {
     setLaunching(true);
     try {
       // 1. Create token info
+      toast.loading('Creating token metadata...', { id: 'launch' });
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke('launch-on-bags', {
         body: { action: 'create_token_info', name, symbol, description, imageUrl, twitter, telegram, website }
       });
       if (tokenErr || !tokenData?.success) throw new Error(tokenData?.error || 'Failed to create token info');
-
       const { tokenMint, ipfs } = tokenData;
 
-      // 2. Get config
+      // 2. Create fee share config
+      toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'get_config' }
+        body: { action: 'create_fee_config', tokenMint, wallet: address }
       });
-      if (configErr || !configData?.success) throw new Error('Failed to get config');
+      if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
+      const { configKey, transactions: configTxs, bundles } = configData;
 
-      const { configKey } = configData;
+      // 3. Sign and send fee config transactions if any
+      const { Connection, Transaction, VersionedTransaction } = await import('@solana/web3.js');
+      const bs58 = await import('bs58');
+      const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
 
-      // 3. Create launch transaction
+      if (configTxs && configTxs.length > 0) {
+        toast.loading('Signing fee config transactions...', { id: 'launch' });
+        for (const txBase58 of configTxs) {
+          const txBuffer = bs58.default.decode(txBase58);
+          let tx;
+          try {
+            tx = VersionedTransaction.deserialize(txBuffer);
+          } catch {
+            tx = Transaction.from(txBuffer);
+          }
+          const signed = await walletProvider.signTransaction(tx);
+          const txid = await connection.sendRawTransaction((signed as any).serialize());
+          await connection.confirmTransaction(txid, 'confirmed');
+        }
+      }
+
+      // 4. Create launch transaction
+      toast.loading('Creating launch transaction...', { id: 'launch' });
       const { data: txData, error: txErr } = await supabase.functions.invoke('launch-on-bags', {
         body: {
           action: 'create_launch_transaction',
@@ -121,21 +143,25 @@ const LaunchToken = () => {
           configKey
         }
       });
-      if (txErr || !txData?.success) throw new Error(txData?.error || 'Failed to create transaction');
+      if (txErr || !txData?.success) throw new Error(txData?.error || 'Failed to create launch transaction');
 
-      // 4. Deserialize, sign, and send
-      const { Connection, Transaction } = await import('@solana/web3.js');
-      const connection = new Connection('https://api.mainnet-beta.solana.com');
-      const bs58 = await import('bs58');
+      // 5. Sign and send launch transaction
+      toast.loading('Sign the transaction in your wallet...', { id: 'launch' });
       const txBuffer = bs58.default.decode(txData.transaction);
-      const tx = Transaction.from(txBuffer);
-      const signed = await walletProvider.signTransaction(tx);
-      const txid = await connection.sendRawTransaction(signed.serialize());
+      let launchTx;
+      try {
+        launchTx = VersionedTransaction.deserialize(txBuffer);
+      } catch {
+        launchTx = Transaction.from(txBuffer);
+      }
+      const signedLaunch = await walletProvider.signTransaction(launchTx);
+      const txid = await connection.sendRawTransaction((signedLaunch as any).serialize());
 
-      // 5. Confirm
+      // 6. Confirm
+      toast.loading('Confirming on-chain...', { id: 'launch' });
       await connection.confirmTransaction(txid, 'confirmed');
 
-      // 6. Update site contract address
+      // 7. Update site contract address
       if (siteIdForUpdate) {
         const { data: siteData } = await supabase.from('sites').select('data').eq('id', siteIdForUpdate).single();
         if (siteData) {
@@ -144,12 +170,13 @@ const LaunchToken = () => {
         }
       }
 
+      toast.success('Token launched! 🚀', { id: 'launch' });
       setTokenMintResult(tokenMint);
       setLaunched(true);
-      toast.success('Token launched successfully! 🚀');
+
     } catch (err: any) {
       console.error('Launch error:', err);
-      toast.error(err.message || 'Launch failed');
+      toast.error(err.message || 'Launch failed', { id: 'launch' });
     } finally {
       setLaunching(false);
     }
