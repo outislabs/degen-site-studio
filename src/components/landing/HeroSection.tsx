@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Zap, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import bagsfmLogo from '@/assets/integrations/bagsfm.png';
 import pumpfunLogo from '@/assets/integrations/pumpfun.png';
 import dexscreenerLogo from '@/assets/integrations/dexscreener.png';
 import raydiumLogo from '@/assets/integrations/raydium.png';
@@ -12,6 +13,7 @@ import baseLogo from '@/assets/integrations/base.png';
 import bscLogo from '@/assets/integrations/bsc.png';
 
 const integrations = [
+  { name: 'Bags.fm', logo: bagsfmLogo },
   { name: 'Pump.fun', logo: pumpfunLogo },
   { name: 'DexScreener', logo: dexscreenerLogo },
   { name: 'Raydium', logo: raydiumLogo },
