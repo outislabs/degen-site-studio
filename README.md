@@ -1,73 +1,127 @@
-# Welcome to your Lovable project
+# DegenTools 🛠️
 
-## Project info
+> Professional tools for unprofessional coins.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The complete launch stack for meme coin devs. Build it. Brand it. Shill it.
 
-## How can I edit this code?
+🌐 **Live at:** [degentools.co](https://degentools.co)
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## What is DegenTools?
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+DegenTools is an all-in-one platform for meme coin developers — from token launch to website, memes, content, and community tools.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Features
 
-**Use your preferred IDE**
+- **Website Builder** — Launch a meme coin site in 60 seconds. No code, no designer.
+- **Token Import** — Paste any pump.fun, DexScreener, or Bags.fm link and auto-populate your site
+- **AI Content Studio** — Generate memes, stickers, banners, shill tweets, and marketing copy powered by Gemini
+- **Launch on Bags.fm** — Launch a Solana token directly from DegenTools with fee sharing built in
+- **My Bags** — Connect your Solana wallet to view, trade, and manage your Bags.fm tokens
+- **Custom Domains** — Connect your own domain to your meme coin site
+- **Subdomains** — Every token gets a free `$ticker.degentools.co` subdomain
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Tech Stack
 
-Follow these steps:
+| Layer | Technology |
+|---|---|
+| Frontend | React + TypeScript + Vite + TailwindCSS + shadcn/ui |
+| Backend | Supabase (Database + Auth + Edge Functions) |
+| Hosting | Vercel |
+| AI | Google Gemini 2.5 Flash (text + images) |
+| Blockchain | Solana via Bags.fm API + Helius RPC |
+| Wallet | Reown AppKit (WalletConnect) |
+| Email | Resend via Supabase Auth Hook |
+| Payments | NowPayments (crypto) |
+| DNS | Dynadot + Vercel |
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Edge Functions
 
-# Step 3: Install the necessary dependencies.
-npm i
+All backend logic lives in Supabase Edge Functions:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+| Function | Purpose |
+|---|---|
+| `generate-content` | AI image + text generation via Gemini |
+| `fetch-pumpfun-token` | Token import from pump.fun, DexScreener, Bags.fm |
+| `launch-on-bags` | Full Bags.fm integration — launch, trade, fees, claim |
+| `create-subscription` | NowPayments subscription creation |
+| `provision-custom-domain` | Vercel API domain provisioning |
+| `auth-email-hook` | Custom branded emails via Resend |
+| `nowpayments-webhook` | Payment IPN handler |
+
+---
+
+## Local Development
+
+### Prerequisites
+- Node.js 18+
+- Supabase CLI
+- A Supabase project
+- A Vercel account
+
+### Setup
+```bash
+# Clone the repo
+git clone https://github.com/outislabs/degen-site-studio
+
+# Install dependencies
+cd degen-site-studio
+npm install
+
+# Start dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Create a `.env` file with your Supabase credentials:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-**Use GitHub Codespaces**
+### Deploy Edge Functions
+```bash
+# Deploy a specific function
+supabase functions deploy launch-on-bags --no-verify-jwt
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Deploy all functions
+supabase functions deploy
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Integrations
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- [Bags.fm](https://bags.fm) — Token launch + fee sharing + trading
+- [Helius](https://helius.dev) — Solana RPC
+- [DexScreener](https://dexscreener.com) — Token data
+- [pump.fun](https://pump.fun) — Token import
+- [Reown](https://reown.com) — Wallet connection
+- [Resend](https://resend.com) — Transactional email
+- [NowPayments](https://nowpayments.io) — Crypto payments
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Pricing
 
-## Can I connect a custom domain to my Lovable project?
+| Plan | Price |
+|---|---|
+| Free | $0 — 1 site, watermark, 5 meme downloads/mo |
+| Degen | $19/mo — Custom domain, no watermark |
+| Creator | $49/mo — Full content studio, 3 sites |
+| Pro | $99/mo — Everything + alerts + audit badge |
+| Whale | $249/mo — Unlimited sites + API + white label |
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Built by
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+**Legal Alien** ([@legalalien0x](https://x.com/legalalien0x))
+
+Follow DegenTools: [@degentoolshq](https://x.com/degentoolshq)
