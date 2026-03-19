@@ -245,7 +245,7 @@ const LaunchToken = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-display font-bold text-foreground flex items-center gap-2">
+            <h1 className="text-lg font-sans font-bold text-foreground flex items-center gap-2">
               <Rocket className="w-5 h-5 text-primary" /> Launch on Bags.fm
             </h1>
             <p className="text-xs text-muted-foreground">Deploy your token to Solana in minutes</p>
