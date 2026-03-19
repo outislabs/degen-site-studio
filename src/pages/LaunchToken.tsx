@@ -49,6 +49,13 @@ const LaunchToken = () => {
   const [showUrlFallback, setShowUrlFallback] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Fee settings
+  const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
+  const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github', username: string, bps: number }>>([]);
+  const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
+  const [newSharerUsername, setNewSharerUsername] = useState('');
+  const [newSharerPct, setNewSharerPct] = useState('');
+
   // Auto-populate from site
   useEffect(() => {
     if (!siteId || !user) return;
