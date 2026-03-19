@@ -37,7 +37,24 @@ Deno.serve(async (req) => {
       let resData: any;
       try { resData = JSON.parse(resText); } catch { throw new Error(`Bags API returned invalid response: ${resText}`); }
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create token info" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      return new Response(JSON.stringify({ success: true, tokenMint: resData.response.tokenMint, ipfs: resData.response.tokenMetadata, tokenLaunch: resData.response.tokenLaunch }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+      // Save to our DB immediately after token info is created
+      const tokenMint = resData.response.tokenMint;
+      try {
+        await supabase.from('bags_tokens').upsert({
+          user_id: user.id,
+          wallet_address: body.wallet || '',
+          token_mint: tokenMint,
+          name, symbol: symbol.toUpperCase().replace("$",""),
+          description, image_url: imageUrl,
+          twitter: twitter || null, telegram: telegram || null, website: website || null,
+          ipfs_url: resData.response.tokenMetadata,
+          status: 'PRE_GRAD',
+        }, { onConflict: 'token_mint' });
+        console.log("Token saved to DB:", tokenMint);
+      } catch (e) { console.error("DB save error:", e); }
+
+      return new Response(JSON.stringify({ success: true, tokenMint, ipfs: resData.response.tokenMetadata, tokenLaunch: resData.response.tokenLaunch }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "create_fee_config") {
@@ -66,8 +83,7 @@ Deno.serve(async (req) => {
         basisPointsArray = [10000];
       }
       const configBody: any = { payer: wallet, baseMint: tokenMint, claimersArray, basisPointsArray };
-      if (BAGS_PARTNER_WALLET && BAGS_PARTNER_CONFIG) { configBody.partner = BAGS_PARTNER_WALLET; configBody.partnerConfig = BAGS_PARTNER_CONFIG; console.log("Partner key embedded:", BAGS_PARTNER_CONFIG); }
-      console.log("Fee config request body:", JSON.stringify(configBody));
+      if (BAGS_PARTNER_WALLET && BAGS_PARTNER_CONFIG) { configBody.partner = BAGS_PARTNER_WALLET; configBody.partnerConfig = BAGS_PARTNER_CONFIG; }
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/fee-share/config", { method: "POST", headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify(configBody) });
       const resText = await res.text();
       console.log("Fee config response:", res.status, resText);
@@ -76,32 +92,51 @@ Deno.serve(async (req) => {
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create fee config" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const txs = (resData.response?.transactions || []).map((t: any) => typeof t === 'string' ? t : t.transaction);
       const bundles = (resData.response?.bundles || []).map((bundle: any[]) => bundle.map((t: any) => typeof t === 'string' ? t : t.transaction));
-      console.log("Fee config success — configKey:", resData.response?.meteoraConfigKey, "txs:", txs.length, "bundles:", bundles.length);
       return new Response(JSON.stringify({ success: true, configKey: resData.response?.meteoraConfigKey, needsCreation: resData.response?.needsCreation, transactions: txs, bundles }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "create_launch_transaction") {
       const { ipfs, tokenMint, wallet, initialBuyLamports, configKey } = body;
       if (!ipfs || !tokenMint || !wallet || !initialBuyLamports || !configKey) return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      console.log("Creating launch transaction for:", tokenMint, "wallet:", wallet, "configKey:", configKey);
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/token-launch/create-launch-transaction", { method: "POST", headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ ipfs, tokenMint, wallet, initialBuyLamports, configKey }) });
       const resText = await res.text();
-      console.log("Launch transaction response:", res.status, resText);
       let resData: any;
       try { resData = JSON.parse(resText); } catch { throw new Error(`Bags API returned invalid response: ${resText}`); }
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create launch transaction" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+      // Update status in DB
+      try {
+        await supabase.from('bags_tokens').update({ status: 'LAUNCHING', updated_at: new Date().toISOString() }).eq('token_mint', tokenMint);
+      } catch (e) { console.error("DB update error:", e); }
+
       return new Response(JSON.stringify({ success: true, transaction: resData.response }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (action === "save_token") {
+      // Manually save a token to DB (for existing tokens)
+      const { tokenMint, wallet, name, symbol, description, imageUrl, status } = body;
+      if (!tokenMint || !wallet) return new Response(JSON.stringify({ error: "Missing tokenMint or wallet" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const { error } = await supabase.from('bags_tokens').upsert({
+        user_id: user.id,
+        wallet_address: wallet,
+        token_mint: tokenMint,
+        name: name || '',
+        symbol: symbol || '',
+        description: description || '',
+        image_url: imageUrl || '',
+        status: status || 'PRE_GRAD',
+      }, { onConflict: 'token_mint' });
+      if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "get_trade_quote") {
       const { inputMint, outputMint, amount, slippageMode = 'auto', slippageBps } = body;
-      if (!inputMint || !outputMint || !amount) return new Response(JSON.stringify({ error: "Missing required fields: inputMint, outputMint, amount" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!inputMint || !outputMint || !amount) return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       let url = `https://public-api-v2.bags.fm/api/v1/trade/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageMode=${slippageMode}`;
       if (slippageMode === 'manual' && slippageBps) url += `&slippageBps=${slippageBps}`;
-      console.log("Getting trade quote:", url);
       const res = await fetch(url, { headers: { "x-api-key": BAGS_API_KEY } });
       const resText = await res.text();
-      console.log("Trade quote response:", res.status, resText);
       let resData: any;
       try { resData = JSON.parse(resText); } catch { throw new Error(`Bags API returned invalid response: ${resText}`); }
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to get trade quote" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -110,21 +145,18 @@ Deno.serve(async (req) => {
 
     if (action === "create_swap") {
       const { quoteResponse, userPublicKey } = body;
-      if (!quoteResponse || !userPublicKey) return new Response(JSON.stringify({ error: "Missing required fields: quoteResponse, userPublicKey" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      console.log("Creating swap transaction for:", userPublicKey);
+      if (!quoteResponse || !userPublicKey) return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/trade/swap", { method: "POST", headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ quoteResponse, userPublicKey }) });
       const resText = await res.text();
-      console.log("Swap transaction response:", res.status, resText);
       let resData: any;
       try { resData = JSON.parse(resText); } catch { throw new Error(`Bags API returned invalid response: ${resText}`); }
-      if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create swap transaction" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create swap" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       return new Response(JSON.stringify({ success: true, swapTransaction: resData.response.swapTransaction, lastValidBlockHeight: resData.response.lastValidBlockHeight }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "get_token_fees") {
       const { tokenMint } = body;
       if (!tokenMint) return new Response(JSON.stringify({ error: "Missing tokenMint" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      console.log("Getting token fees for:", tokenMint);
       const res = await fetch(`https://public-api-v2.bags.fm/api/v1/analytics/token-lifetime-fees?tokenMint=${tokenMint}`, { headers: { "x-api-key": BAGS_API_KEY } });
       const resText = await res.text();
       let resData: any;
@@ -136,7 +168,6 @@ Deno.serve(async (req) => {
     if (action === "get_claimable_positions") {
       const { wallet } = body;
       if (!wallet) return new Response(JSON.stringify({ error: "Missing wallet" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      console.log("Getting claimable positions for:", wallet);
       const res = await fetch(`https://public-api-v2.bags.fm/api/v1/fee-claiming/claimable-positions?wallet=${wallet}`, { headers: { "x-api-key": BAGS_API_KEY } });
       const resText = await res.text();
       let resData: any;
@@ -148,7 +179,6 @@ Deno.serve(async (req) => {
     if (action === "get_claim_transactions") {
       const { wallet, tokenMints } = body;
       if (!wallet) return new Response(JSON.stringify({ error: "Missing wallet" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      console.log("Getting claim transactions for:", wallet);
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/fee-claiming/claim-transactions", { method: "POST", headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ wallet, tokenMints: tokenMints || [] }) });
       const resText = await res.text();
       let resData: any;
@@ -171,7 +201,36 @@ Deno.serve(async (req) => {
       const { wallet } = body;
       console.log("Getting user tokens for wallet:", wallet);
 
-      // Step 1: Try feed first
+      // PRIMARY: Query our own DB — always reliable
+      const { data: dbTokens, error: dbError } = await supabase
+        .from('bags_tokens')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      console.log("DB tokens found:", dbTokens?.length || 0, dbError?.message || '');
+
+      if (dbTokens && dbTokens.length > 0) {
+        // Map DB fields to expected token format
+        const tokens = dbTokens.map((t: any) => ({
+          tokenMint: t.token_mint,
+          name: t.name,
+          symbol: t.symbol,
+          ticker: t.symbol,
+          image: t.image_url,
+          logoUrl: t.image_url,
+          description: t.description,
+          status: t.status || 'PRE_GRAD',
+          twitter: t.twitter,
+          telegram: t.telegram,
+          website: t.website,
+          accountKeys: [],
+        }));
+        return new Response(JSON.stringify({ success: true, tokens }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      // FALLBACK: Try Bags feed if DB is empty
+      console.log("DB empty, falling back to Bags feed");
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/token-launch/feed", { headers: { "x-api-key": BAGS_API_KEY } });
       const resText = await res.text();
       let resData: any;
@@ -179,87 +238,14 @@ Deno.serve(async (req) => {
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: "Failed to fetch tokens" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
       let tokens = resData.response || [];
-      console.log("Total tokens in feed:", tokens.length);
-
       if (wallet) {
         const walletLower = wallet.toLowerCase();
-        const feedFiltered = tokens.filter((t: any) => {
+        tokens = tokens.filter((t: any) => {
           const keys = t.accountKeys || [];
-          return (
-            t.launchWallet === wallet ||
-            t.launchWallet?.toLowerCase() === walletLower ||
-            t.userId === wallet ||
-            keys.includes(wallet) ||
-            keys.some((k: string) => k.toLowerCase() === walletLower)
-          );
+          return t.launchWallet === wallet || t.launchWallet?.toLowerCase() === walletLower || t.userId === wallet || keys.includes(wallet) || keys.some((k: string) => k.toLowerCase() === walletLower);
         });
-        console.log("Tokens matched in feed:", feedFiltered.length);
-
-        if (feedFiltered.length > 0) {
-          tokens = feedFiltered;
-        } else {
-          // Step 2: Try creators endpoint with wallet param
-          console.log("Not in feed, trying creators endpoint with wallet:", wallet);
-          const endpoints = [
-            `https://public-api-v2.bags.fm/api/v1/analytics/token-launch-creators?wallet=${wallet}`,
-            `https://public-api-v2.bags.fm/api/v1/analytics/token-launch-creators?launchWallet=${wallet}`,
-            `https://public-api-v2.bags.fm/api/v1/token-launch/feed?wallet=${wallet}`,
-          ];
-          let found = false;
-          for (const endpoint of endpoints) {
-            try {
-              console.log("Trying endpoint:", endpoint);
-              const r = await fetch(endpoint, { headers: { "x-api-key": BAGS_API_KEY } });
-              const t = await r.text();
-              console.log("Response:", r.status, t.slice(0, 200));
-              let d: any;
-              try { d = JSON.parse(t); } catch { continue; }
-              if (d?.success && Array.isArray(d?.response) && d.response.length > 0) {
-                tokens = d.response;
-                console.log("Found tokens via:", endpoint, "count:", tokens.length);
-                found = true;
-                break;
-              }
-            } catch (e) {
-              console.error("Endpoint error:", endpoint, e);
-            }
-          }
-
-          if (!found) {
-            // Step 3: Fetch the specific known token directly by mint
-            console.log("All endpoints failed, fetching by known mints directly");
-            try {
-              const knownMints = [
-                "9NBmptpoggRQs96KYMjyonAUpwZNR9MQmHQLzMmaBAGS", // $PBAGS
-              ];
-              const mintTokens = [];
-              for (const mint of knownMints) {
-                const r = await fetch(`https://public-api-v2.bags.fm/api/v1/solana/bags/pools/token-mint?tokenMint=${mint}`, { headers: { "x-api-key": BAGS_API_KEY } });
-                const t = await r.text();
-                console.log("Pool lookup for", mint, ":", r.status, t.slice(0, 200));
-                let d: any;
-                try { d = JSON.parse(t); } catch { continue; }
-                if (d?.success && d?.response?.tokenMint) {
-                  mintTokens.push({
-                    tokenMint: d.response.tokenMint,
-                    name: "Unknown",
-                    symbol: "???",
-                    image: "",
-                    status: "PRE_GRAD",
-                    accountKeys: [],
-                  });
-                }
-              }
-              tokens = mintTokens;
-            } catch (e) {
-              console.error("Direct mint lookup error:", e);
-              tokens = [];
-            }
-          }
-        }
       }
-
-      console.log("Returning tokens:", tokens.length);
+      console.log("Feed tokens found:", tokens.length);
       return new Response(JSON.stringify({ success: true, tokens }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
