@@ -122,7 +122,7 @@ const LaunchToken = () => {
 
       const { Connection, Transaction, VersionedTransaction } = await import('@solana/web3.js');
       const bs58 = await import('bs58');
-      const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=ef903194-0a33-4b77-aa34-47855c40ba17', 'confirmed');
+      const connection = new Connection(import.meta.env.VITE_HELIUS_RPC || 'https://api.mainnet-beta.solana.com', 'confirmed');
 
       if (configTxs && configTxs.length > 0) {
         toast.loading('Signing fee config transactions...', { id: 'launch' });
