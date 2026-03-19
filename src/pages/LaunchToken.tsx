@@ -366,6 +366,12 @@ const LaunchToken = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Tip Card */}
+                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Tip: Use a square logo (512×512 or larger) for best results. Add social links to boost credibility and discoverability.</span>
+                </div>
               </div>
             )}
 
