@@ -26,7 +26,11 @@ import {
   AlertCircle,
   ChevronRight,
   TrendingUp,
+  Gift,
+  Loader2,
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 import { PLAN_ORDER, PLANS, PlanId } from '@/lib/plans';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
