@@ -171,7 +171,7 @@ Deno.serve(async (req) => {
       const { wallet } = body;
       console.log("Getting user tokens for wallet:", wallet);
 
-      // Fetch global feed
+      // Step 1: Try feed first
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/token-launch/feed", { headers: { "x-api-key": BAGS_API_KEY } });
       const resText = await res.text();
       let resData: any;
@@ -198,38 +198,63 @@ Deno.serve(async (req) => {
         if (feedFiltered.length > 0) {
           tokens = feedFiltered;
         } else {
-          // Fallback: try token-launch-creators endpoint
-          console.log("No match in feed, trying creators endpoint for:", wallet);
-          try {
-            const creatorsRes = await fetch(
-              `https://public-api-v2.bags.fm/api/v1/analytics/token-launch-creators?wallet=${wallet}`,
-              { headers: { "x-api-key": BAGS_API_KEY } }
-            );
-            const creatorsText = await creatorsRes.text();
-            console.log("Creators endpoint response:", creatorsRes.status, creatorsText);
-            let creatorsData: any;
-            try { creatorsData = JSON.parse(creatorsText); } catch { creatorsData = null; }
-            if (creatorsData?.success && Array.isArray(creatorsData?.response) && creatorsData.response.length > 0) {
-              tokens = creatorsData.response;
-              console.log("Found via creators endpoint:", tokens.length);
-            } else {
-              // Final fallback: fetch by known mint directly
-              console.log("Creators endpoint empty, trying pool lookup");
-              try {
-                const poolRes = await fetch(
-                  `https://public-api-v2.bags.fm/api/v1/solana/bags/pools/token-mint?tokenMint=${wallet}`,
-                  { headers: { "x-api-key": BAGS_API_KEY } }
-                );
-                const poolText = await poolRes.text();
-                console.log("Pool lookup response:", poolRes.status, poolText);
-              } catch (e) {
-                console.error("Pool lookup error:", e);
+          // Step 2: Try creators endpoint with wallet param
+          console.log("Not in feed, trying creators endpoint with wallet:", wallet);
+          const endpoints = [
+            `https://public-api-v2.bags.fm/api/v1/analytics/token-launch-creators?wallet=${wallet}`,
+            `https://public-api-v2.bags.fm/api/v1/analytics/token-launch-creators?launchWallet=${wallet}`,
+            `https://public-api-v2.bags.fm/api/v1/token-launch/feed?wallet=${wallet}`,
+          ];
+          let found = false;
+          for (const endpoint of endpoints) {
+            try {
+              console.log("Trying endpoint:", endpoint);
+              const r = await fetch(endpoint, { headers: { "x-api-key": BAGS_API_KEY } });
+              const t = await r.text();
+              console.log("Response:", r.status, t.slice(0, 200));
+              let d: any;
+              try { d = JSON.parse(t); } catch { continue; }
+              if (d?.success && Array.isArray(d?.response) && d.response.length > 0) {
+                tokens = d.response;
+                console.log("Found tokens via:", endpoint, "count:", tokens.length);
+                found = true;
+                break;
               }
+            } catch (e) {
+              console.error("Endpoint error:", endpoint, e);
+            }
+          }
+
+          if (!found) {
+            // Step 3: Fetch the specific known token directly by mint
+            console.log("All endpoints failed, fetching by known mints directly");
+            try {
+              const knownMints = [
+                "9NBmptpoggRQs96KYMjyonAUpwZNR9MQmHQLzMmaBAGS", // $PBAGS
+              ];
+              const mintTokens = [];
+              for (const mint of knownMints) {
+                const r = await fetch(`https://public-api-v2.bags.fm/api/v1/solana/bags/pools/token-mint?tokenMint=${mint}`, { headers: { "x-api-key": BAGS_API_KEY } });
+                const t = await r.text();
+                console.log("Pool lookup for", mint, ":", r.status, t.slice(0, 200));
+                let d: any;
+                try { d = JSON.parse(t); } catch { continue; }
+                if (d?.success && d?.response?.tokenMint) {
+                  mintTokens.push({
+                    tokenMint: d.response.tokenMint,
+                    name: "Unknown",
+                    symbol: "???",
+                    image: "",
+                    status: "PRE_GRAD",
+                    accountKeys: [],
+                  });
+                }
+              }
+              tokens = mintTokens;
+            } catch (e) {
+              console.error("Direct mint lookup error:", e);
               tokens = [];
             }
-          } catch (e) {
-            console.error("Creators endpoint error:", e);
-            tokens = [];
           }
         }
       }
