@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { WalletButton } from '@/components/WalletButton';
 import { useNavigate } from 'react-router-dom';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { supabase } from '@/integrations/supabase/client';
