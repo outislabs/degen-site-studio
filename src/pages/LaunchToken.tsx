@@ -281,7 +281,7 @@ const LaunchToken = () => {
                     <div>
                       <Label className="text-xs">Token Name *</Label>
                       <Input maxLength={32} value={name} onChange={e => setName(e.target.value)} placeholder="My Token" className="mt-1" />
-                      <span className="text-[10px] text-muted-foreground">{name.length}/32</span>
+                      <span className={`text-[10px] ${name.length / 32 < 0.8 ? 'text-primary' : name.length / 32 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{name.length}/32</span>
                     </div>
                     <div>
                       <Label className="text-xs">Symbol *</Label>
