@@ -383,6 +383,31 @@ const Account = () => {
                 )}
               </div>
 
+              {/* Promo Code */}
+              <div className="border border-dashed border-border rounded-xl p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-medium text-foreground">Have a promo code?</h3>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    value={promoCode}
+                    onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                    placeholder="Enter code e.g. DEGEN50"
+                    className="flex-1"
+                    onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
+                  />
+                  <Button
+                    onClick={applyPromoCode}
+                    disabled={promoLoading || !promoCode.trim()}
+                    className="bg-primary text-primary-foreground"
+                  >
+                    {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">First 50 users get 30 days free on Degen Plan</p>
+              </div>
+
               {planId !== 'whale' && (
                 <Button
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
