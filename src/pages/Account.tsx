@@ -42,6 +42,29 @@ const Account = () => {
   const { plan, planId, subscription, loading: planLoading, remainingDownloads } = usePlan();
   const [siteCount, setSiteCount] = useState(0);
   const [activeTab, setActiveTab] = useState<'overview' | 'billing' | 'features'>('overview');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem-promo', {
+        body: { code: promoCode.trim() }
+      });
+      if (error || !data?.success) {
+        toast.error(data?.error || 'Invalid promo code');
+      } else {
+        toast.success(data.message);
+        setPromoCode('');
+        window.location.reload();
+      }
+    } catch {
+      toast.error('Failed to apply promo code');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth');
