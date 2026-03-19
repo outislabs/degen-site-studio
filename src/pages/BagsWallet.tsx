@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { WalletButton } from '@/components/WalletButton';
 import { useNavigate } from 'react-router-dom';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { supabase } from '@/integrations/supabase/client';
@@ -85,7 +86,7 @@ const BagsWallet = () => {
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
               Connect your Solana wallet to view tokens you've launched on Bags.fm
             </p>
-            <appkit-button />
+            <WalletButton />
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-20">
