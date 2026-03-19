@@ -167,22 +167,24 @@ const TradeTab = ({
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const fetchQuote = useCallback(
-    async (val: string) => {
+    async (val: string, overrideIsBuy?: boolean, overrideMint?: string) => {
+      const buying = overrideIsBuy ?? isBuy;
+      const mint = overrideMint ?? token.tokenMint;
       if (!val || parseFloat(val) <= 0) {
         setQuote(null);
         return;
       }
       setLoadingQuote(true);
       try {
-        const lamports = isBuy
+        const lamports = buying
           ? Math.floor(parseFloat(val) * 1e9)
           : Math.floor(parseFloat(val) * 1e6); // token decimals = 6
 
         const { data, error } = await supabase.functions.invoke('launch-on-bags', {
           body: {
             action: 'get_trade_quote',
-            inputMint: isBuy ? SOL_MINT : token.tokenMint,
-            outputMint: isBuy ? token.tokenMint : SOL_MINT,
+            inputMint: buying ? SOL_MINT : mint,
+            outputMint: buying ? mint : SOL_MINT,
             amount: lamports,
             slippageMode: 'auto',
           },
@@ -206,6 +208,26 @@ const TradeTab = ({
     setAmount(val);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchQuote(val), 500);
+  };
+
+  const handlePercentSell = async (pct: number) => {
+    if (!address) return;
+    try {
+      const { Connection, PublicKey } = await import('@solana/web3.js');
+      const { getAssociatedTokenAddress, getAccount } = await import('@solana/spl-token');
+      const connection = new Connection(HELIUS_RPC, 'confirmed');
+      const mint = new PublicKey(token.tokenMint);
+      const owner = new PublicKey(address);
+      const ata = await getAssociatedTokenAddress(mint, owner);
+      const account = await getAccount(connection, ata);
+      const balance = Number(account.amount);
+      const sellAmount = Math.floor(balance * pct / 100);
+      const displayAmount = (sellAmount / 1e6).toString();
+      setAmount(displayAmount);
+      fetchQuote(displayAmount, false, token.tokenMint);
+    } catch {
+      toast.error('Could not fetch token balance');
+    }
   };
 
   const executeSwap = async () => {
@@ -294,7 +316,7 @@ const TradeTab = ({
               variant="outline"
               size="sm"
               className="flex-1 text-xs"
-              onClick={() => handleAmountChange(String(pct))}
+              onClick={() => handlePercentSell(pct)}
             >
               {pct}%
             </Button>
