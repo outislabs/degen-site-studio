@@ -7,9 +7,9 @@ import { toast } from 'sonner';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles, Gift } from 'lucide-react';
 
-type AuthView = 'signin' | 'signup' | 'forgot';
+type AuthView = 'signin' | 'signup' | 'forgot' | 'promo';
 
 const Auth = () => {
   const { user, loading } = useAuth();
