@@ -215,20 +215,25 @@ const TradeTab = ({
     try {
       const { Connection, PublicKey } = await import('@solana/web3.js');
       const connection = new Connection(HELIUS_RPC, 'confirmed');
-      const accounts = await connection.getParsedTokenAccountsByOwner(
-        new PublicKey(address),
-        { mint: new PublicKey(token.tokenMint) }
-      );
-      const tokenAccount = accounts.value[0];
-      if (!tokenAccount) { toast.error('No token balance found'); return; }
-      const balance = tokenAccount.account.data.parsed.info.tokenAmount.amount;
-      const sellAmount = Math.floor(Number(balance) * pct / 100);
-      if (sellAmount <= 0) { toast.error('Insufficient balance'); return; }
-      const decimals = tokenAccount.account.data.parsed.info.tokenAmount.decimals;
-      const displayAmount = (sellAmount / Math.pow(10, decimals)).toString();
-      setAmount(displayAmount);
-      fetchQuote(displayAmount, false, token.tokenMint);
-    } catch {
+      const owner = new PublicKey(address);
+      const mint = new PublicKey(token.tokenMint);
+
+      const accounts = await connection.getParsedTokenAccountsByOwner(owner, { mint });
+      if (!accounts.value.length) {
+        toast.error('No token balance found');
+        return;
+      }
+
+      const rawAmountStr = accounts.value[0].account.data.parsed.info.tokenAmount.amount;
+      const rawAmount = BigInt(rawAmountStr);
+      const sellRaw = (rawAmount * BigInt(pct)) / BigInt(100);
+
+      console.log('Raw balance:', rawAmountStr, `${pct}% raw:`, sellRaw.toString());
+
+      setAmount(sellRaw.toString());
+      fetchQuote(sellRaw.toString(), false, token.tokenMint);
+    } catch (e) {
+      console.error('handlePercentSell error:', e);
       toast.error('Could not fetch token balance');
     }
   };
