@@ -374,7 +374,7 @@ const LaunchToken = () => {
                 <div className="gradient-card border border-border rounded-xl p-6 space-y-5">
                   <h3 className="text-xs font-display text-primary tracking-wider">CONNECT YOUR WALLET</h3>
                   <div className="flex flex-col items-center gap-4 py-4">
-                    <appkit-button />
+                    <WalletButton />
                     {isConnected && address && (
                       <div className="flex items-center gap-2">
                         <Wallet className="w-4 h-4 text-primary" />

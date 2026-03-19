@@ -85,7 +85,7 @@ const BagsWallet = () => {
             <p className="text-sm text-muted-foreground mb-6 max-w-md">
               Connect your Solana wallet to view tokens you've launched on Bags.fm
             </p>
-            <appkit-button />
+            <WalletButton />
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-20">
