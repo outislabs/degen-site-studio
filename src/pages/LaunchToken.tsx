@@ -560,10 +560,10 @@ const LaunchToken = () => {
             </Button>
           )}
           <div className="flex-1" />
-          {step < 2 ? (
+          {step < 3 ? (
             <Button
               onClick={() => setStep(s => s + 1)}
-              disabled={step === 0 ? !canProceedStep0 : !canProceedStep1}
+              disabled={step === 0 ? !canProceedStep0 : step === 1 ? !canProceedStep1 : false}
               className="bg-primary text-primary-foreground"
             >
               Next <ArrowRight className="w-4 h-4 ml-1" />
