@@ -4,7 +4,6 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { supabase } from '@/integrations/supabase/client';
 import DashboardLayout from '@/components/DashboardLayout';
 import { WalletButton } from '@/components/WalletButton';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -32,8 +31,12 @@ import {
   Wrench,
   Eye,
   BarChart3,
+  Zap,
+  Trophy,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
 const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=ef903194-0a33-4b77-aa34-47855c40ba17';
@@ -64,13 +67,11 @@ interface FeePosition {
   [key: string]: any;
 }
 
-/* ─── Helpers ─── */
-
 const formatSol = (lamports: number) => (lamports / 1e9).toFixed(4);
 const shortenAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
 /* ═══════════════════════════════════════════
-   TOKEN CARD
+   TOKEN CARD — redesigned
    ═══════════════════════════════════════════ */
 
 const TokenCard = ({
@@ -78,71 +79,102 @@ const TokenCard = ({
   onManage,
   onCreateSite,
   onStudio,
+  index,
 }: {
   token: BagsToken;
   onManage: () => void;
   onCreateSite: () => void;
   onStudio: () => void;
+  index: number;
 }) => {
-  const statusStyle =
-    token.status?.toUpperCase() === 'LIVE' || token.status?.toUpperCase() === 'GRADUATED'
-      ? 'bg-primary/20 text-primary border-primary/30'
-      : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-
-  const statusLabel =
-    token.status?.toUpperCase() === 'LIVE' || token.status?.toUpperCase() === 'GRADUATED'
-      ? 'Graduated'
-      : 'Bonding';
+  const isGraduated =
+    token.status?.toUpperCase() === 'LIVE' || token.status?.toUpperCase() === 'GRADUATED';
 
   return (
-    <Card className="bg-card border-border hover:border-primary/30 transition-colors group">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          {(token.image || token.logoUrl || (token as any).image_url) ? (
-            <img
-              src={token.image || token.logoUrl || (token as any).image_url}
-              alt={token.name}
-              className="w-12 h-12 rounded-full object-cover bg-muted border border-border"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-xl border border-border">
-              🪙
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06, duration: 0.35 }}
+    >
+      <div className="group relative rounded-2xl border border-border bg-card hover:border-primary/40 transition-all duration-300 overflow-hidden">
+        {/* Subtle top accent */}
+        <div className={`h-0.5 ${isGraduated ? 'bg-primary' : 'bg-yellow-500/60'}`} />
+
+        <div className="p-4 sm:p-5">
+          {/* Header row */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative">
+              {(token.image || token.logoUrl || token.image_url) ? (
+                <img
+                  src={token.image || token.logoUrl || token.image_url}
+                  alt={token.name}
+                  className="w-11 h-11 rounded-xl object-cover bg-muted border border-border"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-lg border border-border">
+                  🪙
+                </div>
+              )}
+              <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${isGraduated ? 'bg-primary' : 'bg-yellow-500'}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground truncate">{token.name}</h3>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs text-muted-foreground font-mono">${token.ticker}</span>
+                <span className="text-muted-foreground/40">·</span>
+                <span className={`text-[10px] font-medium ${isGraduated ? 'text-primary' : 'text-yellow-400'}`}>
+                  {isGraduated ? 'Graduated' : 'Bonding'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={onManage}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-muted"
+            >
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Market cap */}
+          {token.marketCap != null && (
+            <div className="flex items-center gap-1.5 text-xs mb-4 bg-muted/50 rounded-lg px-3 py-2">
+              <TrendingUp className="w-3 h-3 text-primary" />
+              <span className="text-muted-foreground">Market Cap</span>
+              <span className="text-foreground font-semibold ml-auto">${token.marketCap.toLocaleString()}</span>
             </div>
           )}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground truncate">{token.name}</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-muted-foreground">${token.ticker}</span>
-              <Badge variant="outline" className={`text-[10px] ${statusStyle}`}>
-                {statusLabel}
-              </Badge>
-            </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs h-9 rounded-xl hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+              onClick={onManage}
+            >
+              <Eye className="w-3.5 h-3.5 mr-1.5" />
+              Manage
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 w-9 p-0 rounded-xl hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+              onClick={onCreateSite}
+            >
+              <Globe className="w-3.5 h-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 w-9 p-0 rounded-xl hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+              onClick={onStudio}
+            >
+              <Image className="w-3.5 h-3.5" />
+            </Button>
           </div>
         </div>
-
-        {token.marketCap != null && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 px-1">
-            <TrendingUp className="w-3 h-3" />
-            <span>MC: ${token.marketCap.toLocaleString()}</span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-3 gap-1.5">
-          <Button variant="outline" size="sm" className="text-[11px] h-8" onClick={onManage}>
-            <Eye className="w-3 h-3 mr-1" />
-            Manage
-          </Button>
-          <Button variant="outline" size="sm" className="text-[11px] h-8" onClick={onCreateSite}>
-            <Globe className="w-3 h-3 mr-1" />
-            Site
-          </Button>
-          <Button variant="outline" size="sm" className="text-[11px] h-8" onClick={onStudio}>
-            <Image className="w-3 h-3 mr-1" />
-            Studio
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 };
 
@@ -192,7 +224,6 @@ const TradeTab = ({
         if (error) throw error;
         if (!data?.quote) throw new Error('No quote returned');
         setQuote(data.quote);
-        console.log('Quote received:', data.quote);
       } catch (err: any) {
         console.error('Quote error:', err);
         setQuote(null);
@@ -274,36 +305,28 @@ const TradeTab = ({
   return (
     <div className="space-y-4">
       {/* Buy / Sell toggle */}
-      <div className="flex rounded-lg border border-border overflow-hidden">
+      <div className="flex rounded-xl bg-muted p-1 gap-1">
         <button
-          onClick={() => {
-            setIsBuy(true);
-            setAmount('');
-            setQuote(null);
-          }}
-          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-            isBuy ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'
+          onClick={() => { setIsBuy(true); setAmount(''); setQuote(null); }}
+          className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+            isBuy ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          BUY
+          Buy
         </button>
         <button
-          onClick={() => {
-            setIsBuy(false);
-            setAmount('');
-            setQuote(null);
-          }}
-          className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-            !isBuy ? 'bg-destructive text-destructive-foreground' : 'bg-card text-muted-foreground hover:text-foreground'
+          onClick={() => { setIsBuy(false); setAmount(''); setQuote(null); }}
+          className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+            !isBuy ? 'bg-destructive text-destructive-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
-          SELL
+          Sell
         </button>
       </div>
 
       {/* Amount input */}
       <div>
-        <label className="text-xs text-muted-foreground mb-1.5 block">
+        <label className="text-xs text-muted-foreground mb-1.5 block font-medium">
           {isBuy ? 'Amount (SOL)' : 'Amount (tokens)'}
         </label>
         <Input
@@ -311,19 +334,19 @@ const TradeTab = ({
           placeholder={isBuy ? '0.1' : '1000000'}
           value={amount}
           onChange={(e) => handleAmountChange(e.target.value)}
-          className="bg-secondary border-border"
+          className="bg-muted/50 border-border rounded-xl h-11"
         />
       </div>
 
       {/* % buttons for sell */}
       {!isBuy && (
-        <div className="flex gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {percentButtons.map((pct) => (
             <Button
               key={pct}
               variant="outline"
               size="sm"
-              className="flex-1 text-xs"
+              className="text-xs rounded-lg hover:bg-primary/10 hover:text-primary hover:border-primary/30"
               onClick={() => handlePercentSell(pct)}
             >
               {pct}%
@@ -334,17 +357,17 @@ const TradeTab = ({
 
       {/* Quote info */}
       {loadingQuote && (
-        <div className="flex items-center justify-center py-4">
+        <div className="flex items-center justify-center py-6">
           <Loader2 className="w-4 h-4 animate-spin text-primary" />
-          <span className="text-xs text-muted-foreground ml-2">Fetching quote...</span>
+          <span className="text-xs text-muted-foreground ml-2">Fetching quote…</span>
         </div>
       )}
 
       {quote && !loadingQuote && (
-        <div className="bg-secondary/50 rounded-lg p-3 space-y-2 border border-border">
+        <div className="rounded-xl bg-muted/40 p-4 space-y-2.5 border border-border">
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Expected output</span>
-            <span className="text-foreground font-medium">
+            <span className="text-foreground font-semibold">
               {isBuy
                 ? `${Number(quote.outAmount).toLocaleString()} ${token.ticker}`
                 : `${formatSol(Number(quote.outAmount))} SOL`}
@@ -353,13 +376,7 @@ const TradeTab = ({
           {quote.priceImpactPct && (
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Price impact</span>
-              <span
-                className={
-                  parseFloat(quote.priceImpactPct) > 5
-                    ? 'text-destructive'
-                    : 'text-foreground'
-                }
-              >
+              <span className={parseFloat(quote.priceImpactPct) > 5 ? 'text-destructive font-semibold' : 'text-foreground'}>
                 {parseFloat(quote.priceImpactPct).toFixed(2)}%
               </span>
             </div>
@@ -373,22 +390,16 @@ const TradeTab = ({
         </div>
       )}
 
-      {/* Execute button */}
+      {/* Execute */}
       <Button
-        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+        className="w-full rounded-xl h-11 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
         disabled={!quote || executing || loadingQuote}
         onClick={executeSwap}
       >
         {executing ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            {isBuy ? 'Buying...' : 'Selling...'}
-          </>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{isBuy ? 'Buying…' : 'Selling…'}</>
         ) : (
-          <>
-            <ArrowDownUp className="w-4 h-4 mr-2" />
-            {isBuy ? 'Buy' : 'Sell'} {token.ticker}
-          </>
+          <><ArrowDownUp className="w-4 h-4 mr-2" />{isBuy ? 'Buy' : 'Sell'} {token.ticker}</>
         )}
       </Button>
     </div>
@@ -412,9 +423,7 @@ const FeesTab = ({
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
 
-  useEffect(() => {
-    fetchFees();
-  }, []);
+  useEffect(() => { fetchFees(); }, []);
 
   const fetchFees = async () => {
     setLoading(true);
@@ -447,7 +456,7 @@ const FeesTab = ({
       const transactions = data?.transactions || [];
 
       for (let i = 0; i < transactions.length; i++) {
-        toast.info(`Signing transaction ${i + 1} of ${transactions.length}...`);
+        toast.info(`Signing transaction ${i + 1} of ${transactions.length}…`);
         const txBuffer = bs58.default.decode(transactions[i]);
         const tx = VersionedTransaction.deserialize(txBuffer);
         const signed = await walletProvider.signTransaction(tx);
@@ -468,16 +477,18 @@ const FeesTab = ({
   if (loading) {
     return (
       <div className="space-y-3">
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full rounded-xl" />
       </div>
     );
   }
 
   if (positions.length === 0) {
     return (
-      <div className="text-center py-8">
-        <Coins className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+      <div className="text-center py-10">
+        <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3">
+          <Coins className="w-5 h-5 text-muted-foreground" />
+        </div>
         <p className="text-sm text-muted-foreground">No claimable fees for this token</p>
       </div>
     );
@@ -486,33 +497,27 @@ const FeesTab = ({
   return (
     <div className="space-y-3">
       {positions.map((pos, i) => (
-        <div key={i} className="bg-secondary/50 rounded-lg p-3 border border-border">
-          <div className="flex justify-between text-xs mb-1">
+        <div key={i} className="rounded-xl bg-muted/40 p-4 border border-border space-y-2">
+          <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">Token claimable</span>
-            <span className="text-foreground font-medium">{pos.tokenAmount?.toLocaleString()}</span>
+            <span className="text-foreground font-semibold">{pos.tokenAmount?.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">SOL claimable</span>
-            <span className="text-primary font-medium">{formatSol(pos.solAmount || 0)} SOL</span>
+            <span className="text-primary font-semibold">{formatSol(pos.solAmount || 0)} SOL</span>
           </div>
         </div>
       ))}
 
       <Button
-        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+        className="w-full rounded-xl h-11 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
         disabled={claiming}
         onClick={claimAll}
       >
         {claiming ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Claiming...
-          </>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Claiming…</>
         ) : (
-          <>
-            <Coins className="w-4 h-4 mr-2" />
-            Claim All Fees
-          </>
+          <><Coins className="w-4 h-4 mr-2" />Claim All Fees</>
         )}
       </Button>
     </div>
@@ -520,7 +525,7 @@ const FeesTab = ({
 };
 
 /* ═══════════════════════════════════════════
-   TOKEN MANAGER DRAWER
+   TOKEN MANAGER DRAWER — polished
    ═══════════════════════════════════════════ */
 
 const TokenManagerDrawer = ({
@@ -552,26 +557,29 @@ const TokenManagerDrawer = ({
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto bg-background border-border p-0">
         {/* Hero */}
-        <div className="border-b border-border p-5 bg-card">
-          <div className="border-t-2 border-primary -mt-5 mb-4" />
-          <SheetHeader className="mb-0">
-            <div className="flex items-center gap-3">
+        <div className="relative border-b border-border p-5 pb-6">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
+          <SheetHeader className="relative mb-0">
+            <div className="flex items-center gap-4">
               {token.logoUrl ? (
                 <img
                   src={token.logoUrl}
                   alt={token.name}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-primary/30"
+                  className="w-14 h-14 rounded-2xl object-cover border-2 border-primary/20 shadow-lg"
                 />
               ) : (
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl border-2 border-primary/30">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl border-2 border-primary/20">
                   🪙
                 </div>
               )}
               <div>
                 <SheetTitle className="text-foreground text-lg">{token.name}</SheetTitle>
-                <Badge variant="outline" className="text-xs mt-1 border-primary/30 text-primary">
-                  ${token.ticker}
-                </Badge>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-muted-foreground font-mono">${token.ticker}</span>
+                  <button onClick={copyMint} className="text-muted-foreground hover:text-primary transition-colors">
+                    {copied ? <Check className="w-3 h-3 text-primary" /> : <Copy className="w-3 h-3" />}
+                  </button>
+                </div>
               </div>
             </div>
           </SheetHeader>
@@ -579,140 +587,89 @@ const TokenManagerDrawer = ({
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="px-4 pt-4 pb-6">
-          <TabsList className="w-full grid grid-cols-4 bg-secondary/50 mb-4">
-            <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <Eye className="w-3 h-3 mr-1" />
-              Overview
+          <TabsList className="w-full grid grid-cols-4 bg-muted/50 mb-5 rounded-xl p-1 h-auto">
+            <TabsTrigger value="overview" className="text-xs rounded-lg py-2 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              <Eye className="w-3 h-3 mr-1" /> Info
             </TabsTrigger>
-            <TabsTrigger value="trade" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <ArrowDownUp className="w-3 h-3 mr-1" />
-              Trade
+            <TabsTrigger value="trade" className="text-xs rounded-lg py-2 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              <ArrowDownUp className="w-3 h-3 mr-1" /> Trade
             </TabsTrigger>
-            <TabsTrigger value="fees" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <Coins className="w-3 h-3 mr-1" />
-              Fees
+            <TabsTrigger value="fees" className="text-xs rounded-lg py-2 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              <Coins className="w-3 h-3 mr-1" /> Fees
             </TabsTrigger>
-            <TabsTrigger value="tools" className="text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
-              <Wrench className="w-3 h-3 mr-1" />
-              Tools
+            <TabsTrigger value="tools" className="text-xs rounded-lg py-2 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm">
+              <Wrench className="w-3 h-3 mr-1" /> Tools
             </TabsTrigger>
           </TabsList>
 
           {/* Overview */}
-          <TabsContent value="overview" className="space-y-4 mt-0">
-            <div className="space-y-3">
-              <div className="bg-secondary/50 rounded-lg p-3 border border-border">
-                <p className="text-xs text-muted-foreground mb-1">Contract Address</p>
-                <div className="flex items-center gap-2">
-                  <code className="text-xs text-foreground font-mono flex-1 truncate">
-                    {token.tokenMint}
-                  </code>
-                  <button onClick={copyMint} className="text-muted-foreground hover:text-primary transition-colors">
-                    {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+          <TabsContent value="overview" className="space-y-3 mt-0">
+            <div className="rounded-xl bg-muted/40 p-4 border border-border">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Contract</p>
+              <div className="flex items-center gap-2">
+                <code className="text-xs text-foreground font-mono flex-1 truncate">{token.tokenMint}</code>
+                <button onClick={copyMint} className="text-muted-foreground hover:text-primary transition-colors shrink-0">
+                  {copied ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
               </div>
+            </div>
 
-              {token.description && (
-                <div className="bg-secondary/50 rounded-lg p-3 border border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Description</p>
-                  <p className="text-sm text-foreground">{token.description}</p>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs"
-                  onClick={() => window.open(`https://bags.fm/${token.tokenMint}`, '_blank')}
-                >
-                  <ExternalLink className="w-3.5 h-3.5 mr-2" />
-                  View on Bags.fm
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start text-xs"
-                  onClick={() => window.open(`https://dexscreener.com/solana/${token.tokenMint}`, '_blank')}
-                >
-                  <BarChart3 className="w-3.5 h-3.5 mr-2" />
-                  View on DexScreener
-                </Button>
+            {token.description && (
+              <div className="rounded-xl bg-muted/40 p-4 border border-border">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Description</p>
+                <p className="text-sm text-foreground leading-relaxed">{token.description}</p>
               </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="justify-start text-xs rounded-xl h-10"
+                onClick={() => window.open(`https://bags.fm/${token.tokenMint}`, '_blank')}
+              >
+                <ExternalLink className="w-3.5 h-3.5 mr-2" /> Bags.fm
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="justify-start text-xs rounded-xl h-10"
+                onClick={() => window.open(`https://dexscreener.com/solana/${token.tokenMint}`, '_blank')}
+              >
+                <BarChart3 className="w-3.5 h-3.5 mr-2" /> DexScreener
+              </Button>
             </div>
           </TabsContent>
 
-          {/* Trade */}
           <TabsContent value="trade" className="mt-0">
             <TradeTab token={token} address={address} walletProvider={walletProvider} />
           </TabsContent>
 
-          {/* Fees */}
           <TabsContent value="fees" className="mt-0">
             <FeesTab token={token} address={address} walletProvider={walletProvider} />
           </TabsContent>
 
-          {/* Tools */}
-          <TabsContent value="tools" className="mt-0">
-            <div className="flex flex-col gap-2">
+          <TabsContent value="tools" className="mt-0 space-y-2">
+            {[
+              { icon: Globe, label: 'Create Website', onClick: () => navigate('/builder', { state: { prefill: { name: token.name, ticker: token.ticker, logoUrl: token.logoUrl, contractAddress: token.tokenMint } } }) },
+              { icon: Image, label: 'Content Studio', onClick: () => navigate('/studio', { state: { tokenMint: token.tokenMint } }) },
+              { icon: ExternalLink, label: 'View on Bags.fm', onClick: () => window.open(`https://bags.fm/${token.tokenMint}`, '_blank') },
+              { icon: BarChart3, label: 'DexScreener', onClick: () => window.open(`https://dexscreener.com/solana/${token.tokenMint}`, '_blank') },
+              { icon: Eye, label: 'Birdeye', onClick: () => window.open(`https://birdeye.so/token/${token.tokenMint}`, '_blank') },
+            ].map((item, i) => (
               <Button
+                key={i}
                 variant="outline"
                 size="sm"
-                className="w-full justify-start text-xs"
-                onClick={() =>
-                  navigate('/builder', {
-                    state: {
-                      prefill: {
-                        name: token.name,
-                        ticker: token.ticker,
-                        logoUrl: token.logoUrl,
-                        contractAddress: token.tokenMint,
-                      },
-                    },
-                  })
-                }
+                className="w-full justify-between text-xs rounded-xl h-10 group/tool"
+                onClick={item.onClick}
               >
-                <Globe className="w-3.5 h-3.5 mr-2" />
-                Create Website
+                <span className="flex items-center gap-2">
+                  <item.icon className="w-3.5 h-3.5" /> {item.label}
+                </span>
+                <ChevronRight className="w-3 h-3 text-muted-foreground group-hover/tool:text-primary transition-colors" />
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs"
-                onClick={() => navigate('/studio', { state: { tokenMint: token.tokenMint } })}
-              >
-                <Image className="w-3.5 h-3.5 mr-2" />
-                Open Content Studio
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs"
-                onClick={() => window.open(`https://bags.fm/${token.tokenMint}`, '_blank')}
-              >
-                <ExternalLink className="w-3.5 h-3.5 mr-2" />
-                View on Bags.fm
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs"
-                onClick={() => window.open(`https://dexscreener.com/solana/${token.tokenMint}`, '_blank')}
-              >
-                <BarChart3 className="w-3.5 h-3.5 mr-2" />
-                View on DexScreener
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start text-xs"
-                onClick={() => window.open(`https://birdeye.so/token/${token.tokenMint}`, '_blank')}
-              >
-                <Eye className="w-3.5 h-3.5 mr-2" />
-                View on Birdeye
-              </Button>
-            </div>
+            ))}
           </TabsContent>
         </Tabs>
       </SheetContent>
@@ -721,7 +678,23 @@ const TokenManagerDrawer = ({
 };
 
 /* ═══════════════════════════════════════════
-   MAIN PAGE
+   STAT CARD
+   ═══════════════════════════════════════════ */
+
+const StatCard = ({ icon: Icon, label, value, accent }: { icon: any; label: string; value: string | number; accent?: boolean }) => (
+  <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${accent ? 'bg-primary/10' : 'bg-muted'}`}>
+      <Icon className={`w-4 h-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
+    </div>
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
+      <p className="text-base font-bold text-foreground truncate">{value}</p>
+    </div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════
+   MAIN PAGE — redesigned
    ═══════════════════════════════════════════ */
 
 const BagsWallet = () => {
@@ -777,114 +750,140 @@ const BagsWallet = () => {
     setDrawerOpen(true);
   };
 
+  const graduatedCount = tokens.filter(
+    (t) => t.status?.toUpperCase() === 'LIVE' || t.status?.toUpperCase() === 'GRADUATED'
+  ).length;
+
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-        {/* Top bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">My Bags</h1>
-            <p className="text-sm text-muted-foreground mt-1">Launch & manage your tokens</p>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            {isConnected && solBalance != null && (
-              <Badge variant="outline" className="text-xs border-primary/30 text-primary font-mono">
-                {formatSol(solBalance)} SOL
-              </Badge>
-            )}
-            {isConnected && address && (
-              <Badge variant="outline" className="text-xs text-muted-foreground font-mono">
-                {shortenAddress(address)}
-              </Badge>
-            )}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
+
+        {/* ── Header ── */}
+        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+          <div className="flex items-start sm:items-center justify-between gap-3">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">My Bags</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Launch & manage your tokens</p>
+            </div>
             <WalletButton />
           </div>
+
+          {/* Wallet info strip */}
+          {isConnected && address && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {solBalance != null && (
+                <Badge variant="outline" className="text-xs border-primary/20 text-primary font-mono rounded-lg px-2.5 py-1">
+                  ◎ {formatSol(solBalance)}
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-xs text-muted-foreground font-mono rounded-lg px-2.5 py-1">
+                {shortenAddress(address)}
+              </Badge>
+            </div>
+          )}
         </div>
 
-        {/* Not connected */}
+        {/* ── Not connected ── */}
         {!isConnected ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Wallet className="w-8 h-8 text-primary" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-16 sm:py-24 text-center"
+          >
+            <div className="relative mb-6">
+              <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center">
+                <Wallet className="w-9 h-9 text-primary" />
+              </div>
+              <div className="absolute -inset-4 rounded-[2rem] bg-primary/5 -z-10 blur-xl" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h2>
-            <p className="text-sm text-muted-foreground mb-6 max-w-md">
+            <h2 className="text-lg font-bold text-foreground mb-2">Connect Your Wallet</h2>
+            <p className="text-sm text-muted-foreground mb-8 max-w-sm leading-relaxed">
               Connect your Solana wallet to view tokens you've launched on Bags.fm
             </p>
             <WalletButton />
-          </div>
+          </motion.div>
         ) : (
           <>
-            {/* Stats & CTA */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="text-xs text-muted-foreground">
-                  <span className="text-foreground font-semibold text-sm">{tokens.length}</span> tokens launched
+            {/* ── Stats row ── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 sm:mb-8">
+              <StatCard icon={Coins} label="Tokens" value={tokens.length} accent />
+              <StatCard icon={Trophy} label="Graduated" value={graduatedCount} />
+              {solBalance != null && (
+                <StatCard icon={Wallet} label="Balance" value={`${formatSol(solBalance)} SOL`} accent />
+              )}
+              <div
+                onClick={() => navigate('/launch')}
+                className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 flex items-center gap-3 cursor-pointer hover:bg-primary/10 hover:border-primary/50 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <Rocket className="w-4 h-4 text-primary" />
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  <span className="text-foreground font-semibold text-sm">
-                    {tokens.filter((t) => t.status?.toUpperCase() === 'LIVE' || t.status?.toUpperCase() === 'GRADUATED').length}
-                  </span>{' '}
-                  graduated
+                <div>
+                  <p className="text-xs font-semibold text-primary">Launch Token</p>
+                  <p className="text-[10px] text-muted-foreground">on Bags.fm</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={fetchTokens} disabled={loading}>
-                  <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-                <Button
-                  onClick={() => navigate('/launch')}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  size="sm"
-                >
-                  <Rocket className="w-3.5 h-3.5 mr-1.5" />
-                  Launch New Token
-                </Button>
               </div>
             </div>
 
-            {/* Loading */}
+            {/* ── Toolbar ── */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-foreground">Your Tokens</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={fetchTokens}
+                disabled={loading}
+                className="text-xs text-muted-foreground hover:text-primary"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
+
+            {/* ── Loading skeletons ── */}
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i} className="bg-card border-border">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Skeleton className="w-12 h-12 rounded-full" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-3 w-16" />
-                        </div>
+                  <div key={i} className="rounded-2xl border border-border bg-card p-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-11 h-11 rounded-xl" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
                       </div>
-                      <Skeleton className="h-8 w-full" />
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <Skeleton className="h-9 w-full rounded-xl" />
+                  </div>
                 ))}
               </div>
             ) : tokens.length === 0 ? (
-              /* Empty state */
-              <div className="flex flex-col items-center justify-center py-20 text-center">
+              /* ── Empty state ── */
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-16 text-center"
+              >
                 <div className="text-5xl mb-4">🪙</div>
-                <h2 className="text-lg font-semibold text-foreground mb-2">No tokens found</h2>
-                <p className="text-sm text-muted-foreground mb-6">
-                  No tokens found for this wallet. Launch your first token →
+                <h2 className="text-base font-semibold text-foreground mb-2">No tokens yet</h2>
+                <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+                  Launch your first token on Bags.fm and manage it right here.
                 </p>
                 <Button
                   onClick={() => navigate('/launch')}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 px-6"
                 >
                   <Rocket className="w-4 h-4 mr-2" />
                   Launch Token
                 </Button>
-              </div>
+              </motion.div>
             ) : (
-              /* Token grid */
+              /* ── Token grid ── */
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tokens.map((token) => (
+                {tokens.map((token, i) => (
                   <TokenCard
                     key={token.tokenMint}
                     token={token}
+                    index={i}
                     onManage={() => openManager(token)}
                     onCreateSite={() =>
                       navigate('/builder', {
