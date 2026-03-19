@@ -108,6 +108,18 @@ supabase functions deploy
 
 ---
 
+## Bags.fm Hackathon
+
+DegenTools is built as part of the [Bags.fm Hackathon](https://bags.fm/hackathon) — $4M developer fund for apps built on Bags.fm.
+
+Our integration includes:
+- Token launch via Bags.fm API with partner fee key embedded
+- Token management dashboard (buy, sell, claim fees)
+- Fee sharing with KOLs on launch
+- Partner key earning 25%+ of protocol fees on every launch
+
+---
+
 ## Pricing
 
 | Plan | Price |
