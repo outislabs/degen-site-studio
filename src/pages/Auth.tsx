@@ -44,6 +44,7 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success('Check your email to confirm your account!');
+        setView('promo');
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
