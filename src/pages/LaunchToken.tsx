@@ -245,7 +245,7 @@ const LaunchToken = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-display font-bold text-foreground flex items-center gap-2">
+            <h1 className="text-lg font-sans font-bold text-foreground flex items-center gap-2">
               <Rocket className="w-5 h-5 text-primary" /> Launch on Bags.fm
             </h1>
             <p className="text-xs text-muted-foreground">Deploy your token to Solana in minutes</p>
@@ -263,7 +263,7 @@ const LaunchToken = () => {
               }`}>
                 {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
               </div>
-              <span className={`text-xs hidden sm:block ${i === step ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>{label}</span>
+              <span className={`text-xs ${i === step ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>{label}</span>
               {i < STEPS.length - 1 && <div className={`h-px flex-1 ${i < step ? 'bg-primary' : 'bg-border'}`} />}
             </div>
           ))}
@@ -281,18 +281,18 @@ const LaunchToken = () => {
                     <div>
                       <Label className="text-xs">Token Name *</Label>
                       <Input maxLength={32} value={name} onChange={e => setName(e.target.value)} placeholder="My Token" className="mt-1" />
-                      <span className="text-[10px] text-muted-foreground">{name.length}/32</span>
+                      <span className={`text-[10px] ${name.length / 32 < 0.8 ? 'text-primary' : name.length / 32 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{name.length}/32</span>
                     </div>
                     <div>
                       <Label className="text-xs">Symbol *</Label>
                       <Input maxLength={10} value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())} placeholder="TKN" className="mt-1" />
-                      <span className="text-[10px] text-muted-foreground">{symbol.length}/10</span>
+                      <span className={`text-[10px] ${symbol.length / 10 < 0.8 ? 'text-primary' : symbol.length / 10 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{symbol.length}/10</span>
                     </div>
                   </div>
                   <div>
                     <Label className="text-xs">Description *</Label>
                     <Textarea maxLength={1000} value={description} onChange={e => setDescription(e.target.value)} placeholder="What's your token about?" className="mt-1" rows={3} />
-                    <span className="text-[10px] text-muted-foreground">{description.length}/1000</span>
+                    <span className={`text-[10px] ${description.length / 1000 < 0.8 ? 'text-primary' : description.length / 1000 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{description.length}/1000</span>
                   </div>
                   <div>
                     <Label className="text-xs">Logo *</Label>
@@ -366,6 +366,12 @@ const LaunchToken = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Tip Card */}
+                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Tip: Use a square logo (512×512 or larger) for best results. Add social links to boost credibility and discoverability.</span>
+                </div>
               </div>
             )}
 
@@ -399,6 +405,16 @@ const LaunchToken = () => {
                       className="mt-1 max-w-[200px]"
                     />
                     <p className="text-[10px] text-muted-foreground mt-1">Minimum 0.05 SOL. This is your initial token buy on launch.</p>
+                  </div>
+
+                  {/* SOL cost estimate */}
+                  <div className="bg-secondary/50 rounded-lg p-3 border border-border space-y-1.5 text-xs">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Initial Buy</span><span className="text-foreground">{solAmount || '0'} SOL</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span className="text-foreground">~0.01 SOL</span></div>
+                    <div className="border-t border-border pt-1.5 flex justify-between font-semibold">
+                      <span className="text-foreground">Total (est.)</span>
+                      <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -452,10 +468,13 @@ const LaunchToken = () => {
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-          <Button variant="ghost" onClick={() => setStep(s => s - 1)} disabled={step === 0}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> Back
-          </Button>
+        <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
+          {step > 0 && (
+            <Button variant="ghost" onClick={() => setStep(s => s - 1)}>
+              <ArrowLeft className="w-4 h-4 mr-1" /> Back
+            </Button>
+          )}
+          <div className="flex-1" />
           {step < 2 ? (
             <Button
               onClick={() => setStep(s => s + 1)}
@@ -468,7 +487,7 @@ const LaunchToken = () => {
             <Button
               onClick={handleLaunch}
               disabled={launching}
-              className="bg-primary text-primary-foreground min-w-[200px]"
+              className="bg-primary text-primary-foreground w-full"
             >
               {launching ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
