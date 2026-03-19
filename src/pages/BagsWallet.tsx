@@ -176,7 +176,7 @@ const TradeTab = ({
       try {
         const lamports = isBuy
           ? Math.floor(parseFloat(val) * 1e9)
-          : parseInt(val);
+          : Math.floor(parseFloat(val) * 1e6); // token decimals = 6
 
         const { data, error } = await supabase.functions.invoke('launch-on-bags', {
           body: {
