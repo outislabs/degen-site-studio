@@ -316,7 +316,7 @@ const TradeTab = ({
               variant="outline"
               size="sm"
               className="flex-1 text-xs"
-              onClick={() => handleAmountChange(String(pct))}
+              onClick={() => handlePercentSell(pct)}
             >
               {pct}%
             </Button>
