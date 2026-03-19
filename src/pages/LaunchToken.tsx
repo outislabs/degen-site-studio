@@ -286,7 +286,7 @@ const LaunchToken = () => {
                     <div>
                       <Label className="text-xs">Symbol *</Label>
                       <Input maxLength={10} value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())} placeholder="TKN" className="mt-1" />
-                      <span className="text-[10px] text-muted-foreground">{symbol.length}/10</span>
+                      <span className={`text-[10px] ${symbol.length / 10 < 0.8 ? 'text-primary' : symbol.length / 10 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{symbol.length}/10</span>
                     </div>
                   </div>
                   <div>
