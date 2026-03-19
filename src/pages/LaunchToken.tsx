@@ -468,10 +468,13 @@ const LaunchToken = () => {
         </AnimatePresence>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-          <Button variant="ghost" onClick={() => setStep(s => s - 1)} disabled={step === 0}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> Back
-          </Button>
+        <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
+          {step > 0 && (
+            <Button variant="ghost" onClick={() => setStep(s => s - 1)}>
+              <ArrowLeft className="w-4 h-4 mr-1" /> Back
+            </Button>
+          )}
+          <div className="flex-1" />
           {step < 2 ? (
             <Button
               onClick={() => setStep(s => s + 1)}
@@ -484,7 +487,7 @@ const LaunchToken = () => {
             <Button
               onClick={handleLaunch}
               disabled={launching}
-              className="bg-primary text-primary-foreground min-w-[200px]"
+              className="bg-primary text-primary-foreground w-full"
             >
               {launching ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
