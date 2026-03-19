@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useRef } from 'react';
 
-const STEPS = ['Token Details', 'Connect Wallet', 'Review & Launch'];
+const STEPS = ['Token Details', 'Connect Wallet', 'Fee Settings', 'Review & Launch'];
 
 const LaunchToken = () => {
   const navigate = useNavigate();
