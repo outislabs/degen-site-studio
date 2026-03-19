@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WalletButton } from '@/components/WalletButton';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,12 +15,18 @@ import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import type { Provider } from '@reown/appkit-utils/solana';
 import {
   Rocket, ArrowLeft, ArrowRight, Check, Wallet, Info,
-  ExternalLink, Copy, Loader2, CheckCircle2, Upload
+  ExternalLink, Copy, Loader2, CheckCircle2, Upload,
+  Coins, LinkIcon, Settings2, Eye, X, Sparkles
 } from 'lucide-react';
-import { useRef } from 'react';
 
-const STEPS = ['Token Details', 'Connect Wallet', 'Fee Settings', 'Review & Launch'];
+const STEPS = [
+  { label: 'Token Details', icon: Coins },
+  { label: 'Connect Wallet', icon: Wallet },
+  { label: 'Fee Settings', icon: Settings2 },
+  { label: 'Review & Launch', icon: Rocket },
+];
 
+/* ─────────────────── main component ─────────────────── */
 const LaunchToken = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -35,7 +41,7 @@ const LaunchToken = () => {
   const [tokenMintResult, setTokenMintResult] = useState('');
   const [siteIdForUpdate, setSiteIdForUpdate] = useState(siteId || '');
 
-  // Step 1 fields
+  // Step 0 fields
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
@@ -43,7 +49,6 @@ const LaunchToken = () => {
   const [twitter, setTwitter] = useState('');
   const [telegram, setTelegram] = useState('');
   const [website, setWebsite] = useState('');
-
   const [solAmount, setSolAmount] = useState('0.1');
   const [uploading, setUploading] = useState(false);
   const [showUrlFallback, setShowUrlFallback] = useState(false);
@@ -51,7 +56,7 @@ const LaunchToken = () => {
 
   // Fee settings
   const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
-  const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github', username: string, bps: number }>>([]);
+  const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github'; username: string; bps: number }>>([]);
   const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
   const [newSharerUsername, setNewSharerUsername] = useState('');
   const [newSharerPct, setNewSharerPct] = useState('');
@@ -69,12 +74,13 @@ const LaunchToken = () => {
       setImageUrl(d?.logoUrl || '');
       setTwitter(d?.socials?.twitter || '');
       setTelegram(d?.socials?.telegram || '');
-      setWebsite(d?.socials?.discord || ''); // fallback
+      setWebsite(d?.socials?.discord || '');
       setSiteIdForUpdate(data.id);
     })();
   }, [siteId, user]);
 
   const canProceedStep0 = name.trim() && symbol.trim() && description.trim() && imageUrl.trim();
+  const canProceedStep1 = isConnected && address && parseFloat(solAmount) >= 0.05;
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,16 +100,12 @@ const LaunchToken = () => {
       setUploading(false);
     }
   };
-  const canProceedStep1 = isConnected && address && parseFloat(solAmount) >= 0.05;
 
+  // ── launch handler (unchanged logic) ──
   const handleLaunch = async () => {
-    if (!address || !walletProvider) {
-      toast.error('Wallet not connected');
-      return;
-    }
+    if (!address || !walletProvider) { toast.error('Wallet not connected'); return; }
     setLaunching(true);
     try {
-      // 1. Create token info
       toast.loading('Creating token metadata...', { id: 'launch' });
       const { data: tokenData, error: tokenErr } = await supabase.functions.invoke('launch-on-bags', {
         body: { action: 'create_token_info', name, symbol, description, imageUrl, twitter, telegram, website }
@@ -111,15 +113,13 @@ const LaunchToken = () => {
       if (tokenErr || !tokenData?.success) throw new Error(tokenData?.error || 'Failed to create token info');
       const { tokenMint, ipfs } = tokenData;
 
-      // 2. Create fee share config
       toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
         body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [] }
       });
       if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
-      const { configKey, transactions: configTxs, bundles } = configData;
+      const { configKey, transactions: configTxs } = configData;
 
-      // 3. Sign and send fee config transactions if any
       const { Connection, Transaction, VersionedTransaction } = await import('@solana/web3.js');
       const bs58 = await import('bs58');
       const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=ef903194-0a33-4b77-aa34-47855c40ba17', 'confirmed');
@@ -129,47 +129,29 @@ const LaunchToken = () => {
         for (const txBase58 of configTxs) {
           const txBuffer = bs58.default.decode(txBase58);
           let tx;
-          try {
-            tx = VersionedTransaction.deserialize(txBuffer);
-          } catch {
-            tx = Transaction.from(txBuffer);
-          }
+          try { tx = VersionedTransaction.deserialize(txBuffer); } catch { tx = Transaction.from(txBuffer); }
           const signed = await walletProvider.signTransaction(tx);
           const txid = await connection.sendRawTransaction((signed as any).serialize());
           await connection.confirmTransaction(txid, 'confirmed');
         }
       }
 
-      // 4. Create launch transaction
       toast.loading('Creating launch transaction...', { id: 'launch' });
       const { data: txData, error: txErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: {
-          action: 'create_launch_transaction',
-          ipfs, tokenMint,
-          wallet: address,
-          initialBuyLamports: Math.floor(parseFloat(solAmount) * 1e9),
-          configKey
-        }
+        body: { action: 'create_launch_transaction', ipfs, tokenMint, wallet: address, initialBuyLamports: Math.floor(parseFloat(solAmount) * 1e9), configKey }
       });
       if (txErr || !txData?.success) throw new Error(txData?.error || 'Failed to create launch transaction');
 
-      // 5. Sign and send launch transaction
       toast.loading('Sign the transaction in your wallet...', { id: 'launch' });
       const txBuffer = bs58.default.decode(txData.transaction);
       let launchTx;
-      try {
-        launchTx = VersionedTransaction.deserialize(txBuffer);
-      } catch {
-        launchTx = Transaction.from(txBuffer);
-      }
+      try { launchTx = VersionedTransaction.deserialize(txBuffer); } catch { launchTx = Transaction.from(txBuffer); }
       const signedLaunch = await walletProvider.signTransaction(launchTx);
       const txid = await connection.sendRawTransaction((signedLaunch as any).serialize());
 
-      // 6. Confirm
       toast.loading('Confirming on-chain...', { id: 'launch' });
       await connection.confirmTransaction(txid, 'confirmed');
 
-      // 7. Update site contract address
       if (siteIdForUpdate) {
         const { data: siteData } = await supabase.from('sites').select('data').eq('id', siteIdForUpdate).single();
         if (siteData) {
@@ -181,7 +163,6 @@ const LaunchToken = () => {
       toast.success('Token launched! 🚀', { id: 'launch' });
       setTokenMintResult(tokenMint);
       setLaunched(true);
-
     } catch (err: any) {
       console.error('Launch error:', err);
       toast.error(err.message || 'Launch failed', { id: 'launch' });
@@ -192,285 +173,281 @@ const LaunchToken = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
+    toast.success('Copied!');
   };
 
-  if (!user) {
-    navigate('/auth');
-    return null;
-  }
+  if (!user) { navigate('/auth'); return null; }
 
-  // Success screen
+  /* ─── Success Screen ─── */
   if (launched && tokenMintResult) {
     return (
       <DashboardLayout onNewSite={() => navigate('/builder')}>
-        <div className="max-w-xl mx-auto px-4 py-16 text-center">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-primary" />
+        <div className="min-h-[80vh] flex items-center justify-center px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-md w-full text-center"
+          >
+            {/* Glow orb */}
+            <div className="relative mx-auto w-24 h-24 mb-8">
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl animate-pulse-glow" />
+              <div className="relative w-24 h-24 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', delay: 0.2 }}>
+                  <CheckCircle2 className="w-12 h-12 text-primary" />
+                </motion.div>
+              </div>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Token Launched! 🚀</h1>
+            <p className="text-sm text-muted-foreground mb-8">Live on Solana via Bags.fm</p>
+
+            <div className="bg-card/60 backdrop-blur-md border border-border rounded-2xl p-5 mb-6 text-left">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Token Mint</p>
+              <div className="flex items-center gap-2">
+                <code className="text-xs text-primary font-mono flex-1 truncate">{tokenMintResult}</code>
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(tokenMintResult)}>
+                  <Copy className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <Button asChild className="bg-primary text-primary-foreground h-11">
+                <a href={`https://bags.fm/${tokenMintResult}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-4 h-4 mr-2" /> View on Bags.fm
+                </a>
+              </Button>
+              <div className="grid grid-cols-2 gap-2.5">
+                {siteIdForUpdate && (
+                  <Button variant="outline" onClick={() => navigate(`/site/${siteIdForUpdate}`)}>View Site</Button>
+                )}
+                <Button variant="outline" onClick={() => navigate('/')} className={siteIdForUpdate ? '' : 'col-span-2'}>Dashboard</Button>
+              </div>
             </div>
           </motion.div>
-          <h1 className="text-3xl font-display font-bold text-foreground mb-2">Token Launched! 🚀</h1>
-          <p className="text-muted-foreground mb-8">Your token is now live on Solana via Bags.fm</p>
-
-          <div className="gradient-card border border-border rounded-xl p-6 mb-6 text-left">
-            <Label className="text-xs text-muted-foreground">Token Mint Address</Label>
-            <div className="flex items-center gap-2 mt-1">
-              <code className="text-xs text-primary font-mono flex-1 truncate">{tokenMintResult}</code>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(tokenMintResult)}>
-                <Copy className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild className="flex-1 bg-primary text-primary-foreground">
-              <a href={`https://bags.fm/${tokenMintResult}`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-1" /> View on Bags.fm
-              </a>
-            </Button>
-            {siteIdForUpdate && (
-              <Button variant="outline" className="flex-1" onClick={() => navigate(`/site/${siteIdForUpdate}`)}>
-                View on DegenTools
-              </Button>
-            )}
-            <Button variant="outline" className="flex-1" onClick={() => navigate('/')}>
-              Dashboard
-            </Button>
-          </div>
         </div>
       </DashboardLayout>
     );
   }
 
+  /* ─── Wizard ─── */
+  const totalFeeSharePct = feeSharers.reduce((s, f) => s + f.bps / 100, 0);
+
   return (
     <DashboardLayout onNewSite={() => navigate('/builder')}>
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div>
-            <h1 className="text-lg font-sans font-bold text-foreground flex items-center gap-2">
+      <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10 pb-24">
+
+        {/* ── Header ── */}
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
+            <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Rocket className="w-5 h-5 text-primary" /> Launch on Bags.fm
             </h1>
-            <p className="text-xs text-muted-foreground">Deploy your token to Solana in minutes</p>
+            <p className="text-[11px] text-muted-foreground">Deploy your token to Solana in minutes</p>
           </div>
         </div>
 
-        {/* Stepper */}
-        <div className="flex items-center gap-2 mb-8">
-          {STEPS.map((label, i) => (
-            <div key={i} className="flex items-center gap-2 flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
-                i < step ? 'bg-primary text-primary-foreground' :
-                i === step ? 'bg-primary/20 text-primary border border-primary' :
-                'bg-muted text-muted-foreground'
-              }`}>
-                {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
+        {/* ── Stepper ── */}
+        <div className="flex items-center mb-8">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const done = i < step;
+            const active = i === step;
+            return (
+              <div key={i} className="flex items-center flex-1 last:flex-initial">
+                <button
+                  onClick={() => {
+                    if (done) setStep(i);
+                  }}
+                  className="flex flex-col items-center gap-1.5 group"
+                >
+                  <div className={`
+                    w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 border-2
+                    ${active ? 'border-primary bg-primary/15 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]' :
+                      done ? 'border-primary bg-primary text-primary-foreground' :
+                      'border-border bg-muted/50 text-muted-foreground group-hover:border-muted-foreground/50'}
+                  `}>
+                    {done ? <Check className="w-4 h-4" strokeWidth={3} /> : <Icon className="w-4 h-4" />}
+                  </div>
+                  <span className={`text-[10px] font-medium hidden sm:block transition-colors ${
+                    active ? 'text-primary' : done ? 'text-primary/70' : 'text-muted-foreground'
+                  }`}>{s.label}</span>
+                </button>
+                {i < STEPS.length - 1 && (
+                  <div className="flex-1 mx-1.5 sm:mx-2 mt-[-18px] sm:mt-0">
+                    <div className={`h-0.5 rounded-full transition-colors duration-300 ${done ? 'bg-primary' : 'bg-border'}`} />
+                  </div>
+                )}
               </div>
-              <span className={`text-xs ${i === step ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>{label}</span>
-              {i < STEPS.length - 1 && <div className={`h-px flex-1 ${i < step ? 'bg-primary' : 'bg-border'}`} />}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Steps */}
+        {/* ── Step Content ── */}
         <AnimatePresence mode="wait">
-          <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
 
-            {/* STEP 0: Token Details */}
+            {/* ── STEP 0: Token Details ── */}
             {step === 0 && (
-              <div className="space-y-5">
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
+              <div className="space-y-4">
+                <GlassCard title="TOKEN DETAILS" icon={<Coins className="w-3.5 h-3.5" />}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-xs">Token Name *</Label>
-                      <Input maxLength={32} value={name} onChange={e => setName(e.target.value)} placeholder="My Token" className="mt-1" />
-                      <span className={`text-[10px] ${name.length / 32 < 0.8 ? 'text-primary' : name.length / 32 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{name.length}/32</span>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Symbol *</Label>
-                      <Input maxLength={10} value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())} placeholder="TKN" className="mt-1" />
-                      <span className={`text-[10px] ${symbol.length / 10 < 0.8 ? 'text-primary' : symbol.length / 10 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{symbol.length}/10</span>
-                    </div>
+                    <FieldBlock label="Token Name" required>
+                      <Input maxLength={32} value={name} onChange={e => setName(e.target.value)} placeholder="My Token" />
+                      <CharCount current={name.length} max={32} />
+                    </FieldBlock>
+                    <FieldBlock label="Symbol" required>
+                      <Input maxLength={10} value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())} placeholder="TKN" />
+                      <CharCount current={symbol.length} max={10} />
+                    </FieldBlock>
                   </div>
-                  <div>
-                    <Label className="text-xs">Description *</Label>
-                    <Textarea maxLength={1000} value={description} onChange={e => setDescription(e.target.value)} placeholder="What's your token about?" className="mt-1" rows={3} />
-                    <span className={`text-[10px] ${description.length / 1000 < 0.8 ? 'text-primary' : description.length / 1000 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{description.length}/1000</span>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Logo *</Label>
-                    <input
-                      type="file"
-                      ref={fileRef}
-                      className="hidden"
-                      accept="image/png,image/jpeg,image/gif,image/webp"
-                      onChange={handleLogoUpload}
-                    />
+                  <FieldBlock label="Description" required>
+                    <Textarea maxLength={1000} value={description} onChange={e => setDescription(e.target.value)} placeholder="What's your token about?" rows={3} />
+                    <CharCount current={description.length} max={1000} />
+                  </FieldBlock>
+                  <FieldBlock label="Logo" required>
+                    <input type="file" ref={fileRef} className="hidden" accept="image/png,image/jpeg,image/gif,image/webp" onChange={handleLogoUpload} />
                     <div
                       onClick={() => fileRef.current?.click()}
                       onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
                       onDrop={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                        e.preventDefault(); e.stopPropagation();
                         const file = e.dataTransfer.files?.[0];
                         if (file && fileRef.current) {
-                          const dt = new DataTransfer();
-                          dt.items.add(file);
+                          const dt = new DataTransfer(); dt.items.add(file);
                           fileRef.current.files = dt.files;
                           fileRef.current.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                       }}
-                      className="mt-1 border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
+                      className="border-2 border-dashed border-border rounded-xl p-5 flex flex-col items-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-primary/[0.02] transition-all"
                     >
                       {uploading ? (
                         <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
                       ) : imageUrl ? (
-                        <img src={imageUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover ring-2 ring-primary/30" />
+                        <img src={imageUrl} alt="Logo" className="w-16 h-16 rounded-2xl object-cover ring-2 ring-primary/30" />
                       ) : (
                         <>
-                          <Upload className="w-8 h-8 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Drag & drop or click to upload</span>
+                          <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
+                            <Upload className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          <span className="text-xs text-muted-foreground">Drag & drop or click</span>
                           <span className="text-[10px] text-muted-foreground/60">PNG, JPG, GIF, WEBP</span>
                         </>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowUrlFallback(v => !v)}
-                      className="text-[10px] text-primary hover:underline mt-1.5"
-                    >
+                    <button type="button" onClick={() => setShowUrlFallback(v => !v)} className="text-[10px] text-primary hover:underline mt-1">
                       Or paste image URL
                     </button>
-                    {showUrlFallback && (
-                      <Input
-                        value={imageUrl}
-                        onChange={e => setImageUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="mt-1"
-                      />
-                    )}
-                  </div>
-                </div>
+                    {showUrlFallback && <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." className="mt-1" />}
+                  </FieldBlock>
+                </GlassCard>
 
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
-                  <h3 className="text-xs font-display text-primary tracking-wider">SOCIAL LINKS (OPTIONAL)</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <Label className="text-xs">Twitter</Label>
-                      <Input value={twitter} onChange={e => setTwitter(e.target.value)} placeholder="https://x.com/..." className="mt-1" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Telegram</Label>
-                      <Input value={telegram} onChange={e => setTelegram(e.target.value)} placeholder="https://t.me/..." className="mt-1" />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Website</Label>
-                      <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." className="mt-1" />
-                    </div>
+                <GlassCard title="SOCIAL LINKS" subtitle="Optional" icon={<LinkIcon className="w-3.5 h-3.5" />}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <FieldBlock label="Twitter"><Input value={twitter} onChange={e => setTwitter(e.target.value)} placeholder="https://x.com/..." /></FieldBlock>
+                    <FieldBlock label="Telegram"><Input value={telegram} onChange={e => setTelegram(e.target.value)} placeholder="https://t.me/..." /></FieldBlock>
+                    <FieldBlock label="Website"><Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://..." /></FieldBlock>
                   </div>
-                </div>
+                </GlassCard>
 
-                {/* Tip Card */}
-                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
-                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>Tip: Use a square logo (512×512 or larger) for best results. Add social links to boost credibility and discoverability.</span>
-                </div>
+                <TipBanner>Use a square logo (512×512+) for best results. Social links boost credibility.</TipBanner>
               </div>
             )}
 
-            {/* STEP 1: Connect Wallet */}
+            {/* ── STEP 1: Connect Wallet ── */}
             {step === 1 && (
-              <div className="space-y-5">
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-5">
-                  <h3 className="text-xs font-display text-primary tracking-wider">CONNECT YOUR WALLET</h3>
-                  <div className="flex flex-col items-center gap-4 py-4">
-                    <WalletButton />
+              <div className="space-y-4">
+                <GlassCard title="CONNECT YOUR WALLET" icon={<Wallet className="w-3.5 h-3.5" />}>
+                  <div className="flex flex-col items-center gap-4 py-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 rounded-full bg-primary/10 blur-xl" />
+                      <div className="relative"><WalletButton /></div>
+                    </div>
                     {isConnected && address && (
-                      <div className="flex items-center gap-2">
+                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-xl px-4 py-2">
                         <Wallet className="w-4 h-4 text-primary" />
-                        <code className="text-xs text-muted-foreground font-mono">
-                          {address.slice(0, 6)}...{address.slice(-4)}
-                        </code>
-                        <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Connected</Badge>
-                      </div>
+                        <code className="text-xs text-muted-foreground font-mono">{address.slice(0, 6)}…{address.slice(-4)}</code>
+                        <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 px-1.5">Connected</Badge>
+                      </motion.div>
                     )}
                   </div>
-                </div>
+                </GlassCard>
 
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
-                  <h3 className="text-xs font-display text-primary tracking-wider">INITIAL BUY</h3>
-                  <div>
-                    <Label className="text-xs">Amount (SOL)</Label>
-                    <Input
-                      type="number" step="0.01" min="0.05"
-                      value={solAmount}
-                      onChange={e => setSolAmount(e.target.value)}
-                      className="mt-1 max-w-[200px]"
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1">Minimum 0.05 SOL. This is your initial token buy on launch.</p>
-                  </div>
+                <GlassCard title="INITIAL BUY" icon={<Coins className="w-3.5 h-3.5" />}>
+                  <FieldBlock label="Amount (SOL)">
+                    <Input type="number" step="0.01" min="0.05" value={solAmount} onChange={e => setSolAmount(e.target.value)} className="max-w-[180px]" />
+                    <p className="text-[10px] text-muted-foreground mt-1">Min 0.05 SOL — your initial buy on launch.</p>
+                  </FieldBlock>
 
-                  {/* SOL cost estimate */}
-                  <div className="bg-secondary/50 rounded-lg p-3 border border-border space-y-1.5 text-xs">
+                  <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2 text-xs">
                     <div className="flex justify-between"><span className="text-muted-foreground">Initial Buy</span><span className="text-foreground">{solAmount || '0'} SOL</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span className="text-foreground">~0.01 SOL</span></div>
-                    <div className="border-t border-border pt-1.5 flex justify-between font-semibold">
+                    <div className="border-t border-border pt-2 flex justify-between font-semibold">
                       <span className="text-foreground">Total (est.)</span>
                       <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
                     </div>
                   </div>
-                </div>
+                </GlassCard>
               </div>
             )}
 
-            {/* STEP 2: Fee Settings */}
+            {/* ── STEP 2: Fee Settings ── */}
             {step === 2 && (
               <div className="space-y-4">
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
-                  <h3 className="text-xs font-display text-primary tracking-wider">FEE SETTINGS</h3>
-                  <p className="text-xs text-muted-foreground">Choose how trading fees from your token are distributed</p>
-                  <div
+                <GlassCard title="FEE SETTINGS" icon={<Settings2 className="w-3.5 h-3.5" />}>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed</p>
+
+                  <RadioOption
+                    selected={feeOption === 'keep'}
                     onClick={() => setFeeOption('keep')}
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${feeOption === 'keep' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 ${feeOption === 'keep' ? 'border-primary bg-primary' : 'border-muted-foreground'}`} />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">💰 Keep All Fees</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">100% of trading fees go directly to your wallet</p>
-                    </div>
-                  </div>
-                  <div
+                    emoji="💰"
+                    title="Keep All Fees"
+                    description="100% of trading fees go to your wallet"
+                  />
+                  <RadioOption
+                    selected={feeOption === 'share'}
                     onClick={() => setFeeOption('share')}
-                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${feeOption === 'share' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 ${feeOption === 'share' ? 'border-primary bg-primary' : 'border-muted-foreground'}`} />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">🤝 Share Fees with KOLs</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Split fees with Twitter/X or GitHub users who promote your token</p>
-                    </div>
-                  </div>
-                  {feeOption === 'share' && (
-                    <div className="space-y-3 pt-2">
-                      {feeSharers.map((sharer, i) => (
-                        <div key={i} className="flex items-center gap-2 bg-secondary/40 rounded-lg p-3">
-                          <span className="text-xs text-primary font-mono">{sharer.platform}:{sharer.username}</span>
-                          <span className="text-xs text-muted-foreground ml-auto">{sharer.bps / 100}%</span>
-                          <button onClick={() => setFeeSharers(prev => prev.filter((_, j) => j !== i))} className="text-xs text-destructive hover:text-destructive/80">✕</button>
+                    emoji="🤝"
+                    title="Share Fees with KOLs"
+                    description="Split fees with promoters on Twitter/X or GitHub"
+                  />
+
+                  <AnimatePresence>
+                    {feeOption === 'share' && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden pt-1">
+                        {/* Existing sharers */}
+                        {feeSharers.map((sharer, i) => (
+                          <div key={i} className="flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2.5 border border-border">
+                            <Badge variant="outline" className="text-[10px]">{sharer.platform === 'twitter' ? '𝕏' : '⌨'}</Badge>
+                            <span className="text-xs text-foreground font-mono flex-1 truncate">{sharer.username}</span>
+                            <span className="text-xs font-semibold text-primary">{sharer.bps / 100}%</span>
+                            <button onClick={() => setFeeSharers(prev => prev.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive transition-colors">
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Summary */}
+                        <div className="flex items-center justify-between text-xs px-1">
+                          <span className="text-muted-foreground">You keep</span>
+                          <span className="text-primary font-bold">{(100 - totalFeeSharePct).toFixed(1)}%</span>
                         </div>
-                      ))}
-                      <div className="text-xs text-muted-foreground">
-                        You keep: <span className="text-primary font-medium">{100 - feeSharers.reduce((s, f) => s + f.bps / 100, 0)}%</span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-3 gap-2">
+
+                        {/* Add new */}
+                        <div className="grid grid-cols-[auto_1fr_80px] gap-2">
                           <select
                             value={newSharerPlatform}
                             onChange={e => setNewSharerPlatform(e.target.value as 'twitter' | 'github')}
-                            className="bg-secondary border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
+                            className="bg-muted border border-border rounded-xl px-2 py-1.5 text-xs text-foreground focus:ring-2 focus:ring-primary/40"
                           >
                             <option value="twitter">Twitter/X</option>
                             <option value="github">GitHub</option>
@@ -479,83 +456,71 @@ const LaunchToken = () => {
                           <Input placeholder="%" type="number" value={newSharerPct} onChange={e => setNewSharerPct(e.target.value)} className="text-xs h-8" />
                         </div>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-full text-xs"
+                          size="sm" variant="outline" className="w-full text-xs"
                           onClick={() => {
                             const pct = parseFloat(newSharerPct);
-                            const total = feeSharers.reduce((s, f) => s + f.bps / 100, 0);
                             if (!newSharerUsername || !pct || pct <= 0) return;
-                            if (total + pct > 95) { toast.error('Cannot exceed 95% — you must keep at least 5%'); return; }
+                            if (totalFeeSharePct + pct > 95) { toast.error('Cannot exceed 95% — you must keep at least 5%'); return; }
                             setFeeSharers(prev => [...prev, { platform: newSharerPlatform, username: newSharerUsername, bps: Math.floor(pct * 100) }]);
-                            setNewSharerUsername('');
-                            setNewSharerPct('');
+                            setNewSharerUsername(''); setNewSharerPct('');
                           }}
-                        >
-                          + Add Fee Sharer
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
-                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>Fee settings are set on-chain at launch and cannot be changed afterward.</span>
-                </div>
+                        >+ Add Fee Sharer</Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </GlassCard>
+
+                <TipBanner>Fee settings are set on-chain at launch and cannot be changed afterward.</TipBanner>
               </div>
             )}
 
-            {/* STEP 3: Review & Launch */}
+            {/* ── STEP 3: Review & Launch ── */}
             {step === 3 && (
-              <div className="space-y-5">
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
-                  <h3 className="text-xs font-display text-primary tracking-wider">TOKEN SUMMARY</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      ['Name', name],
-                      ['Symbol', symbol],
-                      ['Logo', imageUrl ? '✅ Set' : '❌ Missing'],
-                      ['Wallet', address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '—'],
-                    ].map(([k, v]) => (
-                      <div key={k}>
-                        <p className="text-[10px] text-muted-foreground">{k}</p>
-                        <p className="text-sm text-foreground font-medium truncate">{v}</p>
-                      </div>
-                    ))}
+              <div className="space-y-4">
+                <GlassCard title="TOKEN SUMMARY" icon={<Eye className="w-3.5 h-3.5" />}>
+                  <div className="flex items-center gap-4 mb-4">
+                    {imageUrl && <img src={imageUrl} alt={name} className="w-14 h-14 rounded-2xl object-cover ring-2 ring-primary/20" />}
+                    <div>
+                      <p className="text-base font-bold text-foreground">{name}</p>
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">${symbol}</Badge>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <ReviewField label="Wallet" value={address ? `${address.slice(0, 6)}…${address.slice(-4)}` : '—'} />
+                    <ReviewField label="Initial Buy" value={`${solAmount} SOL`} />
+                    <ReviewField label="Fees" value={feeOption === 'keep' ? '100% kept' : `${totalFeeSharePct}% shared`} />
+                    <ReviewField label="Logo" value={imageUrl ? '✅ Set' : '❌ Missing'} />
                   </div>
                   {description && (
-                    <div>
-                      <p className="text-[10px] text-muted-foreground">Description</p>
-                      <p className="text-xs text-foreground line-clamp-3">{description}</p>
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Description</p>
+                      <p className="text-xs text-foreground/80 line-clamp-3">{description}</p>
                     </div>
                   )}
-                </div>
+                </GlassCard>
 
-                <div className="gradient-card border border-border rounded-xl p-6 space-y-3">
-                  <h3 className="text-xs font-display text-primary tracking-wider">COST BREAKDOWN</h3>
+                <GlassCard title="COST BREAKDOWN" icon={<Sparkles className="w-3.5 h-3.5" />}>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Initial Buy</span><span className="text-foreground">{solAmount} SOL</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span className="text-foreground">~0.01 SOL</span></div>
-                    <div className="border-t border-border pt-2 flex justify-between font-semibold">
-                      <span className="text-foreground">Total (est.)</span>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Initial Buy</span><span>{solAmount} SOL</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span>~0.01 SOL</span></div>
+                    <div className="border-t border-border pt-2 flex justify-between font-bold">
+                      <span>Total (est.)</span>
                       <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
                     </div>
                   </div>
-                </div>
+                </GlassCard>
 
-                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
-                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>Launching a token is irreversible. You will sign a transaction with your connected wallet. Make sure all details are correct.</span>
-                </div>
+                <TipBanner variant="warning">Launching is irreversible. You will sign a transaction with your wallet. Double-check everything.</TipBanner>
               </div>
             )}
+
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-3 mt-8 pt-6 border-t border-border">
+        {/* ── Navigation ── */}
+        <div className="flex items-center gap-3 mt-8 pt-5 border-t border-border">
           {step > 0 && (
-            <Button variant="ghost" onClick={() => setStep(s => s - 1)}>
+            <Button variant="outline" onClick={() => setStep(s => s - 1)} className="rounded-xl">
               <ArrowLeft className="w-4 h-4 mr-1" /> Back
             </Button>
           )}
@@ -564,7 +529,7 @@ const LaunchToken = () => {
             <Button
               onClick={() => setStep(s => s + 1)}
               disabled={step === 0 ? !canProceedStep0 : step === 1 ? !canProceedStep1 : false}
-              className="bg-primary text-primary-foreground"
+              className="bg-primary text-primary-foreground rounded-xl px-6"
             >
               Next <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
@@ -572,7 +537,7 @@ const LaunchToken = () => {
             <Button
               onClick={handleLaunch}
               disabled={launching}
-              className="bg-primary text-primary-foreground w-full"
+              className={`bg-primary text-primary-foreground rounded-xl flex-1 h-12 text-sm font-semibold ${!launching ? 'animate-pulse-glow' : ''}`}
             >
               {launching ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
@@ -588,3 +553,77 @@ const LaunchToken = () => {
 };
 
 export default LaunchToken;
+
+/* ────────────────── Sub-components ────────────────── */
+
+function GlassCard({ title, subtitle, icon, children }: { title: string; subtitle?: string; icon?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="bg-card/60 backdrop-blur-md border border-border rounded-2xl p-5 sm:p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        {icon && <span className="text-primary">{icon}</span>}
+        <h3 className="text-[11px] font-display text-primary tracking-wider">{title}</h3>
+        {subtitle && <span className="text-[10px] text-muted-foreground ml-auto">{subtitle}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function FieldBlock({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-muted-foreground">
+        {label}{required && <span className="text-primary ml-0.5">*</span>}
+      </Label>
+      {children}
+    </div>
+  );
+}
+
+function CharCount({ current, max }: { current: number; max: number }) {
+  const ratio = current / max;
+  return (
+    <span className={`text-[10px] ${ratio < 0.8 ? 'text-primary/60' : ratio < 1 ? 'text-yellow-400' : 'text-destructive'}`}>
+      {current}/{max}
+    </span>
+  );
+}
+
+function RadioOption({ selected, onClick, emoji, title, description }: { selected: boolean; onClick: () => void; emoji: string; title: string; description: string }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+        selected ? 'border-primary bg-primary/5 shadow-[0_0_12px_hsl(var(--primary)/0.1)]' : 'border-border hover:border-primary/40'
+      }`}
+    >
+      <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 transition-colors ${selected ? 'border-primary bg-primary' : 'border-muted-foreground'}`} />
+      <div>
+        <p className="text-sm font-medium text-foreground">{emoji} {title}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function ReviewField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-sm text-foreground font-medium truncate">{value}</p>
+    </div>
+  );
+}
+
+function TipBanner({ children, variant = 'info' }: { children: React.ReactNode; variant?: 'info' | 'warning' }) {
+  return (
+    <div className={`flex items-start gap-2.5 text-[11px] rounded-xl p-3.5 ${
+      variant === 'warning'
+        ? 'text-yellow-200/80 bg-yellow-500/5 border border-yellow-500/10'
+        : 'text-muted-foreground bg-primary/5 border border-primary/10'
+    }`}>
+      <Info className={`w-4 h-4 shrink-0 mt-0.5 ${variant === 'warning' ? 'text-yellow-400' : 'text-primary'}`} />
+      <span>{children}</span>
+    </div>
+  );
+}
