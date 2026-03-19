@@ -716,45 +716,13 @@ const BagsWallet = () => {
     if (!address) return;
     setLoading(true);
     try {
-      // Fetch from Bags API and local sites table in parallel
-      const [bagsResult, sitesResult] = await Promise.all([
-        supabase.functions.invoke('launch-on-bags', {
-          body: { action: 'get_user_tokens', wallet: address },
-        }),
-        supabase
-          .from('sites')
-          .select('name, ticker, data')
-          .not('data->>contractAddress', 'is', null),
-      ]);
-
-      const bagsTokens: BagsToken[] = bagsResult.data?.tokens || [];
-      const bagsMintSet = new Set(bagsTokens.map((t) => t.tokenMint));
-
-      // Merge site-based tokens that aren't already in the Bags results
-      const siteTokens: BagsToken[] = [];
-      if (sitesResult.data) {
-        for (const site of sitesResult.data) {
-          const siteData = site.data as Record<string, any> | null;
-          const mint = siteData?.contractAddress as string | undefined;
-          if (mint && !bagsMintSet.has(mint)) {
-            siteTokens.push({
-              tokenMint: mint,
-              name: site.name || siteData?.name || 'Unknown',
-              ticker: site.ticker || siteData?.ticker || '???',
-              logoUrl: siteData?.logoUrl || '',
-              status: 'UNKNOWN',
-              description: siteData?.description || '',
-              marketCap: undefined,
-            });
-            bagsMintSet.add(mint);
-          }
-        }
-      }
-
-      setTokens([...bagsTokens, ...siteTokens]);
-    } catch (err: any) {
+      const { data, error } = await supabase.functions.invoke('launch-on-bags', {
+        body: { action: 'get_user_tokens', wallet: address },
+      });
+      if (error) throw error;
+      setTokens(data?.tokens || []);
+    } catch {
       toast.error('Failed to load tokens');
-      console.error(err);
     } finally {
       setLoading(false);
     }
