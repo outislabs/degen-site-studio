@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useRef } from 'react';
 
-const STEPS = ['Token Details', 'Connect Wallet', 'Review & Launch'];
+const STEPS = ['Token Details', 'Connect Wallet', 'Fee Settings', 'Review & Launch'];
 
 const LaunchToken = () => {
   const navigate = useNavigate();
@@ -48,6 +48,13 @@ const LaunchToken = () => {
   const [uploading, setUploading] = useState(false);
   const [showUrlFallback, setShowUrlFallback] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fee settings
+  const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
+  const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github', username: string, bps: number }>>([]);
+  const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
+  const [newSharerUsername, setNewSharerUsername] = useState('');
+  const [newSharerPct, setNewSharerPct] = useState('');
 
   // Auto-populate from site
   useEffect(() => {
@@ -107,7 +114,7 @@ const LaunchToken = () => {
       // 2. Create fee share config
       toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'create_fee_config', tokenMint, wallet: address }
+        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [] }
       });
       if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
       const { configKey, transactions: configTxs, bundles } = configData;
@@ -420,8 +427,86 @@ const LaunchToken = () => {
               </div>
             )}
 
-            {/* STEP 2: Review & Launch */}
+            {/* STEP 2: Fee Settings */}
             {step === 2 && (
+              <div className="space-y-4">
+                <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
+                  <h3 className="text-xs font-display text-primary tracking-wider">FEE SETTINGS</h3>
+                  <p className="text-xs text-muted-foreground">Choose how trading fees from your token are distributed</p>
+                  <div
+                    onClick={() => setFeeOption('keep')}
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${feeOption === 'keep' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 ${feeOption === 'keep' ? 'border-primary bg-primary' : 'border-muted-foreground'}`} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">💰 Keep All Fees</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">100% of trading fees go directly to your wallet</p>
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => setFeeOption('share')}
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${feeOption === 'share' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 mt-0.5 shrink-0 ${feeOption === 'share' ? 'border-primary bg-primary' : 'border-muted-foreground'}`} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">🤝 Share Fees with KOLs</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Split fees with Twitter/X or GitHub users who promote your token</p>
+                    </div>
+                  </div>
+                  {feeOption === 'share' && (
+                    <div className="space-y-3 pt-2">
+                      {feeSharers.map((sharer, i) => (
+                        <div key={i} className="flex items-center gap-2 bg-secondary/40 rounded-lg p-3">
+                          <span className="text-xs text-primary font-mono">{sharer.platform}:{sharer.username}</span>
+                          <span className="text-xs text-muted-foreground ml-auto">{sharer.bps / 100}%</span>
+                          <button onClick={() => setFeeSharers(prev => prev.filter((_, j) => j !== i))} className="text-xs text-destructive hover:text-destructive/80">✕</button>
+                        </div>
+                      ))}
+                      <div className="text-xs text-muted-foreground">
+                        You keep: <span className="text-primary font-medium">{100 - feeSharers.reduce((s, f) => s + f.bps / 100, 0)}%</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-3 gap-2">
+                          <select
+                            value={newSharerPlatform}
+                            onChange={e => setNewSharerPlatform(e.target.value as 'twitter' | 'github')}
+                            className="bg-secondary border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
+                          >
+                            <option value="twitter">Twitter/X</option>
+                            <option value="github">GitHub</option>
+                          </select>
+                          <Input placeholder="username" value={newSharerUsername} onChange={e => setNewSharerUsername(e.target.value)} className="text-xs h-8" />
+                          <Input placeholder="%" type="number" value={newSharerPct} onChange={e => setNewSharerPct(e.target.value)} className="text-xs h-8" />
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs"
+                          onClick={() => {
+                            const pct = parseFloat(newSharerPct);
+                            const total = feeSharers.reduce((s, f) => s + f.bps / 100, 0);
+                            if (!newSharerUsername || !pct || pct <= 0) return;
+                            if (total + pct > 95) { toast.error('Cannot exceed 95% — you must keep at least 5%'); return; }
+                            setFeeSharers(prev => [...prev, { platform: newSharerPlatform, username: newSharerUsername, bps: Math.floor(pct * 100) }]);
+                            setNewSharerUsername('');
+                            setNewSharerPct('');
+                          }}
+                        >
+                          + Add Fee Sharer
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-start gap-2 text-[11px] text-muted-foreground bg-primary/5 border border-primary/10 rounded-lg p-3">
+                  <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Fee settings are set on-chain at launch and cannot be changed afterward.</span>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: Review & Launch */}
+            {step === 3 && (
               <div className="space-y-5">
                 <div className="gradient-card border border-border rounded-xl p-6 space-y-4">
                   <h3 className="text-xs font-display text-primary tracking-wider">TOKEN SUMMARY</h3>
@@ -475,10 +560,10 @@ const LaunchToken = () => {
             </Button>
           )}
           <div className="flex-1" />
-          {step < 2 ? (
+          {step < 3 ? (
             <Button
               onClick={() => setStep(s => s + 1)}
-              disabled={step === 0 ? !canProceedStep0 : !canProceedStep1}
+              disabled={step === 0 ? !canProceedStep0 : step === 1 ? !canProceedStep1 : false}
               className="bg-primary text-primary-foreground"
             >
               Next <ArrowRight className="w-4 h-4 ml-1" />
