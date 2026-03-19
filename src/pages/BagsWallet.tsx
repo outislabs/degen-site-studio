@@ -96,9 +96,9 @@ const TokenCard = ({
     <Card className="bg-card border-border hover:border-primary/30 transition-colors group">
       <CardContent className="p-4">
         <div className="flex items-center gap-3 mb-3">
-          {token.logoUrl ? (
+          {(token.image || token.logoUrl || (token as any).image_url) ? (
             <img
-              src={token.logoUrl}
+              src={token.image || token.logoUrl || (token as any).image_url}
               alt={token.name}
               className="w-12 h-12 rounded-full object-cover bg-muted border border-border"
             />
