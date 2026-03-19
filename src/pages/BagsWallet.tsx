@@ -43,6 +43,8 @@ interface BagsToken {
   name: string;
   ticker: string;
   logoUrl: string;
+  image?: string;
+  image_url?: string;
   status: string;
   description?: string;
   marketCap?: number;
