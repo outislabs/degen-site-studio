@@ -292,7 +292,7 @@ const LaunchToken = () => {
                   <div>
                     <Label className="text-xs">Description *</Label>
                     <Textarea maxLength={1000} value={description} onChange={e => setDescription(e.target.value)} placeholder="What's your token about?" className="mt-1" rows={3} />
-                    <span className="text-[10px] text-muted-foreground">{description.length}/1000</span>
+                    <span className={`text-[10px] ${description.length / 1000 < 0.8 ? 'text-primary' : description.length / 1000 < 1 ? 'text-yellow-400' : 'text-destructive'}`}>{description.length}/1000</span>
                   </div>
                   <div>
                     <Label className="text-xs">Logo *</Label>
