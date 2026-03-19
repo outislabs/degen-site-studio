@@ -406,6 +406,16 @@ const LaunchToken = () => {
                     />
                     <p className="text-[10px] text-muted-foreground mt-1">Minimum 0.05 SOL. This is your initial token buy on launch.</p>
                   </div>
+
+                  {/* SOL cost estimate */}
+                  <div className="bg-secondary/50 rounded-lg p-3 border border-border space-y-1.5 text-xs">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Initial Buy</span><span className="text-foreground">{solAmount || '0'} SOL</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span className="text-foreground">~0.01 SOL</span></div>
+                    <div className="border-t border-border pt-1.5 flex justify-between font-semibold">
+                      <span className="text-foreground">Total (est.)</span>
+                      <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
