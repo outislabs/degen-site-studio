@@ -211,13 +211,13 @@ const TradeTab = ({
   };
 
   const handlePercentSell = async (pct: number) => {
-    if (!selectedToken || !address) return;
+    if (!token || !address) return;
     try {
       const { Connection, PublicKey } = await import('@solana/web3.js');
       const connection = new Connection(HELIUS_RPC, 'confirmed');
       const accounts = await connection.getParsedTokenAccountsByOwner(
         new PublicKey(address),
-        { mint: new PublicKey(selectedToken.tokenMint) }
+        { mint: new PublicKey(token.tokenMint) }
       );
       const tokenAccount = accounts.value[0];
       if (!tokenAccount) { toast.error('No token balance found'); return; }
@@ -227,7 +227,7 @@ const TradeTab = ({
       const decimals = tokenAccount.account.data.parsed.info.tokenAmount.decimals;
       const displayAmount = (sellAmount / Math.pow(10, decimals)).toString();
       setAmount(displayAmount);
-      fetchQuote(displayAmount, false, selectedToken.tokenMint);
+      fetchQuote(displayAmount, false, token.tokenMint);
     } catch {
       toast.error('Could not fetch token balance');
     }
