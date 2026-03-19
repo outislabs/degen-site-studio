@@ -59,6 +59,27 @@ const Auth = () => {
 
   const isSignUp = view === 'signup';
   const isForgot = view === 'forgot';
+  const isPromo = view === 'promo';
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem-promo', {
+        body: { code: promoCode.trim() }
+      });
+      if (error || !data?.success) {
+        toast.error(data?.error || 'Invalid promo code');
+      } else {
+        toast.success(data.message);
+        navigate('/');
+      }
+    } catch {
+      toast.error('Failed to apply promo code');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const features = [
     { icon: Zap, text: 'Launch your token site in minutes' },
