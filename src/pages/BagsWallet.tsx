@@ -39,7 +39,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SOL_MINT = 'So11111111111111111111111111111111111111112';
-const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=ef903194-0a33-4b77-aa34-47855c40ba17';
+const HELIUS_RPC = import.meta.env.VITE_HELIUS_RPC || 'https://api.mainnet-beta.solana.com';
 
 interface BagsToken {
   tokenMint: string;
