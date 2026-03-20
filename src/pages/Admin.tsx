@@ -167,10 +167,21 @@ const Admin = () => {
     setDeleteDialog({ open: false, type: '', id: '', label: '' });
   };
 
-  const filteredUsers = users.filter(u =>
-    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.id.includes(searchQuery)
-  );
+  const getUserIdentifier = (user: AdminUser) => {
+    if (user.email) return { label: user.email, isWallet: false };
+    const web3Identity = (user as any).identities?.find((i: any) => i.provider === 'web3' || i.provider === 'solana');
+    if (web3Identity?.identity_data?.address) {
+      const addr = web3Identity.identity_data.address;
+      return { label: `${addr.slice(0, 8)}...${addr.slice(-6)}`, isWallet: true };
+    }
+    return { label: `${user.id.slice(0, 8)}...`, isWallet: true };
+  };
+
+  const filteredUsers = users.filter(u => {
+    const identifier = getUserIdentifier(u);
+    return identifier.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.id.includes(searchQuery);
+  });
 
   const filteredSites = sites.filter(s =>
     s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
