@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,8 @@ import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
 import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
-
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 interface SavedSite {
   id: string;
   name: string;
