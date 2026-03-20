@@ -22,6 +22,7 @@ const Auth = () => {
   const [otpCode, setOtpCode] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const [walletAuthLoading, setWalletAuthLoading] = useState(false);
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
