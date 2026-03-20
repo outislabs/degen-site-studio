@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,8 @@ import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
 import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
-
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 interface SavedSite {
   id: string;
   name: string;
@@ -26,6 +28,30 @@ interface Props {
 
 const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
+  const [showPromoInput, setShowPromoInput] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem-promo', {
+        body: { code: promoCode.trim() }
+      });
+      if (error || !data?.success) {
+        toast.error(data?.error || 'Invalid promo code');
+      } else {
+        toast.success(data.message);
+        setShowPromoInput(false);
+        window.location.reload();
+      }
+    } catch {
+      toast.error('Failed to apply promo code');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const getThemeColor = (data: Record<string, any>): string => {
     const themeId = data?.theme as ThemeId;
@@ -56,20 +82,51 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
 
       {/* Promo code banner for free users */}
       {planId === 'free' && (
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between gap-3 mb-8">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🎁</span>
-            <div>
-              <p className="text-xs font-medium text-foreground">Have a promo code?</p>
-              <p className="text-[10px] text-muted-foreground">Use <span className="text-primary font-mono font-bold">DEGEN50</span> for 30 days free on Degen Plan</p>
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-8">
+          {!showPromoInput ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎁</span>
+                <div>
+                  <p className="text-xs font-medium text-foreground">Have a promo code?</p>
+                  <p className="text-[10px] text-muted-foreground">Use <span className="text-primary font-mono font-bold">DEGEN50</span> for 30 days free on Degen Plan</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPromoInput(true)}
+                className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Claim
+              </button>
             </div>
-          </div>
-          <button
-            onClick={() => navigate('/account')}
-            className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Claim
-          </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-foreground">🎁 Enter your promo code</p>
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={promoCode}
+                  onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. DEGEN50"
+                  onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
+                  className="flex-1 bg-secondary border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+                />
+                <button
+                  onClick={applyPromoCode}
+                  disabled={promoLoading || !promoCode.trim()}
+                  className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                >
+                  {promoLoading ? '...' : 'Apply'}
+                </button>
+                <button
+                  onClick={() => setShowPromoInput(false)}
+                  className="text-muted-foreground text-xs px-2 hover:text-foreground"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
