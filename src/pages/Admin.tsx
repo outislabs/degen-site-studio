@@ -370,7 +370,7 @@ const Admin = () => {
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => setDeleteDialog({ open: true, type: 'user', id: u.id, label: u.email || u.id })}
+                              onClick={() => setDeleteDialog({ open: true, type: 'user', id: u.id, label: getUserIdentifier(u).label })}
                             >
                               <UserX className="w-3.5 h-3.5" />
                             </Button>
