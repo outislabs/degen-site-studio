@@ -25,6 +25,7 @@ const Auth = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
   const [walletAuthLoading, setWalletAuthLoading] = useState(false);
+  const pendingWalletAuth = useRef(false);
   const { walletProvider } = useAppKitProvider<Provider>('solana');
   const { address, isConnected } = useAppKitAccount();
   const { open } = useAppKit();
