@@ -82,6 +82,22 @@ const Auth = () => {
     }
   };
 
+  const signInWithWallet = async () => {
+    setWalletAuthLoading(true);
+    try {
+      const { error } = await (supabase.auth as any).signInWithWeb3({
+        chain: 'solana',
+      });
+      if (error) throw error;
+      toast.success('Signed in with wallet!');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err.message || 'Wallet sign in failed');
+    } finally {
+      setWalletAuthLoading(false);
+    }
+  };
+
   const features = [
     { icon: Zap, text: 'Launch your token site in minutes' },
     { icon: Sparkles, text: 'AI-powered meme & content studio' },
