@@ -87,7 +87,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           {navLinks.map((link) => (
             <button
               key={link.href}
-              onClick={() => scrollTo(link.href)}
+              onClick={() => handleNav(link)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2.5 rounded-lg hover:bg-primary/5 text-left"
             >
               {link.label}
