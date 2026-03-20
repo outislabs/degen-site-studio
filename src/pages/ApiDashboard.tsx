@@ -458,12 +458,19 @@ console.log(JSON.parse(token).token_mint);`;
             <span>Protocol: JSON-RPC 2.0 (MCP 2024-11-05)</span>
             <span>·</span>
             <a
+              href="/docs"
+              className="text-primary hover:underline"
+            >
+              API Docs
+            </a>
+            <span>·</span>
+            <a
               href="https://modelcontextprotocol.io"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              MCP Docs ↗
+              MCP Spec ↗
             </a>
           </div>
         </div>

@@ -30,6 +30,7 @@ import {
   Rocket,
   Wallet,
   Code2,
+  Book,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
