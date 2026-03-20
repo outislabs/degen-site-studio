@@ -132,6 +132,20 @@ const ContentStudio = () => {
               placeholder="e.g. My Meme Coin"
               className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs placeholder:text-muted-foreground focus:outline-none focus:border-primary"
             />
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between gap-3 mt-3">
+              <div className="flex items-center gap-2">
+                <span className="text-base">💡</span>
+                <p className="text-[11px] text-muted-foreground">
+                  Create a token site for better results — the AI uses your logo, name & ticker for on-brand content.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/builder')}
+                className="shrink-0 text-[10px] font-bold text-primary hover:underline"
+              >
+                Create Site →
+              </button>
+            </div>
           </div>
         )}
 
