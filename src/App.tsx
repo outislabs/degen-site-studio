@@ -22,6 +22,7 @@ import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
+import ApiDashboard from "./pages/ApiDashboard.tsx";
 
 const queryClient = new QueryClient();
 
