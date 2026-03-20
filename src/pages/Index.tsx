@@ -30,6 +30,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
+  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
   const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
 
   useEffect(() => {
