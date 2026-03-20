@@ -152,49 +152,7 @@ const Auth = () => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {isPromo ? (
-                  /* Promo code step after signup */
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
-                        <Gift className="w-7 h-7 text-primary" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">🎁 Have a promo code?</h2>
-                      <p className="text-sm text-muted-foreground">
-                        Enter it below to unlock your free upgrade
-                      </p>
-                    </div>
-
-                    <div className="border border-dashed border-border rounded-xl p-5 space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          value={promoCode}
-                          onChange={e => setPromoCode(e.target.value.toUpperCase())}
-                          placeholder="Enter code e.g. DEGEN50"
-                          className="flex-1 h-12 bg-muted/30 border-border/60 text-sm rounded-xl"
-                          onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
-                        />
-                        <Button
-                          onClick={applyPromoCode}
-                          disabled={promoLoading || !promoCode.trim()}
-                          className="h-12 px-5 bg-primary text-primary-foreground rounded-xl"
-                        >
-                          {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
-                        </Button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">First 50 users get 30 days free on Degen Plan</p>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      className="w-full text-sm text-muted-foreground hover:text-foreground"
-                      onClick={() => navigate('/')}
-                    >
-                      Skip for now <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                    </Button>
-                  </div>
-                ) : (
-                  /* Normal auth form */
+                {/* Auth form */}
                   <>
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
