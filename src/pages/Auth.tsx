@@ -90,11 +90,18 @@ const Auth = () => {
   const signInWithWallet = async () => {
     setWalletAuthLoading(true);
     try {
+      if (!isConnected || !walletProvider) {
+        await open();
+        setWalletAuthLoading(false);
+        return;
+      }
+
       const { error } = await (supabase.auth as any).signInWithWeb3({
         chain: 'solana',
+        wallet: walletProvider,
       });
       if (error) throw error;
-      toast.success('Signed in with wallet!');
+      toast.success('Signed in with wallet! 🚀');
       navigate('/');
     } catch (err: any) {
       toast.error(err.message || 'Wallet sign in failed');
