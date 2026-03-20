@@ -92,7 +92,12 @@ const Index = () => {
             <span className="text-lg">🎁</span>
             <div>
               <p className="text-sm font-medium text-foreground">First 50 users get 30 days free on Degen Plan</p>
-              <p className="text-xs text-muted-foreground">Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup</p>
+              <p className="text-xs text-muted-foreground">
+                Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup
+                {spotsLeft !== null && (
+                  <span className="text-yellow-400 ml-1">· {spotsLeft} spots left</span>
+                )}
+              </p>
             </div>
           </div>
           <a href="/auth" className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors">
