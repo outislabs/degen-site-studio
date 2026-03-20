@@ -372,12 +372,12 @@ const Auth = () => {
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : isConnected && address ? (
                             <>
-                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.67 21.33a.75.75 0 0 1 .53-.22h18.67a.37.37 0 0 1 .27.64l-3.47 3.47a.75.75 0 0 1-.53.22H3.47a.37.37 0 0 1-.27-.64l3.47-3.47ZM6.67 6.78a.75.75 0 0 1 .53-.22h18.67a.37.37 0 0 1 .27.64L22.67 10.67a.75.75 0 0 1-.53.22H3.47a.37.37 0 0 1-.27-.64l3.47-3.47ZM22.13 14.05a.75.75 0 0 0-.53-.22H3.47a.37.37 0 0 0-.27.64l3.47 3.47a.75.75 0 0 0 .53.22h18.67a.37.37 0 0 0 .27-.64l-3.47-3.47Z" fill="#9945FF"/></svg>
                               Sign in as {address.slice(0, 6)}...{address.slice(-4)}
                             </>
                           ) : (
                             <>
-                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.67 21.33a.75.75 0 0 1 .53-.22h18.67a.37.37 0 0 1 .27.64l-3.47 3.47a.75.75 0 0 1-.53.22H3.47a.37.37 0 0 1-.27-.64l3.47-3.47ZM6.67 6.78a.75.75 0 0 1 .53-.22h18.67a.37.37 0 0 1 .27.64L22.67 10.67a.75.75 0 0 1-.53.22H3.47a.37.37 0 0 1-.27-.64l3.47-3.47ZM22.13 14.05a.75.75 0 0 0-.53-.22H3.47a.37.37 0 0 0-.27.64l3.47 3.47a.75.75 0 0 0 .53.22h18.67a.37.37 0 0 0 .27-.64l-3.47-3.47Z" fill="#9945FF"/></svg>
                               Sign in with Solana Wallet
                             </>
                           )}
