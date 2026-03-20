@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +24,18 @@ import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
 
 const queryClient = new QueryClient();
+
+const RouteTracker = () => {
+  const location = useLocation();
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'G-GJ5K5W8F3Y5', {
+        page_path: location.pathname,
+      });
+    }
+  }, [location]);
+  return null;
+};
 
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
@@ -74,6 +86,7 @@ const App = () => {
           <Sonner />
           <CustomDomainHandler>
             <BrowserRouter>
+              <RouteTracker />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/builder" element={<Builder />} />
