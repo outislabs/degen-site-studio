@@ -21,14 +21,17 @@ interface SiteOption {
   data: Record<string, any>;
 }
 
+const NO_TOKEN_ID = '__no_token__';
+
 const ContentStudio = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [sites, setSites] = useState<SiteOption[]>([]);
-  const [selectedSiteId, setSelectedSiteId] = useState<string>('');
+  const [selectedSiteId, setSelectedSiteId] = useState<string>(NO_TOKEN_ID);
   const [activeTab, setActiveTab] = useState('meme');
   const [refreshKey, setRefreshKey] = useState(0);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
+  const [customProjectName, setCustomProjectName] = useState('');
   const { plan, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
@@ -41,7 +44,7 @@ const ContentStudio = () => {
 
   // Auto-load logo when selected site changes
   useEffect(() => {
-    if (!selectedSiteId) {
+    if (!selectedSiteId || selectedSiteId === NO_TOKEN_ID) {
       setReferenceImageUrl('');
       return;
     }
@@ -58,13 +61,16 @@ const ContentStudio = () => {
       .order('created_at', { ascending: false });
     if (data) {
       setSites(data as SiteOption[]);
-      if (data.length > 0 && !selectedSiteId) setSelectedSiteId(data[0].id);
+      if (data.length > 0 && selectedSiteId === NO_TOKEN_ID) {
+        // Keep no-token mode as default — user can switch
+      }
     }
   };
 
+  const isNoTokenMode = selectedSiteId === NO_TOKEN_ID;
   const selectedSite = sites.find(s => s.id === selectedSiteId);
-  const tokenName = selectedSite?.name || 'My Token';
-  const tokenTicker = selectedSite?.ticker || 'TOKEN';
+  const tokenName = isNoTokenMode ? (customProjectName.trim() || 'My Token') : (selectedSite?.name || 'My Token');
+  const tokenTicker = isNoTokenMode ? '' : (selectedSite?.ticker || 'TOKEN');
 
   const remaining = remainingDownloads();
   const isFullStudio = plan.hasFullContentStudio;
