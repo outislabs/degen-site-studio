@@ -353,41 +353,35 @@ const Auth = () => {
 
                     {!isForgot && (
                       <>
-                        <div className="relative my-5">
+                        <div className="relative my-4">
                           <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-border/60" />
+                            <div className="w-full border-t border-border" />
                           </div>
-                          <div className="relative flex justify-center">
-                            <span className="bg-background px-4 text-[10px] text-muted-foreground/50 uppercase tracking-widest">
-                              or connect wallet
-                            </span>
+                          <div className="relative flex justify-center text-xs">
+                            <span className="bg-background px-2 text-muted-foreground">or</span>
                           </div>
                         </div>
 
-                        <button
+                        <Button
                           onClick={signInWithWallet}
                           disabled={walletAuthLoading}
-                          className="w-full group relative h-12 rounded-xl font-semibold text-sm overflow-hidden transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
+                          variant="outline"
+                          className="w-full border-primary/30 hover:border-primary hover:bg-primary/5 gap-2"
                         >
-                          {/* Gradient border effect */}
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#9945FF] via-[#14F195] to-[#9945FF] opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                          <div className="absolute inset-[1px] rounded-[11px] bg-background group-hover:bg-background/90 transition-colors duration-300" />
-                          
-                          <span className="relative z-10 flex items-center justify-center gap-2.5">
-                            {walletAuthLoading ? (
-                              <Loader2 className="w-4 h-4 animate-spin text-foreground" />
-                            ) : (
-                              <>
-                                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-5 h-5" alt="Solana" />
-                                <span className="bg-gradient-to-r from-[#9945FF] to-[#14F195] bg-clip-text text-transparent">
-                                  {isConnected && address
-                                    ? `Sign in as ${address.slice(0, 4)}...${address.slice(-4)}`
-                                    : 'Sign in with Solana'}
-                                </span>
-                              </>
-                            )}
-                          </span>
-                        </button>
+                          {walletAuthLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : isConnected && address ? (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in as {address.slice(0, 6)}...{address.slice(-4)}
+                            </>
+                          ) : (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in with Solana Wallet
+                            </>
+                          )}
+                        </Button>
                       </>
                     )}
 
