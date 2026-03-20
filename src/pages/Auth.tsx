@@ -88,15 +88,9 @@ const Auth = () => {
     }
   };
 
-  const signInWithWallet = async () => {
+  const performWalletSignIn = async () => {
     setWalletAuthLoading(true);
     try {
-      if (!isConnected || !walletProvider) {
-        await open();
-        setWalletAuthLoading(false);
-        return;
-      }
-
       const { error } = await (supabase.auth as any).signInWithWeb3({
         chain: 'solana',
         wallet: walletProvider,
@@ -108,7 +102,25 @@ const Auth = () => {
       toast.error(err.message || 'Wallet sign in failed');
     } finally {
       setWalletAuthLoading(false);
+      pendingWalletAuth.current = false;
     }
+  };
+
+  // Auto-trigger sign-in after wallet connects via modal
+  useEffect(() => {
+    if (pendingWalletAuth.current && isConnected && walletProvider) {
+      performWalletSignIn();
+    }
+  }, [isConnected, walletProvider]);
+
+  const signInWithWallet = async () => {
+    if (!isConnected || !walletProvider) {
+      pendingWalletAuth.current = true;
+      setWalletAuthLoading(true);
+      await open();
+      return;
+    }
+    await performWalletSignIn();
   };
 
   const features = [
