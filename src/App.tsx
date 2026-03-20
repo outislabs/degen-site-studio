@@ -87,6 +87,7 @@ const App = () => {
           <CustomDomainHandler>
             <BrowserRouter>
               <RouteTracker />
+              <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/auth" element={<Auth />} />
