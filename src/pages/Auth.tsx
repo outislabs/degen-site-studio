@@ -8,6 +8,8 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles } from 'lucide-react';
+import { useAppKitProvider, useAppKitAccount, useAppKit } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana/react';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
@@ -23,6 +25,9 @@ const Auth = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
   const [walletAuthLoading, setWalletAuthLoading] = useState(false);
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
+  const { address, isConnected } = useAppKitAccount();
+  const { open } = useAppKit();
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -85,11 +90,18 @@ const Auth = () => {
   const signInWithWallet = async () => {
     setWalletAuthLoading(true);
     try {
+      if (!isConnected || !walletProvider) {
+        await open();
+        setWalletAuthLoading(false);
+        return;
+      }
+
       const { error } = await (supabase.auth as any).signInWithWeb3({
         chain: 'solana',
+        wallet: walletProvider,
       });
       if (error) throw error;
-      toast.success('Signed in with wallet!');
+      toast.success('Signed in with wallet! 🚀');
       navigate('/');
     } catch (err: any) {
       toast.error(err.message || 'Wallet sign in failed');
@@ -359,6 +371,11 @@ const Auth = () => {
                         >
                           {walletAuthLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : isConnected && address ? (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in as {address.slice(0, 6)}...{address.slice(-4)}
+                            </>
                           ) : (
                             <>
                               <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
