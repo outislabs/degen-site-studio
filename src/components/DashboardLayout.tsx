@@ -29,6 +29,7 @@ import {
   UserCog,
   Rocket,
   Wallet,
+  Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -43,6 +44,7 @@ const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
   { label: 'Studio', icon: Image, path: '/studio' },
+  { label: 'API', icon: Code2, path: '/api' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
   { label: 'Account', icon: UserCog, path: '/account' },
 ];
