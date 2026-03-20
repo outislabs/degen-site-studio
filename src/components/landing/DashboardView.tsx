@@ -28,6 +28,30 @@ interface Props {
 
 const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
+  const [showPromoInput, setShowPromoInput] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('redeem-promo', {
+        body: { code: promoCode.trim() }
+      });
+      if (error || !data?.success) {
+        toast.error(data?.error || 'Invalid promo code');
+      } else {
+        toast.success(data.message);
+        setShowPromoInput(false);
+        window.location.reload();
+      }
+    } catch {
+      toast.error('Failed to apply promo code');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const getThemeColor = (data: Record<string, any>): string => {
     const themeId = data?.theme as ThemeId;
