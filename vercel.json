@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/api/v1/mcp/:path*",
+      "destination": "https://rxrgenpyiydwurvrdyzz.supabase.co/functions/v1/mcp-server/:path*"
+    },
+    {
+      "source": "/api/v1/keys/:path*",
+      "destination": "https://rxrgenpyiydwurvrdyzz.supabase.co/functions/v1/api-keys/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
