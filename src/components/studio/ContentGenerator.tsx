@@ -118,14 +118,28 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
         body: { type, prompt: finalPrompt, tokenName, tokenTicker, siteId, referenceImageUrl },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Edge function timeout or network error
+        if (error.message?.includes('AbortError') || error.message?.includes('network') || error.message?.includes('Failed to fetch')) {
+          throw new Error('Generation timed out. Try a simpler prompt or remove the reference image.');
+        }
+        throw error;
+      }
+      if (!data) {
+        throw new Error('No response from server. The generation may have timed out — try again with a simpler prompt.');
+      }
       if (data?.error) throw new Error(data.error);
 
       toast.success('Content generated!');
       setPrompt('');
       onGenerated();
     } catch (e: any) {
-      toast.error(e.message || 'Generation failed');
+      const msg = e.message || 'Generation failed';
+      if (msg.includes('timed out') || msg.includes('timeout') || msg.includes('Failed to send')) {
+        toast.error('Generation timed out. Try a simpler prompt or remove the reference image.', { duration: 6000 });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
