@@ -241,6 +241,23 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
       <main className="flex-1 pb-20 lg:pb-0">
         {children}
       </main>
+
+      {/* Desktop footer */}
+      <footer className="hidden lg:block border-t border-border py-6 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            © 2026 DegenTools · Professional tools for unprofessional coins
+          </p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <a href="https://x.com/degentools" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Twitter</a>
+            <a href="/pricing" className="hover:text-primary transition-colors">Pricing</a>
+            <a href="mailto:support@degentools.co" className="hover:text-primary transition-colors">Support</a>
+            <a href="https://bags.fm" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1">
+              Powered by Bags.fm
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
