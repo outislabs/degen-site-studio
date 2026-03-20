@@ -175,8 +175,36 @@ const Auth = () => {
                 transition={{ duration: 0.2 }}
               >
                 {/* Auth form */}
-                  <>
-                    <div className="mb-8">
+                {showOTP ? (
+                  <div className="space-y-5 text-center">
+                    <div className="text-5xl">📬</div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground">Check your email</h2>
+                      <p className="text-sm text-muted-foreground mt-1">We sent a 6-digit code to <span className="text-primary">{signupEmail}</span></p>
+                    </div>
+                    <input
+                      autoFocus
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className="w-full text-center text-3xl font-mono tracking-[0.5em] bg-secondary border border-border rounded-xl px-4 py-4 text-foreground focus:outline-none focus:border-primary"
+                    />
+                    <Button
+                      onClick={verifyOTP}
+                      disabled={otpCode.length !== 6 || otpLoading}
+                      className="w-full bg-primary text-primary-foreground font-bold h-11"
+                    >
+                      {otpLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify Email →'}
+                    </Button>
+                    <button
+                      onClick={() => supabase.auth.resend({ type: 'signup', email: signupEmail })}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Didn't receive it? Resend code
+                    </button>
+                  </div>
+                ) : (
                       <h2 className="text-2xl font-bold text-foreground mb-2">
                         {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
                       </h2>
