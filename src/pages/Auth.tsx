@@ -45,8 +45,8 @@ const Auth = () => {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success('Check your email to confirm your account!');
-        setView('signin');
+        setSignupEmail(email);
+        setShowOTP(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
