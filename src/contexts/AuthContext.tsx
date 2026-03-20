@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+
 
 interface AuthContextType {
   user: User | null;
@@ -40,21 +40,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redeem pending promo code after first login
-  useEffect(() => {
-    if (!user) return;
-    const pendingPromo = localStorage.getItem('pending_promo_code');
-    if (pendingPromo) {
-      localStorage.removeItem('pending_promo_code');
-      supabase.functions.invoke('redeem-promo', {
-        body: { code: pendingPromo }
-      }).then(({ data }) => {
-        if (data?.success) {
-          toast.success(data.message);
-        }
-      });
-    }
-  }, [user]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
