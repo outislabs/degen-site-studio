@@ -308,7 +308,17 @@ const Admin = () => {
                   <TableBody>
                     {filteredUsers.map((u) => (
                       <TableRow key={u.id} className="border-border">
-                        <TableCell className="text-xs font-medium text-foreground">{u.email}</TableCell>
+                        <TableCell className="text-xs font-medium text-foreground">
+                          {(() => {
+                            const id = getUserIdentifier(u);
+                            return (
+                              <span className="inline-flex items-center gap-1.5">
+                                {id.isWallet && <Wallet className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                {id.label}
+                              </span>
+                            );
+                          })()}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
                             {u.subscription?.plan || 'free'}
