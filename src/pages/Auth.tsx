@@ -18,6 +18,10 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
