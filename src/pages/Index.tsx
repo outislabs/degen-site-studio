@@ -120,6 +120,7 @@ const Index = () => {
       </div>
 
       <FeaturesGrid />
+      <BagsFmSection />
       <HowItWorks />
       <ContentStudioShowcase />
       <CommunityShowcase />
