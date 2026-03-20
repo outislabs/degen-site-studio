@@ -44,7 +44,22 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success('Check your email to confirm your account!');
-        setView('promo');
+        if (promoCode.trim()) {
+          // Auto-redeem promo code after signup
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const { data } = await supabase.functions.invoke('redeem-promo', {
+              body: { code: promoCode.trim() }
+            });
+            if (data?.success) {
+              toast.success(data.message);
+            }
+          }
+          navigate('/');
+        } else {
+          setView('promo');
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -315,6 +330,26 @@ const Auth = () => {
                           {isSignUp && (
                             <p className="text-[10px] text-muted-foreground/50 pl-1">Minimum 6 characters</p>
                           )}
+                        </div>
+                      )}
+
+                      {isSignUp && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-foreground/80 block">Promo Code (optional)</label>
+                          <div className="relative">
+                            <Input
+                              value={promoCode}
+                              onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                              placeholder="e.g. DEGEN50"
+                              className="h-12 bg-muted/30 border-border/60 text-sm rounded-xl pr-16"
+                            />
+                            {promoCode.length >= 4 && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-primary font-medium">
+                                ✓ Applied
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/50 pl-1">Have a promo code? Enter it here for a free upgrade</p>
                         </div>
                       )}
 
