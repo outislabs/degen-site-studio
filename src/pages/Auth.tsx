@@ -7,9 +7,9 @@ import { toast } from 'sonner';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles, Gift } from 'lucide-react';
+import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles } from 'lucide-react';
 
-type AuthView = 'signin' | 'signup' | 'forgot' | 'promo';
+type AuthView = 'signin' | 'signup' | 'forgot';
 
 const Auth = () => {
   const { user, loading } = useAuth();
@@ -18,8 +18,6 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [promoCode, setPromoCode] = useState('');
-  const [promoLoading, setPromoLoading] = useState(false);
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -44,10 +42,7 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success('Check your email to confirm your account!');
-        if (promoCode.trim()) {
-          localStorage.setItem('pending_promo_code', promoCode.trim());
-        }
-        setView('promo');
+        setView('signin');
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -62,27 +57,7 @@ const Auth = () => {
 
   const isSignUp = view === 'signup';
   const isForgot = view === 'forgot';
-  const isPromo = view === 'promo';
 
-  const applyPromoCode = async () => {
-    if (!promoCode.trim()) return;
-    setPromoLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('redeem-promo', {
-        body: { code: promoCode.trim() }
-      });
-      if (error || !data?.success) {
-        toast.error(data?.error || 'Invalid promo code');
-      } else {
-        toast.success(data.message);
-        navigate('/');
-      }
-    } catch {
-      toast.error('Failed to apply promo code');
-    } finally {
-      setPromoLoading(false);
-    }
-  };
 
   const features = [
     { icon: Zap, text: 'Launch your token site in minutes' },
@@ -177,49 +152,7 @@ const Auth = () => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {isPromo ? (
-                  /* Promo code step after signup */
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
-                        <Gift className="w-7 h-7 text-primary" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">🎁 Have a promo code?</h2>
-                      <p className="text-sm text-muted-foreground">
-                        Enter it below to unlock your free upgrade
-                      </p>
-                    </div>
-
-                    <div className="border border-dashed border-border rounded-xl p-5 space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          value={promoCode}
-                          onChange={e => setPromoCode(e.target.value.toUpperCase())}
-                          placeholder="Enter code e.g. DEGEN50"
-                          className="flex-1 h-12 bg-muted/30 border-border/60 text-sm rounded-xl"
-                          onKeyDown={e => e.key === 'Enter' && applyPromoCode()}
-                        />
-                        <Button
-                          onClick={applyPromoCode}
-                          disabled={promoLoading || !promoCode.trim()}
-                          className="h-12 px-5 bg-primary text-primary-foreground rounded-xl"
-                        >
-                          {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
-                        </Button>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">First 50 users get 30 days free on Degen Plan</p>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      className="w-full text-sm text-muted-foreground hover:text-foreground"
-                      onClick={() => navigate('/')}
-                    >
-                      Skip for now <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                    </Button>
-                  </div>
-                ) : (
-                  /* Normal auth form */
+                {/* Auth form */}
                   <>
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -321,25 +254,6 @@ const Auth = () => {
                         </div>
                       )}
 
-                      {isSignUp && (
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-foreground/80 block">Promo Code (optional)</label>
-                          <div className="relative">
-                            <Input
-                              value={promoCode}
-                              onChange={e => setPromoCode(e.target.value.toUpperCase())}
-                              placeholder="e.g. DEGEN50"
-                              className="h-12 bg-muted/30 border-border/60 text-sm rounded-xl pr-16"
-                            />
-                            {promoCode.length >= 4 && (
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-primary font-medium">
-                                ✓ Applied
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-muted-foreground/50 pl-1">Have a promo code? Enter it here for a free upgrade</p>
-                        </div>
-                      )}
 
                       <Button
                         type="submit"
