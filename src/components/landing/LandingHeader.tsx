@@ -17,16 +17,21 @@ const navLinks = [
   { label: 'Content Studio', href: '#content-studio' },
   { label: 'Themes', href: '#themes' },
   { label: 'Pricing', href: '#pricing' },
+  { label: 'Docs', href: '/docs', isRoute: true },
 ];
 
 const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const scrollTo = (href: string) => {
+  const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if ((link as any).isRoute) {
+      navigate(link.href);
+    } else {
+      const el = document.querySelector(link.href);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -45,7 +50,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
             {navLinks.map((link) => (
               <button
                 key={link.href}
-                onClick={() => scrollTo(link.href)}
+                onClick={() => handleNav(link)}
                 className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-2.5 sm:px-3 py-2 rounded-lg hover:bg-primary/5"
               >
                 {link.label}
@@ -82,7 +87,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
           {navLinks.map((link) => (
             <button
               key={link.href}
-              onClick={() => scrollTo(link.href)}
+              onClick={() => handleNav(link)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2.5 rounded-lg hover:bg-primary/5 text-left"
             >
               {link.label}
