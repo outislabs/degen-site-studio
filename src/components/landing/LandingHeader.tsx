@@ -24,10 +24,14 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const scrollTo = (href: string) => {
+  const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if ((link as any).isRoute) {
+      navigate(link.href);
+    } else {
+      const el = document.querySelector(link.href);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
