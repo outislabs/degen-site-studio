@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import {
   Shield, Users, Globe, CreditCard, Image, BarChart3,
   Trash2, Search, Crown, RefreshCw, AlertTriangle, Eye,
-  ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff,
+  ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff, Wallet,
 } from 'lucide-react';
 
 interface AdminUser {
