@@ -135,7 +135,6 @@ const ContentStudio = () => {
           </div>
         )}
 
-        {(
           <Tabs value={activeTab} onValueChange={(v) => {
             const tab = tabs.find(t => t.id === v);
             if (tab?.locked) {
@@ -162,7 +161,7 @@ const ContentStudio = () => {
                       type={t.id}
                       tokenName={tokenName}
                       tokenTicker={tokenTicker}
-                      siteId={selectedSiteId}
+                      siteId={isNoTokenMode ? '' : selectedSiteId}
                       onGenerated={() => {
                         incrementDownloads();
                         setRefreshKey(k => k + 1);
@@ -189,7 +188,6 @@ const ContentStudio = () => {
               </TabsContent>
             ))}
           </Tabs>
-        )}
       </div>
     </DashboardLayout>
   );
