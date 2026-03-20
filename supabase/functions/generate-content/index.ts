@@ -108,17 +108,21 @@ async function generateImage(
     }
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 55_000); // 55s timeout
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiApiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         contents: [{ parts }],
         generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
       }),
     }
   );
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const error = await response.text();
