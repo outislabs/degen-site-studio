@@ -63,6 +63,24 @@ const Auth = () => {
   const isForgot = view === 'forgot';
 
 
+  const verifyOTP = async () => {
+    setOtpLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: signupEmail,
+        token: otpCode,
+        type: 'signup'
+      });
+      if (error) throw error;
+      toast.success('Email verified! Welcome to DegenTools 🚀');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid code');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const features = [
     { icon: Zap, text: 'Launch your token site in minutes' },
     { icon: Sparkles, text: 'AI-powered meme & content studio' },
