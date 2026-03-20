@@ -148,6 +148,39 @@ export type Database = {
           },
         ]
       }
+      promo_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          duration_days: number
+          id: string
+          max_uses: number
+          plan: string
+          uses_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          duration_days?: number
+          id?: string
+          max_uses?: number
+          plan?: string
+          uses_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          duration_days?: number
+          id?: string
+          max_uses?: number
+          plan?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           created_at: string

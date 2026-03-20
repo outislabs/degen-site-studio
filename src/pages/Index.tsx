@@ -30,11 +30,23 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
+  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
   const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
 
   useEffect(() => {
     if (user) fetchSites();
   }, [user]);
+
+  useEffect(() => {
+    supabase
+      .from('promo_codes')
+      .select('max_uses, uses_count')
+      .eq('code', 'DEGEN50')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setSpotsLeft(data.max_uses - data.uses_count);
+      });
+  }, []);
 
   const fetchSites = async () => {
     const { data, error } = await supabase
@@ -92,7 +104,12 @@ const Index = () => {
             <span className="text-lg">🎁</span>
             <div>
               <p className="text-sm font-medium text-foreground">First 50 users get 30 days free on Degen Plan</p>
-              <p className="text-xs text-muted-foreground">Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup</p>
+              <p className="text-xs text-muted-foreground">
+                Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup
+                {spotsLeft !== null && (
+                  <span className="text-yellow-400 ml-1">· {spotsLeft} spots left</span>
+                )}
+              </p>
             </div>
           </div>
           <a href="/auth" className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors">
