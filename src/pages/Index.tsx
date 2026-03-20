@@ -84,17 +84,10 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      <FeaturesGrid />
-      <HowItWorks />
-      <ContentStudioShowcase />
-      <CommunityShowcase />
-      <ThemeShowcase />
-      <PricingSection onGetStarted={handleNewSite} />
-      <FAQSection />
 
       {/* Promo Banner */}
-      <div className="section-padding pb-0">
-        <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3 max-w-2xl mx-auto mb-8">
+      <div className="section-padding pt-0">
+        <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3 max-w-2xl mx-auto">
           <div className="flex items-center gap-2">
             <span className="text-lg">🎁</span>
             <div>
@@ -107,6 +100,14 @@ const Index = () => {
           </a>
         </div>
       </div>
+
+      <FeaturesGrid />
+      <HowItWorks />
+      <ContentStudioShowcase />
+      <CommunityShowcase />
+      <ThemeShowcase />
+      <PricingSection onGetStarted={handleNewSite} />
+      <FAQSection />
       <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>
