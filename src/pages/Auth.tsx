@@ -371,6 +371,11 @@ const Auth = () => {
                         >
                           {walletAuthLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : isConnected && address ? (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in as {address.slice(0, 6)}...{address.slice(-4)}
+                            </>
                           ) : (
                             <>
                               <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
