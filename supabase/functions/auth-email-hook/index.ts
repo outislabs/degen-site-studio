@@ -78,9 +78,11 @@ function getEmailHTML(type: string, props: Record<string, any>): string {
     case 'signup':
       body = `
         <h2 style="color: #ffffff; font-size: 20px;">Confirm your email address</h2>
-        <p style="color: #888888; line-height: 1.6;">Welcome to ${SITE_NAME}! Click the button below to confirm your email and start building your meme coin empire.</p>
-        <a href="${props.confirmationUrl}" style="${buttonStyle}">Confirm Email →</a>
-        <p style="color: #555555; font-size: 12px;">Or copy this link: <br/><a href="${props.confirmationUrl}" style="color: #00ff85; word-break: break-all;">${props.confirmationUrl}</a></p>
+        <p style="color: #888888; line-height: 1.6;">Welcome to ${SITE_NAME}! Enter the code below to confirm your email and start building your meme coin empire.</p>
+        <div style="background: #1e1e1e; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+          <span style="color: #00ff85; font-size: 36px; font-weight: 700; letter-spacing: 10px;">${props.token}</span>
+        </div>
+        <p style="color: #555555; font-size: 12px;">This code expires in 10 minutes. If you didn't sign up, ignore this email.</p>
       `
       break
     case 'recovery':

@@ -55,6 +55,36 @@ function sanitize(str: string): string {
 }
 
 // Fetch image from URL and convert to base64
+async function getGoogleAccessToken(): Promise<string> {
+  const raw = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY") || "{}";
+  const sa = JSON.parse(raw);
+  const now = Math.floor(Date.now() / 1000);
+  const header = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" })).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const payload = btoa(JSON.stringify({
+    iss: sa.client_email,
+    scope: "https://www.googleapis.com/auth/cloud-platform",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  })).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const signingInput = header + "." + payload;
+  const pem = sa.private_key || "";
+  const b64 = pem.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "").replace(/\s/g, "");
+  const binary = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey("pkcs8", binary, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(signingInput));
+  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  const jwt = signingInput + "." + sigB64;
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" + jwt,
+  });
+  const data = await res.json();
+  if (!data.access_token) throw new Error("No access token: " + JSON.stringify(data));
+  return data.access_token;
+}
+
 async function fetchImageAsBase64(imageUrl: string): Promise<{ data: string; mimeType: string } | null> {
   try {
     const controller = new AbortController();
@@ -87,7 +117,8 @@ async function fetchImageAsBase64(imageUrl: string): Promise<{ data: string; mim
 async function generateImage(
   prompt: string,
   geminiApiKey: string,
-  referenceImageUrl?: string
+  referenceImageUrl?: string,
+  contentType?: string
 ): Promise<string | null> {
   // Build parts array — text prompt first, then optional reference image
   const parts: any[] = [{ text: prompt }];
@@ -109,16 +140,17 @@ async function generateImage(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 55_000); // 55s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 90_000); // 90s timeout
+  const accessToken = await getGoogleAccessToken();
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiApiKey}`,
+    `https://aiplatform.googleapis.com/v1/projects/${Deno.env.get("GOOGLE_CLOUD_PROJECT_ID")}/locations/us-central1/publishers/google/models/gemini-3.1-flash-image-preview:generateContent`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${accessToken}` },
       signal: controller.signal,
       body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseModalities: ["IMAGE", "TEXT"], imageConfig: { aspectRatio: (contentType === "dex_header" || contentType === "x_header") ? "16:9" : "1:1" } },
       }),
     }
   );
@@ -132,11 +164,18 @@ async function generateImage(
   const data = await response.json();
   const responseParts = data.candidates?.[0]?.content?.parts || [];
 
+  const candidate = data.candidates?.[0];
+  console.log('Gemini finish reason:', candidate?.finishReason);
+  console.log('Gemini safety ratings:', JSON.stringify(candidate?.safetyRatings));
+  console.log('Gemini response parts count:', responseParts.length);
   for (const part of responseParts) {
+    console.log('Part type:', part.text ? 'text' : part.inlineData ? 'image' : 'unknown');
+    if (part.text) console.log('Text response:', part.text.slice(0, 200));
     if (part.inlineData?.mimeType?.startsWith("image/")) {
       return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
     }
   }
+  console.log('No image returned by Gemini');
   return null;
 }
 
@@ -225,18 +264,23 @@ Deno.serve(async (req) => {
         : '';
 
       if (type === "meme") {
-        imagePrompt = `Create a viral, funny meme image for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). ${referenceNote} The meme should be attention-grabbing, humorous, and crypto-community appropriate. Style: bold text, exaggerated expressions, crypto culture references. User request: ${prompt}`;
+        imagePrompt = `Create a viral, funny meme image for a cryptocurrency token called "${tokenName}" (${tokenTicker}). ${referenceNote} The meme should be attention-grabbing, humorous, and crypto-community appropriate. Style: bold text, exaggerated expressions, crypto culture references. User request: ${prompt}`;
       } else if (type === "sticker") {
-        imagePrompt = `Create a cute, bold sticker design for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). ${referenceNote} Clean edges, vibrant colors, works well at small sizes. Style: cartoon/chibi, expressive, white background. User request: ${prompt}`;
+        imagePrompt = `Create a cute, bold sticker design for a cryptocurrency token called "${tokenName}" (${tokenTicker}). ${referenceNote} Clean edges, vibrant colors, works well at small sizes. Style: cartoon/chibi, expressive, white background. User request: ${prompt}`;
       } else if (type === "dex_header") {
-        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for DexScreener. ${referenceNote} Visually striking, token name/ticker prominent, professional crypto/trading aesthetic. Dark or vibrant background, chart motifs, bold typography. User request: ${prompt}`;
+        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" (${tokenTicker}) for DexScreener. ${referenceNote} Visually striking, token name/ticker prominent, professional crypto/trading aesthetic. Dark or vibrant background, chart motifs, bold typography. User request: ${prompt}`;
       } else if (type === "x_header") {
-        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" ($${tokenTicker}) for Twitter/X profile. ${referenceNote} Clean, branded, professional. Include token name and ticker. Modern design, crypto branding. User request: ${prompt}`;
+        imagePrompt = `Create a wide banner header (1500x500, 3:1 ratio) for cryptocurrency token "${tokenName}" (${tokenTicker}) for Twitter/X profile. ${referenceNote} Clean, branded, professional. Include token name and ticker. Modern design, crypto branding. User request: ${prompt}`;
       } else {
-        imagePrompt = `Create a professional social media graphic for cryptocurrency token "${tokenName}" ($${tokenTicker}). ${referenceNote} Eye-catching, suitable for Twitter/X or Telegram. Include token name and ticker prominently. User request: ${prompt}`;
+        imagePrompt = `Create a professional social media graphic for cryptocurrency token "${tokenName}" (${tokenTicker}). ${referenceNote} Eye-catching, suitable for Twitter/X or Telegram. Include token name and ticker prominently. User request: ${prompt}`;
       }
 
-      const base64Image = await generateImage(imagePrompt, geminiApiKey, referenceImageUrl || undefined);
+      const base64Image = await generateImage(imagePrompt, geminiApiKey, referenceImageUrl || undefined, type);
+      if (!base64Image) {
+        return new Response(JSON.stringify({ error: "Image generation was blocked or failed. Try rephrasing your prompt — avoid real people's names, brands, or sensitive content." }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       let imageUrl = null;
 
       if (base64Image) {
@@ -279,7 +323,20 @@ Deno.serve(async (req) => {
 
     // --- TEXT GENERATION (marketing copy) ---
     if (type === "marketing_copy") {
-      const system = `You are a crypto marketing expert. Generate compelling marketing copy for a cryptocurrency token called "${tokenName}" ($${tokenTicker}). The copy should be engaging, hype-worthy, and suitable for crypto communities on Twitter/X and Telegram. Use emojis, crypto slang, and create FOMO. Keep it concise and punchy.`;
+      // Detect content type from prompt
+      const lowerPrompt = prompt.toLowerCase();
+      let system = "";
+      if (lowerPrompt.includes("telegram welcome")) {
+        system = `You are a crypto marketing expert. Write ONLY a Telegram welcome message for the token ${tokenName} (${tokenTicker}). Include: warm welcome, what the token is, how to buy, key links section, and community rules. Use emojis. Do not write tweets or any other content type.`;
+      } else if (lowerPrompt.includes("shill tweet") || lowerPrompt.includes("shill tweets")) {
+        system = `You are a crypto marketing expert. Write ONLY ${prompt.match(/\d+/)?.[0] || 5} shill tweets for ${tokenName} (${tokenTicker}). Number each tweet. Max 280 chars each. Use crypto slang, emojis, and FOMO. Do not include Telegram messages or other content.`;
+      } else if (lowerPrompt.includes("token description")) {
+        system = `You are a crypto marketing expert. Write ONLY a concise token description for ${tokenName} (${tokenTicker}). 2-3 paragraphs. Professional yet hype. Suitable for website and DEX listings.`;
+      } else if (lowerPrompt.includes("fomo announcement") || lowerPrompt.includes("announcement")) {
+        system = `You are a crypto marketing expert. Write ONLY a single FOMO-inducing announcement post for ${tokenName} (${tokenTicker}). Suitable for Telegram and Twitter. Max 200 words. Heavy emojis.`;
+      } else {
+        system = `You are a crypto marketing expert. Generate compelling marketing copy for ${tokenName} (${tokenTicker}) based on this request: "${prompt}". Be specific to the request type only. Use emojis and crypto slang.`;
+      }
 
       const generatedText = await generateText(prompt, system, geminiApiKey);
 
