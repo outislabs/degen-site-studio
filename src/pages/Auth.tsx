@@ -318,6 +318,26 @@ const Auth = () => {
                         </div>
                       )}
 
+                      {isSignUp && (
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-foreground/80 block">Promo Code (optional)</label>
+                          <div className="relative">
+                            <Input
+                              value={promoCode}
+                              onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                              placeholder="e.g. DEGEN50"
+                              className="h-12 bg-muted/30 border-border/60 text-sm rounded-xl pr-16"
+                            />
+                            {promoCode.length >= 4 && (
+                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-primary font-medium">
+                                ✓ Applied
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground/50 pl-1">Have a promo code? Enter it here for a free upgrade</p>
+                        </div>
+                      )}
+
                       <Button
                         type="submit"
                         className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl font-semibold text-sm group shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
