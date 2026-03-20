@@ -8,6 +8,8 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, ArrowRight, ArrowLeft, Zap, Shield, Sparkles } from 'lucide-react';
+import { useAppKitProvider, useAppKitAccount, useAppKit } from '@reown/appkit/react';
+import type { Provider } from '@reown/appkit-adapter-solana/react';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
