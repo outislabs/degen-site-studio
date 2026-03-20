@@ -80,7 +80,7 @@ const ApiDashboard = () => {
         .select('id, name, key_prefix, is_active, requests_per_minute, requests_per_day, created_at, last_used_at, revoked_at')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setKeys((data as ApiKey[]) || []);
+      setKeys((data as unknown as ApiKey[]) || []);
     } catch {
       setKeys([]);
     } finally {
