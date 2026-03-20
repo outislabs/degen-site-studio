@@ -187,7 +187,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               <DropdownMenuItem
                 onClick={signOut}
-                className="cursor-pointer text-destructive focus:text-destructive"
+                className="cursor-pointer text-primary hover:bg-primary/10 focus:bg-primary/10 focus:text-primary"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
