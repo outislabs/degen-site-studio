@@ -157,13 +157,13 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               <DropdownMenuItem
                 onClick={() => navigate('/pricing')}
-                className="cursor-pointer"
+                className="cursor-pointer bg-primary text-black focus:bg-primary focus:text-black"
               >
-                <Crown className="w-4 h-4 mr-2 text-primary" />
+                <Crown className="w-4 h-4 mr-2 text-black" />
                 <div className="flex-1 flex items-center justify-between">
                   <span>{plan.name} Plan</span>
                   {planId !== 'whale' && (
-                    <span className="text-[10px] text-primary">Upgrade</span>
+                    <span className="text-[10px] text-black/70">Upgrade</span>
                   )}
                 </div>
               </DropdownMenuItem>
@@ -187,7 +187,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               <DropdownMenuItem
                 onClick={signOut}
-                className="cursor-pointer text-destructive focus:text-destructive"
+                className="cursor-pointer text-primary hover:bg-primary/10 focus:bg-primary/10 focus:text-primary"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
