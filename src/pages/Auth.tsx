@@ -205,6 +205,8 @@ const Auth = () => {
                     </button>
                   </div>
                 ) : (
+                  <>
+                    <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
                         {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
                       </h2>
