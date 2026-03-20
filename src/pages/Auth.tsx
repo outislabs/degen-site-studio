@@ -18,6 +18,10 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -41,8 +45,8 @@ const Auth = () => {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success('Check your email to confirm your account!');
-        setView('signin');
+        setSignupEmail(email);
+        setShowOTP(true);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -58,6 +62,24 @@ const Auth = () => {
   const isSignUp = view === 'signup';
   const isForgot = view === 'forgot';
 
+
+  const verifyOTP = async () => {
+    setOtpLoading(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: signupEmail,
+        token: otpCode,
+        type: 'signup'
+      });
+      if (error) throw error;
+      toast.success('Email verified! Welcome to DegenTools 🚀');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid code');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
   const features = [
     { icon: Zap, text: 'Launch your token site in minutes' },
@@ -153,6 +175,36 @@ const Auth = () => {
                 transition={{ duration: 0.2 }}
               >
                 {/* Auth form */}
+                {showOTP ? (
+                  <div className="space-y-5 text-center">
+                    <div className="text-5xl">📬</div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground">Check your email</h2>
+                      <p className="text-sm text-muted-foreground mt-1">We sent a 6-digit code to <span className="text-primary">{signupEmail}</span></p>
+                    </div>
+                    <input
+                      autoFocus
+                      maxLength={6}
+                      value={otpCode}
+                      onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className="w-full text-center text-3xl font-mono tracking-[0.5em] bg-secondary border border-border rounded-xl px-4 py-4 text-foreground focus:outline-none focus:border-primary"
+                    />
+                    <Button
+                      onClick={verifyOTP}
+                      disabled={otpCode.length !== 6 || otpLoading}
+                      className="w-full bg-primary text-primary-foreground font-bold h-11"
+                    >
+                      {otpLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify Email →'}
+                    </Button>
+                    <button
+                      onClick={() => supabase.auth.resend({ type: 'signup', email: signupEmail })}
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Didn't receive it? Resend code
+                    </button>
+                  </div>
+                ) : (
                   <>
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -294,6 +346,7 @@ const Auth = () => {
                       )}
                     </div>
                   </>
+                )}
               </motion.div>
             </AnimatePresence>
 
