@@ -44,7 +44,22 @@ const Auth = () => {
         });
         if (error) throw error;
         toast.success('Check your email to confirm your account!');
-        setView('promo');
+        if (promoCode.trim()) {
+          // Auto-redeem promo code after signup
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const { data } = await supabase.functions.invoke('redeem-promo', {
+              body: { code: promoCode.trim() }
+            });
+            if (data?.success) {
+              toast.success(data.message);
+            }
+          }
+          navigate('/');
+        } else {
+          setView('promo');
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
