@@ -29,6 +29,7 @@ import {
   UserCog,
   Rocket,
   Wallet,
+  Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
