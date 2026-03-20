@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import logo from '@/assets/logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
