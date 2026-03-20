@@ -86,7 +86,7 @@ const App = () => {
           <Sonner />
           <CustomDomainHandler>
             <BrowserRouter>
-              <Routes>
+              <RouteTracker />
                 <Route path="/" element={<Index />} />
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/auth" element={<Auth />} />
