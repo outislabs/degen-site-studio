@@ -340,6 +340,35 @@ const Auth = () => {
                       </Button>
                     </form>
 
+                    {!isForgot && (
+                      <>
+                        <div className="relative my-4">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-border" />
+                          </div>
+                          <div className="relative flex justify-center text-xs">
+                            <span className="bg-background px-2 text-muted-foreground">or</span>
+                          </div>
+                        </div>
+
+                        <Button
+                          onClick={signInWithWallet}
+                          disabled={walletAuthLoading}
+                          variant="outline"
+                          className="w-full border-primary/30 hover:border-primary hover:bg-primary/5 gap-2"
+                        >
+                          {walletAuthLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in with Solana Wallet
+                            </>
+                          )}
+                        </Button>
+                      </>
+                    )}
+
                     <div className="mt-6 text-center">
                       {isForgot ? (
                         <button
