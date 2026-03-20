@@ -154,7 +154,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
         )}
       </div>
       <p className="text-xs text-muted-foreground mb-4">
-        For <span className="text-primary">{tokenName}</span> (${tokenTicker})
+        For <span className="text-primary">{tokenName}</span>{tokenTicker ? ` ($${tokenTicker})` : ''}
       </p>
 
       {/* Reference Image Section */}

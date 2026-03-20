@@ -21,14 +21,17 @@ interface SiteOption {
   data: Record<string, any>;
 }
 
+const NO_TOKEN_ID = '__no_token__';
+
 const ContentStudio = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [sites, setSites] = useState<SiteOption[]>([]);
-  const [selectedSiteId, setSelectedSiteId] = useState<string>('');
+  const [selectedSiteId, setSelectedSiteId] = useState<string>(NO_TOKEN_ID);
   const [activeTab, setActiveTab] = useState('meme');
   const [refreshKey, setRefreshKey] = useState(0);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
+  const [customProjectName, setCustomProjectName] = useState('');
   const { plan, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
@@ -41,7 +44,7 @@ const ContentStudio = () => {
 
   // Auto-load logo when selected site changes
   useEffect(() => {
-    if (!selectedSiteId) {
+    if (!selectedSiteId || selectedSiteId === NO_TOKEN_ID) {
       setReferenceImageUrl('');
       return;
     }
@@ -58,13 +61,16 @@ const ContentStudio = () => {
       .order('created_at', { ascending: false });
     if (data) {
       setSites(data as SiteOption[]);
-      if (data.length > 0 && !selectedSiteId) setSelectedSiteId(data[0].id);
+      if (data.length > 0 && selectedSiteId === NO_TOKEN_ID) {
+        // Keep no-token mode as default — user can switch
+      }
     }
   };
 
+  const isNoTokenMode = selectedSiteId === NO_TOKEN_ID;
   const selectedSite = sites.find(s => s.id === selectedSiteId);
-  const tokenName = selectedSite?.name || 'My Token';
-  const tokenTicker = selectedSite?.ticker || 'TOKEN';
+  const tokenName = isNoTokenMode ? (customProjectName.trim() || 'My Token') : (selectedSite?.name || 'My Token');
+  const tokenTicker = isNoTokenMode ? '' : (selectedSite?.ticker || 'TOKEN');
 
   const remaining = remainingDownloads();
   const isFullStudio = plan.hasFullContentStudio;
@@ -106,6 +112,7 @@ const ContentStudio = () => {
               onChange={e => setSelectedSiteId(e.target.value)}
               className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs"
             >
+              <option value={NO_TOKEN_ID}>🎨 No token — just generate</option>
               {sites.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.name || 'Untitled'} ({s.ticker || '—'})
@@ -115,16 +122,19 @@ const ContentStudio = () => {
           </div>
         )}
 
-        {sites.length === 0 ? (
-          <div className="border-2 border-dashed border-border rounded-2xl p-16 text-center">
-            <div className="text-5xl mb-4">🎨</div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Create a site first</h3>
-            <p className="text-sm text-muted-foreground mb-6">You need at least one token site to generate content for</p>
-            <Button onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground">
-              Create Site
-            </Button>
+        {/* Custom project name when in no-token mode */}
+        {isNoTokenMode && (
+          <div className="mb-6">
+            <label className="text-xs text-muted-foreground block mb-2">Project name (optional)</label>
+            <input
+              value={customProjectName}
+              onChange={e => setCustomProjectName(e.target.value)}
+              placeholder="e.g. My Meme Coin"
+              className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+            />
           </div>
-        ) : (
+        )}
+
           <Tabs value={activeTab} onValueChange={(v) => {
             const tab = tabs.find(t => t.id === v);
             if (tab?.locked) {
@@ -151,7 +161,7 @@ const ContentStudio = () => {
                       type={t.id}
                       tokenName={tokenName}
                       tokenTicker={tokenTicker}
-                      siteId={selectedSiteId}
+                      siteId={isNoTokenMode ? '' : selectedSiteId}
                       onGenerated={() => {
                         incrementDownloads();
                         setRefreshKey(k => k + 1);
@@ -178,7 +188,6 @@ const ContentStudio = () => {
               </TabsContent>
             ))}
           </Tabs>
-        )}
       </div>
     </DashboardLayout>
   );
