@@ -29,7 +29,7 @@ const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
     if (typeof window.gtag === 'function') {
-      window.gtag('config', 'G-GJ5K5W8F3Y5', {
+      window.gtag('config', 'G-J5K5W8F3Y5', {
         page_path: location.pathname,
       });
     }
