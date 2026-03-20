@@ -22,6 +22,7 @@ import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
+import ApiDashboard from "./pages/ApiDashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/launch" element={<LaunchToken />} />
                 <Route path="/bags" element={<BagsWallet />} />
+                <Route path="/api" element={<ApiDashboard />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<NotFound />} />
