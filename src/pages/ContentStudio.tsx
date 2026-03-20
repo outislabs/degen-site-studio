@@ -112,6 +112,7 @@ const ContentStudio = () => {
               onChange={e => setSelectedSiteId(e.target.value)}
               className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs"
             >
+              <option value={NO_TOKEN_ID}>🎨 No token — just generate</option>
               {sites.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.name || 'Untitled'} ({s.ticker || '—'})
@@ -121,16 +122,20 @@ const ContentStudio = () => {
           </div>
         )}
 
-        {sites.length === 0 ? (
-          <div className="border-2 border-dashed border-border rounded-2xl p-16 text-center">
-            <div className="text-5xl mb-4">🎨</div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Create a site first</h3>
-            <p className="text-sm text-muted-foreground mb-6">You need at least one token site to generate content for</p>
-            <Button onClick={() => navigate('/builder')} className="bg-primary text-primary-foreground">
-              Create Site
-            </Button>
+        {/* Custom project name when in no-token mode */}
+        {isNoTokenMode && (
+          <div className="mb-6">
+            <label className="text-xs text-muted-foreground block mb-2">Project name (optional)</label>
+            <input
+              value={customProjectName}
+              onChange={e => setCustomProjectName(e.target.value)}
+              placeholder="e.g. My Meme Coin"
+              className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+            />
           </div>
-        ) : (
+        )}
+
+        {(
           <Tabs value={activeTab} onValueChange={(v) => {
             const tab = tabs.find(t => t.id === v);
             if (tab?.locked) {
