@@ -57,7 +57,6 @@ const Auth = () => {
 
   const isSignUp = view === 'signup';
   const isForgot = view === 'forgot';
-  const isPromo = view === 'promo';
 
   const applyPromoCode = async () => {
     if (!promoCode.trim()) return;
