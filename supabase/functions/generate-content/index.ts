@@ -57,12 +57,20 @@ function sanitize(str: string): string {
 // Fetch image from URL and convert to base64
 async function fetchImageAsBase64(imageUrl: string): Promise<{ data: string; mimeType: string } | null> {
   try {
-    const res = await fetch(imageUrl);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000); // 10s timeout
+    const res = await fetch(imageUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) return null;
     const contentType = res.headers.get('content-type') || 'image/png';
     const mimeType = contentType.split(';')[0].trim();
     if (!mimeType.startsWith('image/')) return null;
     const arrayBuffer = await res.arrayBuffer();
+    // Skip very large images (>4MB) to avoid timeout
+    if (arrayBuffer.byteLength > 4 * 1024 * 1024) {
+      console.log('Reference image too large, skipping');
+      return null;
+    }
     const uint8Array = new Uint8Array(arrayBuffer);
     let binary = '';
     for (let i = 0; i < uint8Array.length; i++) {
