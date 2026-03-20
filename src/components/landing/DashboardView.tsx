@@ -54,6 +54,25 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
         )}
       </div>
 
+      {/* Promo code banner for free users */}
+      {planId === 'free' && (
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between gap-3 mb-8">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎁</span>
+            <div>
+              <p className="text-xs font-medium text-foreground">Have a promo code?</p>
+              <p className="text-[10px] text-muted-foreground">Use <span className="text-primary font-mono font-bold">DEGEN50</span> for 30 days free on Degen Plan</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/account')}
+            className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Claim
+          </button>
+        </div>
+      )}
+
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
