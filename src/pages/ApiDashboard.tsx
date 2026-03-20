@@ -40,7 +40,7 @@ interface ApiKey {
   revoked_at: string | null;
 }
 
-const MCP_URL = 'https://rxrgenpyiydwurvrdyzz.supabase.co/functions/v1/mcp-server';
+const MCP_URL = 'https://degentools.co/api/v1/mcp';
 
 const ApiDashboard = () => {
   const navigate = useNavigate();
