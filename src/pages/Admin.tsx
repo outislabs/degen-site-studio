@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import {
   Shield, Users, Globe, CreditCard, Image, BarChart3,
   Trash2, Search, Crown, RefreshCw, AlertTriangle, Eye,
-  ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff,
+  ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff, Wallet,
 } from 'lucide-react';
 
 interface AdminUser {
@@ -167,10 +167,21 @@ const Admin = () => {
     setDeleteDialog({ open: false, type: '', id: '', label: '' });
   };
 
-  const filteredUsers = users.filter(u =>
-    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.id.includes(searchQuery)
-  );
+  const getUserIdentifier = (user: AdminUser) => {
+    if (user.email) return { label: user.email, isWallet: false };
+    const web3Identity = (user as any).identities?.find((i: any) => i.provider === 'web3' || i.provider === 'solana');
+    if (web3Identity?.identity_data?.address) {
+      const addr = web3Identity.identity_data.address;
+      return { label: `${addr.slice(0, 8)}...${addr.slice(-6)}`, isWallet: true };
+    }
+    return { label: `${user.id.slice(0, 8)}...`, isWallet: true };
+  };
+
+  const filteredUsers = users.filter(u => {
+    const identifier = getUserIdentifier(u);
+    return identifier.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.id.includes(searchQuery);
+  });
 
   const filteredSites = sites.filter(s =>
     s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -268,8 +279,8 @@ const Admin = () => {
             <div className="flex items-center gap-3">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users by email or ID..."
+                    <Input
+                      placeholder="Search by email, wallet, or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 bg-card border-border"
@@ -297,7 +308,17 @@ const Admin = () => {
                   <TableBody>
                     {filteredUsers.map((u) => (
                       <TableRow key={u.id} className="border-border">
-                        <TableCell className="text-xs font-medium text-foreground">{u.email}</TableCell>
+                        <TableCell className="text-xs font-medium text-foreground">
+                          {(() => {
+                            const id = getUserIdentifier(u);
+                            return (
+                              <span className="inline-flex items-center gap-1.5">
+                                {id.isWallet && <Wallet className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                {id.label}
+                              </span>
+                            );
+                          })()}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
                             {u.subscription?.plan || 'free'}
@@ -349,7 +370,7 @@ const Admin = () => {
                               variant="ghost"
                               size="icon"
                               className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => setDeleteDialog({ open: true, type: 'user', id: u.id, label: u.email || u.id })}
+                              onClick={() => setDeleteDialog({ open: true, type: 'user', id: u.id, label: getUserIdentifier(u).label })}
                             >
                               <UserX className="w-3.5 h-3.5" />
                             </Button>
