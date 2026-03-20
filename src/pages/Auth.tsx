@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import logo from '@/assets/logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -25,9 +25,35 @@ const Auth = () => {
   const [otpLoading, setOtpLoading] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
   const [walletAuthLoading, setWalletAuthLoading] = useState(false);
+  const pendingWalletAuth = useRef(false);
   const { walletProvider } = useAppKitProvider<Provider>('solana');
   const { address, isConnected } = useAppKitAccount();
   const { open } = useAppKit();
+
+  // Auto-trigger sign-in after wallet connects via modal
+  const performWalletSignIn = async () => {
+    setWalletAuthLoading(true);
+    try {
+      const { error } = await (supabase.auth as any).signInWithWeb3({
+        chain: 'solana',
+        wallet: walletProvider,
+      });
+      if (error) throw error;
+      toast.success('Signed in with wallet! 🚀');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err.message || 'Wallet sign in failed');
+    } finally {
+      setWalletAuthLoading(false);
+      pendingWalletAuth.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (pendingWalletAuth.current && isConnected && walletProvider) {
+      performWalletSignIn();
+    }
+  }, [isConnected, walletProvider]);
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -87,27 +113,15 @@ const Auth = () => {
     }
   };
 
-  const signInWithWallet = async () => {
-    setWalletAuthLoading(true);
-    try {
-      if (!isConnected || !walletProvider) {
-        await open();
-        setWalletAuthLoading(false);
-        return;
-      }
 
-      const { error } = await (supabase.auth as any).signInWithWeb3({
-        chain: 'solana',
-        wallet: walletProvider,
-      });
-      if (error) throw error;
-      toast.success('Signed in with wallet! 🚀');
-      navigate('/');
-    } catch (err: any) {
-      toast.error(err.message || 'Wallet sign in failed');
-    } finally {
-      setWalletAuthLoading(false);
+  const signInWithWallet = async () => {
+    if (!isConnected || !walletProvider) {
+      pendingWalletAuth.current = true;
+      setWalletAuthLoading(true);
+      await open();
+      return;
     }
+    await performWalletSignIn();
   };
 
   const features = [
