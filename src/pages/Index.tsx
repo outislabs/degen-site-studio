@@ -7,6 +7,7 @@ import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
+import BagsFmSection from '@/components/landing/BagsFmSection';
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import HowItWorks from '@/components/landing/HowItWorks';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
