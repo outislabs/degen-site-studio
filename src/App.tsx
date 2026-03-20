@@ -25,6 +25,18 @@ import BagsWallet from "./pages/BagsWallet.tsx";
 
 const queryClient = new QueryClient();
 
+const RouteTracker = () => {
+  const location = useLocation();
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', 'G-GJ5K5W8F3Y5', {
+        page_path: location.pathname,
+      });
+    }
+  }, [location]);
+  return null;
+};
+
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
 
