@@ -22,6 +22,7 @@ const Auth = () => {
   const [otpCode, setOtpCode] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const [walletAuthLoading, setWalletAuthLoading] = useState(false);
 
   if (loading) return null;
   if (user) return <Navigate to="/" replace />;
@@ -78,6 +79,22 @@ const Auth = () => {
       toast.error(err.message || 'Invalid code');
     } finally {
       setOtpLoading(false);
+    }
+  };
+
+  const signInWithWallet = async () => {
+    setWalletAuthLoading(true);
+    try {
+      const { error } = await (supabase.auth as any).signInWithWeb3({
+        chain: 'solana',
+      });
+      if (error) throw error;
+      toast.success('Signed in with wallet!');
+      navigate('/');
+    } catch (err: any) {
+      toast.error(err.message || 'Wallet sign in failed');
+    } finally {
+      setWalletAuthLoading(false);
     }
   };
 
@@ -322,6 +339,35 @@ const Auth = () => {
                         )}
                       </Button>
                     </form>
+
+                    {!isForgot && (
+                      <>
+                        <div className="relative my-4">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-border" />
+                          </div>
+                          <div className="relative flex justify-center text-xs">
+                            <span className="bg-background px-2 text-muted-foreground">or</span>
+                          </div>
+                        </div>
+
+                        <Button
+                          onClick={signInWithWallet}
+                          disabled={walletAuthLoading}
+                          variant="outline"
+                          className="w-full border-primary/30 hover:border-primary hover:bg-primary/5 gap-2"
+                        >
+                          {walletAuthLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <>
+                              <img src="https://cryptologos.cc/logos/solana-sol-logo.png" className="w-4 h-4" alt="Solana" />
+                              Sign in with Solana Wallet
+                            </>
+                          )}
+                        </Button>
+                      </>
+                    )}
 
                     <div className="mt-6 text-center">
                       {isForgot ? (
