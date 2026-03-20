@@ -91,6 +91,22 @@ const Index = () => {
       <ThemeShowcase />
       <PricingSection onGetStarted={handleNewSite} />
       <FAQSection />
+
+      {/* Promo Banner */}
+      <div className="section-padding pb-0">
+        <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3 max-w-2xl mx-auto mb-8">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎁</span>
+            <div>
+              <p className="text-sm font-medium text-foreground">First 50 users get 30 days free on Degen Plan</p>
+              <p className="text-xs text-muted-foreground">Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup</p>
+            </div>
+          </div>
+          <a href="/auth" className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors">
+            Claim Now
+          </a>
+        </div>
+      </div>
       <CTASection onGetStarted={handleNewSite} />
       <LandingFooter />
     </div>
