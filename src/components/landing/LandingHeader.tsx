@@ -17,6 +17,7 @@ const navLinks = [
   { label: 'Content Studio', href: '#content-studio' },
   { label: 'Themes', href: '#themes' },
   { label: 'Pricing', href: '#pricing' },
+  { label: 'Docs', href: '/docs', isRoute: true },
 ];
 
 const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
