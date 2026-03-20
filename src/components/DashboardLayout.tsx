@@ -252,9 +252,6 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             <a href="https://x.com/degentools" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Twitter</a>
             <a href="/pricing" className="hover:text-primary transition-colors">Pricing</a>
             <a href="mailto:support@degentools.co" className="hover:text-primary transition-colors">Support</a>
-            <a href="https://bags.fm" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1">
-              Powered by Bags.fm
-            </a>
           </div>
         </div>
       </footer>
