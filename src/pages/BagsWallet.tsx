@@ -61,7 +61,7 @@ interface QuoteData {
 }
 
 interface FeePosition {
-  tokenMint: string;
+  baseMint: string;
   tokenAmount: number;
   solAmount: number;
   [key: string]: any;
@@ -432,12 +432,8 @@ const FeesTab = ({
         body: { action: 'get_claimable_positions', wallet: address },
       });
       if (error) throw error;
-      console.log('[FeesTab] Full raw response:', JSON.stringify(data));
       const all = data?.positions || [];
-      console.log('[FeesTab] Raw API response positions:', all);
-      console.log('[FeesTab] token.tokenMint:', token.tokenMint);
-      console.log('[FeesTab] Position tokenMints returned:', all.map((p: FeePosition) => p.tokenMint));
-      setPositions(all);
+      setPositions(all.filter((p: FeePosition) => p.baseMint === token.tokenMint));
     } catch (err: any) {
       console.error('Fees error:', err);
       toast.error('Failed to load fee positions');
