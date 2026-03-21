@@ -433,7 +433,10 @@ const FeesTab = ({
       });
       if (error) throw error;
       const all = data?.positions || [];
-      setPositions(all.filter((p: FeePosition) => p.tokenMint === token.tokenMint));
+      console.log('[FeesTab] Raw API response positions:', all);
+      console.log('[FeesTab] token.tokenMint:', token.tokenMint);
+      console.log('[FeesTab] Position tokenMints returned:', all.map((p: FeePosition) => p.tokenMint));
+      setPositions(all);
     } catch (err: any) {
       console.error('Fees error:', err);
       toast.error('Failed to load fee positions');
