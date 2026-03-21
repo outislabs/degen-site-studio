@@ -18,23 +18,30 @@ const ConnectTelegram = () => {
   const tokenParam = searchParams.get('token');
 
   useEffect(() => {
-    if (!tokenParam) {
+    if (authLoading) return;
+
+    const pendingToken = localStorage.getItem('telegram_connect_token') || tokenParam;
+
+    if (!pendingToken) {
       setStatus('no-token');
       return;
     }
-    if (authLoading) return;
+
     if (!user) {
       setStatus('needs-auth');
       return;
     }
-    verify();
+
+    // Clear stored token and verify
+    localStorage.removeItem('telegram_connect_token');
+    verifyToken(pendingToken);
   }, [tokenParam, user, authLoading]);
 
-  const verify = async () => {
+  const verifyToken = async (token: string) => {
     setStatus('verifying');
     try {
       const { data, error } = await supabase.functions.invoke('connect-telegram', {
-        body: { action: 'verify_token', token: tokenParam, userId: user!.id },
+        body: { action: 'verify_token', token, userId: user!.id },
       });
       if (error || !data?.success) {
         setErrorMsg(data?.error || error?.message || 'Link expired or invalid');
@@ -46,6 +53,13 @@ const ConnectTelegram = () => {
       setErrorMsg('Something went wrong. Please try again.');
       setStatus('error');
     }
+  };
+
+  const handleSignIn = () => {
+    if (tokenParam) {
+      localStorage.setItem('telegram_connect_token', tokenParam);
+    }
+    navigate('/auth');
   };
 
   return (
@@ -82,7 +96,7 @@ const ConnectTelegram = () => {
               You need to be logged in to link your Telegram account.
             </p>
             <Button
-              onClick={() => navigate(`/auth?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+              onClick={handleSignIn}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <LogIn className="h-4 w-4 mr-2" /> Sign In
