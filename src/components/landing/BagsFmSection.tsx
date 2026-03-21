@@ -34,7 +34,7 @@ const BagsFmSection = () => {
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-foreground mb-3 sm:mb-4">
             Launch your token on Solana.<br />
-            <span className="text-primary text-glow">Zero fees. Full control.</span>
+            <span className="text-primary text-glow">Launch with ~0% fees on Bags.fm</span>
           </h2>
           <p className="text-center text-muted-foreground text-xs sm:text-sm max-w-xl mx-auto mb-8 sm:mb-10 px-2">
             DegenTools is built on top of Bags.fm — the fastest growing token launchpad on Solana. Launch your token, set up fee sharing with KOLs, trade, and claim fees all without leaving the platform.
