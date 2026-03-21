@@ -61,7 +61,7 @@ interface QuoteData {
 }
 
 interface FeePosition {
-  tokenMint: string;
+  baseMint: string;
   tokenAmount: number;
   solAmount: number;
   [key: string]: any;
