@@ -286,6 +286,15 @@ const LaunchToken = () => {
           })}
         </div>
 
+        {/* ── ~0% Fee Banner ── */}
+        <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 flex items-center gap-3 mb-6">
+          <span className="text-xl">🎉</span>
+          <div>
+            <p className="text-sm font-medium text-foreground">~0% fees after bonding</p>
+            <p className="text-xs text-muted-foreground">Launch your token on Bags.fm and keep almost everything after bonding. Powered by Bags.fm's new fee mode.</p>
+          </div>
+        </div>
+
         {/* ── Step Content ── */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -404,7 +413,7 @@ const LaunchToken = () => {
             {step === 2 && (
               <div className="space-y-4">
                 <GlassCard title="FEE SETTINGS" icon={<Settings2 className="w-3.5 h-3.5" />}>
-                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed</p>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed · ~0% fees after bonding</p>
 
                   <RadioOption
                     selected={feeOption === 'keep'}
