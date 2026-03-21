@@ -506,7 +506,7 @@ const FeesTab = ({
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">SOL claimable</span>
-            <span className="text-primary font-semibold">{formatSol(pos.solAmount || 0)} SOL</span>
+            <span className="text-primary font-semibold">{(((pos.virtualPoolClaimableLamportsUserShare || 0) + (pos.userVaultClaimableLamportsUserShare || 0)) / 1_000_000_000).toFixed(4)} SOL</span>
           </div>
         </div>
       ))}
