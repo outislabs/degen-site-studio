@@ -43,6 +43,7 @@ const HELIUS_RPC = import.meta.env.VITE_HELIUS_RPC || 'https://api.mainnet-beta.
 
 interface BagsToken {
   tokenMint: string;
+  baseMint?: string;
   name: string;
   ticker: string;
   logoUrl: string;
