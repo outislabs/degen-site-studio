@@ -64,6 +64,8 @@ interface FeePosition {
   baseMint: string;
   tokenAmount: number;
   solAmount: number;
+  virtualPoolClaimableLamportsUserShare: number;
+  userVaultClaimableLamportsUserShare: number;
   [key: string]: any;
 }
 
