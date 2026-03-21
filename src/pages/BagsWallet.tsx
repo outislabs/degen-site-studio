@@ -448,7 +448,7 @@ const FeesTab = ({
     setClaiming(true);
     try {
       const { data, error } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'get_claim_transactions', wallet: address, tokenMints: [token.tokenMint] },
+        body: { action: 'get_claim_transactions', wallet: address, tokenMints: [token.baseMint || token.tokenMint] },
       });
       if (error) throw error;
 
