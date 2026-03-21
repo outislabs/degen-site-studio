@@ -96,7 +96,7 @@ const ConnectTelegram = () => {
               You need to be logged in to link your Telegram account.
             </p>
             <Button
-              onClick={() => navigate(`/auth?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+              onClick={handleSignIn}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <LogIn className="h-4 w-4 mr-2" /> Sign In

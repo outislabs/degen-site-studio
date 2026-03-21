@@ -30,7 +30,13 @@ const Auth = () => {
   const { open } = useAppKit();
 
   if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
+  if (user) {
+    const pendingTelegram = localStorage.getItem('telegram_connect_token');
+    if (pendingTelegram) {
+      return <Navigate to="/connect-telegram" replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
