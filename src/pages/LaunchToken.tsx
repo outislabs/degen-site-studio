@@ -413,7 +413,7 @@ const LaunchToken = () => {
             {step === 2 && (
               <div className="space-y-4">
                 <GlassCard title="FEE SETTINGS" icon={<Settings2 className="w-3.5 h-3.5" />}>
-                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed</p>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed · ~0% fees after bonding</p>
 
                   <RadioOption
                     selected={feeOption === 'keep'}
