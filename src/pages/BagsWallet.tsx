@@ -435,7 +435,7 @@ const FeesTab = ({
       });
       if (error) throw error;
       const all = data?.positions || [];
-      setPositions(all.filter((p: FeePosition) => p.baseMint === token.tokenMint));
+      setPositions(all.filter((p: FeePosition) => p.baseMint === (token.baseMint || token.tokenMint)));
     } catch (err: any) {
       console.error('Fees error:', err);
       toast.error('Failed to load fee positions');
