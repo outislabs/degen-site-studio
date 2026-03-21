@@ -523,6 +523,9 @@ const FeesTab = ({
           <><Coins className="w-4 h-4 mr-2" />Claim All Fees</>
         )}
       </Button>
+      <p className="text-[10px] text-muted-foreground text-center mt-2">
+        ⚠️ You need a small amount of SOL in your wallet to cover the transaction fee
+      </p>
     </div>
   );
 };
