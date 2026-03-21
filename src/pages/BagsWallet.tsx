@@ -432,6 +432,7 @@ const FeesTab = ({
         body: { action: 'get_claimable_positions', wallet: address },
       });
       if (error) throw error;
+      console.log('[FeesTab] Full raw response:', JSON.stringify(data));
       const all = data?.positions || [];
       console.log('[FeesTab] Raw API response positions:', all);
       console.log('[FeesTab] token.tokenMint:', token.tokenMint);
