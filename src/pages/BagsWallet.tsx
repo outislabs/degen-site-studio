@@ -43,6 +43,7 @@ const HELIUS_RPC = import.meta.env.VITE_HELIUS_RPC || 'https://api.mainnet-beta.
 
 interface BagsToken {
   tokenMint: string;
+  baseMint?: string;
   name: string;
   ticker: string;
   logoUrl: string;
@@ -435,7 +436,7 @@ const FeesTab = ({
       });
       if (error) throw error;
       const all = data?.positions || [];
-      setPositions(all.filter((p: FeePosition) => p.baseMint === token.tokenMint));
+      setPositions(all.filter((p: FeePosition) => p.baseMint === (token.baseMint || token.tokenMint)));
     } catch (err: any) {
       console.error('Fees error:', err);
       toast.error('Failed to load fee positions');
@@ -448,7 +449,7 @@ const FeesTab = ({
     setClaiming(true);
     try {
       const { data, error } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'get_claim_transactions', wallet: address, tokenMints: [token.tokenMint] },
+        body: { action: 'get_claim_transactions', wallet: address, tokenMints: [token.baseMint || token.tokenMint] },
       });
       if (error) throw error;
 
