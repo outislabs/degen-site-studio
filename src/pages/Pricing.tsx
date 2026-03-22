@@ -220,7 +220,7 @@ const ComparisonTable = () => (
 );
 
 const planIdMap: Record<string, PlanId> = {
-  Free: 'free',
+  Starter: 'starter',
   Degen: 'degen',
   Creator: 'creator',
   Pro: 'pro',
