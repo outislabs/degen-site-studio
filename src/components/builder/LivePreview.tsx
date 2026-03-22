@@ -9,6 +9,7 @@ import MinimalLayout from './layouts/MinimalLayout';
 import MascotHeroLayout from './layouts/MascotHeroLayout';
 import CinematicLayout from './layouts/CinematicLayout';
 import CartoonLayout from './layouts/CartoonLayout';
+import CartoonSkyLayout from './layouts/CartoonSkyLayout';
 
 interface Props {
   data: CoinData;
@@ -54,6 +55,7 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
       {layout === 'mascot-hero' && <MascotHeroLayout {...layoutProps} />}
       {layout === 'cinematic' && <CinematicLayout {...layoutProps} />}
       {layout === 'cartoon' && <CartoonLayout {...layoutProps} />}
+      {layout === 'cartoon-sky' && <CartoonSkyLayout {...layoutProps} />}
     </div>
   );
 };
