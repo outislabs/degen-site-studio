@@ -23,6 +23,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'cinematic', name: 'Cinematic', desc: 'Dramatic full-screen hero with metallic effects', icon: <Film className="w-5 h-5" />, premium: true },
   { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" />, premium: true },
   { id: 'cartoon-sky', name: 'Cartoon Sky', desc: 'Light sky background, clouds, massive bold text', icon: <CloudSun className="w-5 h-5" />, premium: true },
+  { id: 'comic-hero', name: 'Comic Hero', desc: 'High energy comic book style with action mascot', icon: <Zap className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
