@@ -18,7 +18,9 @@ import {
   Shield, Users, Globe, CreditCard, Image, BarChart3,
   Trash2, Search, Crown, RefreshCw, AlertTriangle, Eye,
   ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff, Wallet,
+  Tag, Plus, ToggleLeft, ToggleRight, Loader2,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 interface AdminUser {
   id: string;
