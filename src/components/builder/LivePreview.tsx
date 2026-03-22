@@ -12,6 +12,7 @@ import CartoonLayout from './layouts/CartoonLayout';
 import CartoonSkyLayout from './layouts/CartoonSkyLayout';
 import ComicHeroLayout from './layouts/ComicHeroLayout';
 import TerminalLayout from './layouts/TerminalLayout';
+import NeonCyberpunkLayout from './layouts/NeonCyberpunkLayout';
 
 interface Props {
   data: CoinData;
