@@ -120,6 +120,11 @@ const PricingSection = ({ onGetStarted }: Props) => {
                     MOST POPULAR
                   </Badge>
                 )}
+                {plan.trial && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary/20 text-primary text-[8px] sm:text-[9px] font-display tracking-wider px-4 py-1 border border-primary/30">
+                    7-DAY FREE TRIAL
+                  </Badge>
+                )}
 
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
