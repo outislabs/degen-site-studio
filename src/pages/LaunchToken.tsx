@@ -55,6 +55,12 @@ const LaunchToken = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Fee settings
+  const LAUNCH_TYPES = [
+    { id: "fa29606e-5e48-4c37-827f-4b03d58ee23d", name: "Founder Mode", description: "Earn 2% of total trading volume pre and post migration", icon: "👑" },
+    { id: "d16d3585-6488-4a6c-9a6f-e6c39ca0fda3", name: "~0% Mode", description: "0.25% pre-migration, 1% post-migration with 50% fee compounding", icon: "🎯" },
+    { id: "a7c8e1f2-3d4b-5a6c-9e0f-1b2c3d4e5f6a", name: "Paper Hand Tax", description: "1% pre-migration, 0.25% post-migration with 50% fee compounding", icon: "📄" },
+  ];
+  const [selectedLaunchType, setSelectedLaunchType] = useState(LAUNCH_TYPES[0].id);
   const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
   const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github'; username: string; bps: number }>>([]);
   const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
