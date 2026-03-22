@@ -17,10 +17,10 @@ const heroPlans = [
     features: [
       '1 coin website',
       'Basic templates',
+      'Content studio access',
       'Branded subdomain',
       '3 meme downloads/mo',
       'DegenTools watermark',
-      'Community support',
     ],
     cta: 'Start Free Trial',
     popular: false,
