@@ -50,7 +50,41 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
   }, [fullText]);
 
   return (
-    <div className="min-h-full relative overflow-hidden" style={{ background: '#000', fontFamily: MONO, color: GREEN }}>
+    <div className="min-h-full relative overflow-hidden" style={{
+      background: '#000',
+      fontFamily: MONO,
+      color: GREEN,
+      borderRadius: '12px',
+      boxShadow: `inset 0 0 120px rgba(0,255,65,0.03), inset 0 0 60px rgba(0,0,0,0.6)`,
+    }}>
+      {/* CRT curvature + vignette overlay */}
+      <div className="absolute inset-0 pointer-events-none z-[5]" style={{
+        background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.65) 100%)',
+        borderRadius: '12px',
+      }} />
+      {/* CRT flicker */}
+      <style>{`
+        @keyframes crt-flicker {
+          0%, 100% { opacity: 1; }
+          3% { opacity: 0.97; }
+          6% { opacity: 1; }
+          42% { opacity: 0.98; }
+          44% { opacity: 1; }
+          92% { opacity: 0.96; }
+          94% { opacity: 1; }
+        }
+        @keyframes crt-line {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+      `}</style>
+      {/* Flicker wrapper */}
+      <div className="absolute inset-0 pointer-events-none z-[2]" style={{ animation: 'crt-flicker 4s infinite' }} />
+      {/* Moving scanline bar */}
+      <div className="absolute left-0 right-0 h-[2px] pointer-events-none z-[3] opacity-[0.07]" style={{
+        background: GREEN,
+        animation: 'crt-line 6s linear infinite',
+      }} />
       {/* Scanlines */}
       <div className="absolute inset-0 pointer-events-none z-[1]" style={{
         backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.03) 2px, rgba(0,255,65,0.03) 4px)',
