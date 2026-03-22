@@ -651,6 +651,149 @@ const Admin = () => {
               )}
             </div>
           </TabsContent>
+
+          {/* PROMO CODES TAB */}
+          <TabsContent value="promos" className="space-y-4 mt-4">
+            {/* Create new promo */}
+            <Card className="bg-card/50 border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2"><Plus className="w-4 h-4" /> Create Promo Code</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  <Input
+                    placeholder="CODE"
+                    value={newPromo.code}
+                    onChange={(e) => setNewPromo(p => ({ ...p, code: e.target.value.toUpperCase() }))}
+                    className="bg-card border-border font-mono uppercase"
+                  />
+                  <Select value={newPromo.plan} onValueChange={(v) => setNewPromo(p => ({ ...p, plan: v }))}>
+                    <SelectTrigger className="bg-card border-border text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['starter', 'degen', 'creator', 'pro', 'whale'].map(p => (
+                        <SelectItem key={p} value={p} className="text-xs capitalize">{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    placeholder="Duration (days)"
+                    value={newPromo.duration_days}
+                    onChange={(e) => setNewPromo(p => ({ ...p, duration_days: parseInt(e.target.value) || 30 }))}
+                    className="bg-card border-border"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max uses"
+                    value={newPromo.max_uses}
+                    onChange={(e) => setNewPromo(p => ({ ...p, max_uses: parseInt(e.target.value) || 50 }))}
+                    className="bg-card border-border"
+                  />
+                  <Button
+                    onClick={handleCreatePromo}
+                    disabled={creatingPromo || !newPromo.code.trim()}
+                    className="gap-1.5"
+                  >
+                    {creatingPromo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                    Create
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Promo codes table */}
+            <Card className="bg-card/50 border-border overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm">All Promo Codes</CardTitle>
+                  <Button variant="outline" size="sm" onClick={fetchPromoCodes} className="gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5" /> Refresh
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {promoLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-border">
+                          <TableHead className="text-xs">Code</TableHead>
+                          <TableHead className="text-xs">Plan</TableHead>
+                          <TableHead className="text-xs">Duration</TableHead>
+                          <TableHead className="text-xs">Uses</TableHead>
+                          <TableHead className="text-xs">Status</TableHead>
+                          <TableHead className="text-xs">Created</TableHead>
+                          <TableHead className="text-xs text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {promoCodes.map((pc) => (
+                          <TableRow key={pc.id} className="border-border">
+                            <TableCell className="text-xs font-mono font-semibold text-foreground">{pc.code}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[pc.plan] || '')}>
+                                {pc.plan}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{pc.duration_days}d</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              <span className="text-foreground font-medium">{pc.uses_count}</span> / {pc.max_uses}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={cn('text-[10px]', pc.active ? 'text-primary border-primary/30' : 'text-destructive border-destructive/30')}>
+                                {pc.active ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              {new Date(pc.created_at).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => handleTogglePromo(pc.id, pc.active)}
+                                  title={pc.active ? 'Deactivate' : 'Activate'}
+                                >
+                                  {pc.active ? (
+                                    <ToggleRight className="w-4 h-4 text-primary" />
+                                  ) : (
+                                    <ToggleLeft className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-destructive hover:text-destructive"
+                                  onClick={() => setDeleteDialog({ open: true, type: 'promo', id: pc.id, label: pc.code })}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {promoCodes.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
+                              No promo codes yet
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
