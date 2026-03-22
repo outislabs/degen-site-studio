@@ -16,6 +16,7 @@ import NeonCyberpunkLayout from './layouts/NeonCyberpunkLayout';
 import LuxuryLayout from './layouts/LuxuryLayout';
 import Retro8BitLayout from './layouts/Retro8BitLayout';
 import NewspaperLayout from './layouts/NewspaperLayout';
+import MinimalistLayout from './layouts/MinimalistLayout';
 
 interface Props {
   data: CoinData;
