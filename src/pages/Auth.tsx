@@ -271,7 +271,7 @@ const Auth = () => {
                     </div>
 
                     {/* Google Sign-in */}
-                    {!isForgot && !isTelegramWebApp && (
+                    {!isForgot && !isTelegram && (
                       <>
                         <Button
                           type="button"
