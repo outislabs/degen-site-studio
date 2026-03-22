@@ -246,9 +246,9 @@ X-DegenTools-API-Key: dgt_your_api_key_here`} />
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-muted-foreground">Free</td><td className="px-4 py-2.5 text-muted-foreground">10</td><td className="px-4 py-2.5 text-muted-foreground">500</td><td className="px-4 py-2.5 text-muted-foreground">$0</td></tr>
-          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-primary font-medium">Degen</td><td className="px-4 py-2.5 text-muted-foreground">30</td><td className="px-4 py-2.5 text-muted-foreground">2,000</td><td className="px-4 py-2.5 text-muted-foreground">$9/mo</td></tr>
-          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-primary font-medium">Pro</td><td className="px-4 py-2.5 text-muted-foreground">60</td><td className="px-4 py-2.5 text-muted-foreground">5,000</td><td className="px-4 py-2.5 text-muted-foreground">$29/mo</td></tr>
+          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-muted-foreground">Starter</td><td className="px-4 py-2.5 text-muted-foreground">10</td><td className="px-4 py-2.5 text-muted-foreground">500</td><td className="px-4 py-2.5 text-muted-foreground">$2.50/mo</td></tr>
+          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-primary font-medium">Degen</td><td className="px-4 py-2.5 text-muted-foreground">30</td><td className="px-4 py-2.5 text-muted-foreground">2,000</td><td className="px-4 py-2.5 text-muted-foreground">$19/mo</td></tr>
+          <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-primary font-medium">Pro</td><td className="px-4 py-2.5 text-muted-foreground">60</td><td className="px-4 py-2.5 text-muted-foreground">5,000</td><td className="px-4 py-2.5 text-muted-foreground">$99/mo</td></tr>
           <tr className="hover:bg-muted/30"><td className="px-4 py-2.5 text-primary font-medium">Whale</td><td className="px-4 py-2.5 text-muted-foreground">120</td><td className="px-4 py-2.5 text-muted-foreground">20,000</td><td className="px-4 py-2.5 text-muted-foreground">$69/mo</td></tr>
         </tbody>
       </table>

@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     q: 'Can I create multiple websites?',
-    a: 'Yes — depending on your plan. Free allows 1 site, Creator allows 3, Pro allows 10, and Whale gives you unlimited sites.',
+    a: 'Yes — depending on your plan. Starter allows 1 site, Creator allows 3, Pro allows 10, and Whale gives you unlimited sites.',
   },
 ];
 

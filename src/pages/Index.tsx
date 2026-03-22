@@ -104,9 +104,9 @@ const Index = () => {
           <div className="flex items-center gap-2">
             <span className="text-lg">🎁</span>
             <div>
-              <p className="text-sm font-medium text-foreground">First 50 users get 30 days free on Degen Plan</p>
+              <p className="text-sm font-medium text-foreground">Try DegenTools with a 7-day free trial on the Starter plan</p>
               <p className="text-xs text-muted-foreground">
-                Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup
+                Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup for 30 days free on Degen
                 {spotsLeft !== null && (
                   <span className="text-yellow-400 ml-1">· {spotsLeft} spots left</span>
                 )}
