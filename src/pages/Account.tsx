@@ -301,7 +301,7 @@ const Account = () => {
                       >
                         <div className={`text-[9px] font-bold uppercase tracking-wider ${isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>{p.name}</div>
                         <div className={`text-sm font-bold mt-0.5 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
-                          {p.priceMonthly === 0 ? 'Free' : `$${p.priceMonthly}`}
+                          {`$${p.priceMonthly}`}
                         </div>
                         {isCurrent && <div className="w-1 h-1 rounded-full bg-primary mx-auto mt-1" />}
                       </button>
