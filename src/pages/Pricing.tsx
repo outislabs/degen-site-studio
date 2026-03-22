@@ -18,18 +18,18 @@ import { PlanId, PLAN_ORDER } from '@/lib/plans';
 const plans = [
   {
     name: 'Starter',
-    price: '$2.50',
+    price: '$0',
     period: '/mo',
     icon: Zap,
-    description: '7-day free trial included',
+    description: 'Get started with the basics',
     features: [
       '1 coin website',
       'Branded subdomain ($ticker.degentools.co)',
       'DegenTools watermark',
-      '3 meme downloads per month',
+      '5 meme downloads per month',
       'Basic website templates',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
     variant: 'outline' as const,
     popular: false,
   },
@@ -137,7 +137,7 @@ const comparisonFeatures: { category: string; features: { name: string; values: 
   {
     category: 'Content Studio',
     features: [
-      { name: 'Meme downloads', values: { Starter: '3/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
+      { name: 'Meme downloads', values: { Starter: '5/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
       { name: 'Full content studio', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
       { name: 'Sticker pack builder', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
       { name: 'Shill templates', values: { Starter: false, Degen: 'Basic', Creator: 'All', Pro: 'All', Whale: 'All' } },
@@ -254,14 +254,8 @@ const Pricing = () => {
     }
 
     const targetPlan = planIdMap[planName];
-    if (!targetPlan) {
+    if (!targetPlan || targetPlan === 'starter') {
       navigate('/');
-      return;
-    }
-
-    if (targetPlan === 'starter') {
-      // Starter uses free trial flow
-      navigate('/auth');
       return;
     }
 
@@ -333,8 +327,8 @@ const Pricing = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-20">
           {plans.map((plan) => {
             const Icon = plan.icon;
-            const price = billing === 'annual' && plan.price !== '$2.50'
-              ? `$${Math.round(parseFloat(plan.price.replace('$', '')) * 0.8)}`
+            const price = billing === 'annual' && plan.price !== '$0'
+              ? `$${Math.round(parseInt(plan.price.replace('$', '')) * 0.8)}`
               : plan.price;
 
             const isCurrent = planIdMap[plan.name] === currentPlan;

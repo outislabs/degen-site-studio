@@ -45,7 +45,7 @@ const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
   { label: 'Studio', icon: Image, path: '/studio' },
-  { label: 'API', icon: Code2, path: '/api' },
+  { label: 'API', icon: Code2, path: '/api-dashboard' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
   { label: 'Account', icon: UserCog, path: '/account' },
 ];

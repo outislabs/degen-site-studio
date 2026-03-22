@@ -35,8 +35,6 @@ Deno.serve(async (req) => {
 
     if (promoError || !promo) return new Response(JSON.stringify({ error: "Invalid or expired promo code" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    if (promo.uses_count >= promo.max_uses) return new Response(JSON.stringify({ error: "This promo code has reached its maximum uses" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-
     const { data: existing } = await supabase
       .from("promo_redemptions")
       .select("id")
@@ -45,6 +43,24 @@ Deno.serve(async (req) => {
       .single();
 
     if (existing) return new Response(JSON.stringify({ error: "You have already used this promo code" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const { data: updated, error: incrementError } = await adminClient
+      .from("promo_codes")
+      .update({ uses_count: promo.uses_count + 1 })
+      .eq("id", promo.id)
+      .lt("uses_count", promo.max_uses)
+      .select()
+      .single();
+
+    if (incrementError || !updated) {
+      return new Response(JSON.stringify({ error: "This promo code has reached its maximum uses" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + promo.duration_days);
@@ -55,15 +71,13 @@ Deno.serve(async (req) => {
 
     if (redemptionError) throw new Error(redemptionError.message);
 
-    await supabase.from("promo_codes").update({ uses_count: promo.uses_count + 1 }).eq("id", promo.id);
-
     const { error: subError } = await supabase
       .from("user_subscriptions")
       .upsert({ user_id: user.id, plan: promo.plan, status: "active", billing_period: promo.billing_period, current_period_end: expiresAt.toISOString(), promo_code: cleanCode, payment_id: "promo_" + cleanCode }, { onConflict: "user_id" });
 
     if (subError) throw new Error(subError.message);
 
-    const spotsLeft = promo.max_uses - (promo.uses_count + 1);
+    const spotsLeft = promo.max_uses - updated.uses_count;
 
     return new Response(JSON.stringify({
       success: true,

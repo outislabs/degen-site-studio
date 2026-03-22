@@ -172,6 +172,7 @@ Deno.serve(async (req) => {
             method: "POST",
             headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" },
             body: JSON.stringify({ feeClaimer: wallet, tokenMint }),
+            signal: AbortSignal.timeout(25000),
           });
           const resText = await res.text();
           console.log("Claim txs for", tokenMint, ":", res.status, resText.slice(0, 200));
@@ -181,7 +182,13 @@ Deno.serve(async (req) => {
             const txs = resData.response.map((t: any) => t.tx || t.transaction || t).filter(Boolean);
             allTxs.push(...txs);
           }
-        } catch (e) { console.error("Claim tx error for", tokenMint, e); }
+        } catch (e: any) {
+          if (e?.name === "TimeoutError") {
+            console.error("Claim tx timeout for", tokenMint);
+            return new Response(JSON.stringify({ error: "Claim transaction request timed out. Please try again." }), { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          }
+          console.error("Claim tx error for", tokenMint, e);
+        }
       }
       return new Response(JSON.stringify({ success: true, transactions: allTxs }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }

@@ -4,8 +4,6 @@ export interface PlanConfig {
   id: PlanId;
   name: string;
   priceMonthly: number;
-  hasFreeTrial: boolean;
-  freeTrialDays: number;
   maxSites: number; // -1 = unlimited
   maxMemeDownloads: number; // -1 = unlimited
   hasCustomDomain: boolean;
@@ -31,9 +29,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   starter: {
     id: 'starter',
     name: 'Starter',
-    priceMonthly: 2.5,
-    hasFreeTrial: true,
-    freeTrialDays: 7,
+    priceMonthly: 0,
     maxSites: 1,
     maxMemeDownloads: 3,
     hasCustomDomain: false,
@@ -58,8 +54,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'degen',
     name: 'Degen',
     priceMonthly: 19,
-    hasFreeTrial: false,
-    freeTrialDays: 0,
     maxSites: 1,
     maxMemeDownloads: 50,
     hasCustomDomain: true,
@@ -84,8 +78,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'creator',
     name: 'Creator',
     priceMonthly: 49,
-    hasFreeTrial: false,
-    freeTrialDays: 0,
     maxSites: 3,
     maxMemeDownloads: -1,
     hasCustomDomain: true,
@@ -110,8 +102,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'pro',
     name: 'Pro',
     priceMonthly: 99,
-    hasFreeTrial: false,
-    freeTrialDays: 0,
     maxSites: 10,
     maxMemeDownloads: -1,
     hasCustomDomain: true,
@@ -136,8 +126,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'whale',
     name: 'Whale',
     priceMonthly: 249,
-    hasFreeTrial: false,
-    freeTrialDays: 0,
     maxSites: -1,
     maxMemeDownloads: -1,
     hasCustomDomain: true,

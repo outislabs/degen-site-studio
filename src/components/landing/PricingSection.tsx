@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, Zap, Rocket, Crown, Star, Diamond, ArrowRight } from 'lucide-react';
+import { Check, Zap, Rocket, Crown, Star, Diamond } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -8,67 +8,51 @@ interface Props {
   onGetStarted: () => void;
 }
 
-const heroPlans = [
+const plans = [
   {
     name: 'Starter',
-    price: '$2.50',
+    price: '$0',
     icon: Zap,
-    description: '7-day free trial included',
-    features: [
-      '1 coin website',
-      'Basic templates',
-      'Content studio access',
-      'Branded subdomain',
-      '3 meme downloads/mo',
-      'DegenTools watermark',
-    ],
-    cta: 'Start Free Trial',
+    description: 'Get started with the basics',
+    features: ['1 coin website', '3 meme downloads/mo', 'Basic templates', 'Branded subdomain'],
+    cta: 'Get Started',
     popular: false,
-    trial: true,
   },
   {
     name: 'Degen',
     price: '$19',
     icon: Rocket,
     description: 'For serious degens',
-    features: [
-      'Custom domain',
-      'No watermark',
-      'All templates',
-      '50 meme downloads/mo',
-      'Basic shill templates',
-      'Priority support',
-    ],
+    features: ['Custom domain', 'No watermark', 'All templates', '50 meme downloads/mo', 'Basic shill templates'],
     cta: 'Go Degen',
-    popular: true,
-    trial: false,
+    popular: false,
   },
-];
-
-const compactPlans = [
   {
     name: 'Creator',
     price: '$49',
     icon: Crown,
     description: 'Full creative suite',
-    highlight: '3 sites · Content studio · Sticker packs',
-    trial: false,
+    features: ['3 coin websites', 'Full content studio', 'Unlimited downloads', 'Sticker pack builder', 'Brand kit & launch kit'],
+    cta: 'Start Creating',
+    popular: true,
   },
   {
     name: 'Pro',
     price: '$99',
     icon: Star,
-    description: 'Advanced tools',
-    highlight: '10 sites · Telegram bot · Whale alerts · Audit badge',
-    trial: false,
+    description: 'Advanced tools & automation',
+    features: ['10 coin websites', 'Telegram buy bot', 'Whale alerts', 'Audit badge', 'Multi-platform blast'],
+    cta: 'Go Pro',
+    popular: false,
   },
   {
     name: 'Whale',
     price: '$249',
     icon: Diamond,
     description: 'Unlimited everything',
-    highlight: 'Unlimited sites · API · White label · Priority',
-    trial: false,
+    features: ['Unlimited websites', 'Analytics dashboard', 'API access', 'White label', 'Priority support'],
+    cta: 'Go Whale',
+    popular: false,
   },
 ];
 
@@ -79,27 +63,25 @@ const PricingSection = ({ onGetStarted }: Props) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[800px] h-[300px] bg-primary/3 blur-[150px] sm:blur-[200px] rounded-full" />
       </div>
 
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-14"
+          className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">
-            PRICING
-          </span>
+          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">PRICING</span>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mt-4 mb-3 sm:mb-4">
             Choose your <span className="text-primary text-glow">degen energy</span>
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-md mx-auto px-2">
-            Most degens pick Creator or Pro. Start with a 7-day free trial on Starter.
+            Start free. Upgrade when you're ready to go full send.
           </p>
         </motion.div>
 
-        {/* Hero Plans - Creator & Pro */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          {heroPlans.map((plan, i) => {
+        {/* Stack on mobile, grid on large screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+          {plans.map((plan, i) => {
             const Icon = plan.icon;
             return (
               <motion.div
@@ -107,111 +89,63 @@ const PricingSection = ({ onGetStarted }: Props) => {
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.07 }}
                 className={cn(
-                  'relative rounded-2xl p-6 sm:p-8 flex flex-col transition-all duration-300',
+                  'relative gradient-card border rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300 hover:scale-[1.02]',
                   plan.popular
-                    ? 'bg-gradient-to-b from-primary/10 via-card to-card border-2 border-primary/40 shadow-[0_0_60px_hsl(var(--primary)/0.12)] ring-1 ring-primary/20'
-                    : 'gradient-card border border-border hover:border-primary/20'
+                    ? 'border-primary/40 shadow-[0_0_50px_hsl(var(--primary)/0.1)] ring-1 ring-primary/30'
+                    : 'border-border hover:border-primary/20'
                 )}
               >
                 {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] sm:text-[9px] font-display tracking-wider px-4 py-1">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] sm:text-[9px] font-display tracking-wider px-3 sm:px-4 py-1">
                     MOST POPULAR
                   </Badge>
                 )}
-                {plan.trial && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary/20 text-primary text-[8px] sm:text-[9px] font-display tracking-wider px-4 py-1 border border-primary/30">
-                    7-DAY FREE TRIAL
-                  </Badge>
-                )}
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center',
-                      plan.popular ? 'bg-primary/15' : 'bg-secondary'
-                    )}>
-                      <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
-                    </div>
-                    <div>
-                      <span className="font-bold text-base sm:text-lg text-foreground block">{plan.name}</span>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground">{plan.description}</span>
-                    </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={cn(
+                    'w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center',
+                    plan.popular ? 'bg-primary/15' : 'bg-secondary'
+                  )}>
+                    <Icon className={cn('w-3.5 h-3.5 sm:w-4 sm:h-4', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
                   </div>
-                  <div className="text-right">
-                    <span className="text-3xl sm:text-4xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-xs sm:text-sm text-muted-foreground">/mo</span>
-                  </div>
+                  <span className="font-bold text-sm sm:text-base text-foreground">{plan.name}</span>
+                </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-3 sm:mb-4">{plan.description}</p>
+
+                <div className="mb-4 sm:mb-5">
+                  <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.price}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">/mo</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 flex-1 mb-6">
+                <ul className="space-y-2 flex-1 mb-5 sm:mb-6">
                   {plan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <li key={f} className="flex items-start gap-2 text-[10px] sm:text-xs text-muted-foreground">
                       <Check className={cn(
-                        'w-3.5 h-3.5 mt-0.5 shrink-0',
+                        'w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0',
                         plan.popular ? 'text-primary' : 'text-muted-foreground/50'
                       )} />
                       <span>{f}</span>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
 
                 <Button
-                  size="lg"
+                  size="sm"
                   variant={plan.popular ? 'default' : 'outline'}
                   className={cn(
-                    'w-full text-xs sm:text-sm rounded-xl',
+                    'w-full text-[10px] sm:text-xs rounded-xl py-4 sm:py-5',
                     plan.popular && 'box-glow'
                   )}
                   onClick={onGetStarted}
                 >
                   {plan.cta}
-                  <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </motion.div>
             );
           })}
         </div>
-
-        {/* Compact Plans - Starter, Degen, Whale */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
-        >
-          {compactPlans.map((plan) => {
-            const Icon = plan.icon;
-            return (
-              <button
-                key={plan.name}
-                onClick={onGetStarted}
-                className="group relative gradient-card border border-border rounded-xl p-4 sm:p-5 text-left transition-all duration-300 hover:border-primary/25 hover:scale-[1.02]"
-              >
-                {plan.trial && (
-                  <Badge className="absolute -top-2.5 right-4 bg-primary/20 text-primary text-[7px] sm:text-[8px] font-display tracking-wider px-3 py-0.5 border border-primary/30">
-                    7-DAY FREE TRIAL
-                  </Badge>
-                )}
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                    <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-bold text-sm text-foreground">{plan.name}</span>
-                    <span className="text-lg font-bold text-foreground">{plan.price}</span>
-                    <span className="text-[10px] text-muted-foreground">/mo</span>
-                  </div>
-                </div>
-                <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-relaxed">
-                  {plan.highlight}
-                </p>
-              </button>
-            );
-          })}
-        </motion.div>
 
         <p className="text-center text-[10px] sm:text-xs text-muted-foreground/60 mt-6 sm:mt-8">
           All plans billed monthly. Pay with crypto via NOWPayments.

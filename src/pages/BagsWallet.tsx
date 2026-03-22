@@ -62,11 +62,10 @@ interface QuoteData {
 }
 
 interface FeePosition {
+  tokenMint: string;
   baseMint: string;
   tokenAmount: number;
   solAmount: number;
-  virtualPoolClaimableLamportsUserShare: number;
-  userVaultClaimableLamportsUserShare: number;
   [key: string]: any;
 }
 
@@ -436,7 +435,7 @@ const FeesTab = ({
       });
       if (error) throw error;
       const all = data?.positions || [];
-      setPositions(all.filter((p: FeePosition) => p.baseMint === (token.baseMint || token.tokenMint)));
+      setPositions(all.filter((p: FeePosition) => p.baseMint === token.tokenMint));
     } catch (err: any) {
       console.error('Fees error:', err);
       toast.error('Failed to load fee positions');
@@ -523,9 +522,6 @@ const FeesTab = ({
           <><Coins className="w-4 h-4 mr-2" />Claim All Fees</>
         )}
       </Button>
-      <p className="text-[10px] text-muted-foreground text-center mt-2">
-        ⚠️ You need a small amount of SOL in your wallet to cover the transaction fee
-      </p>
     </div>
   );
 };

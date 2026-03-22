@@ -24,7 +24,7 @@ function checkRateLimit(key: string): boolean {
 
 // --- Input Validation ---
 const VALID_ACTIONS = ["list", "delete_user", "update_plan", "set_role", "stats"];
-const VALID_PLANS = ["free", "degen", "creator", "pro", "whale"];
+const VALID_PLANS = ["starter", "degen", "creator", "pro", "whale"];
 const VALID_ROLES = ["admin", "moderator", "user"];
 
 Deno.serve(async (req) => {
@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
       let activePaid = 0
       subs?.forEach(s => {
         planBreakdown[s.plan] = (planBreakdown[s.plan] || 0) + 1
-        if (s.plan !== 'free' && s.status === 'active') activePaid++
+        if (s.plan !== 'starter' && s.status === 'active') activePaid++
       })
 
       const weekAgo = new Date()

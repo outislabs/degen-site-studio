@@ -25,7 +25,7 @@ function checkRateLimit(key: string): boolean {
 
 // --- Input Validation ---
 const VALID_STATUSES = ["waiting", "confirming", "confirmed", "sending", "partially_paid", "finished", "failed", "refunded", "expired"];
-const VALID_PLANS = ["free", "degen", "creator", "pro", "whale"];
+const VALID_PLANS = ["starter", "degen", "creator", "pro", "whale"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
       if (sub && sub.payment_id === payment_id?.toString() && sub.status === "pending") {
         await supabase
           .from("user_subscriptions")
-          .update({ plan: "free", status: "active", payment_id: null })
+          .update({ plan: "starter", status: "active", payment_id: null })
           .eq("user_id", userId);
       }
     }
