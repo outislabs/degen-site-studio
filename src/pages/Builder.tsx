@@ -8,7 +8,7 @@ import StepTheme from '@/components/builder/StepTheme';
 import LivePreview from '@/components/builder/LivePreview';
 import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check, PanelLeft, Sparkles } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -16,6 +16,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const steps = [
   { label: 'Basics', icon: Coins },
@@ -59,7 +60,6 @@ const Builder = () => {
     if (!user) navigate('/auth');
   }, [user, navigate]);
 
-  // Refresh payment status when returning from payment
   useEffect(() => {
     const payment = searchParams.get('payment');
     const id = searchParams.get('id');
@@ -91,7 +91,6 @@ const Builder = () => {
 
   const handlePublish = async () => {
     if (!user) return;
-
     try {
       const slugValue = slug.trim() || null;
       if (editingId) {
@@ -126,90 +125,141 @@ const Builder = () => {
     }
   };
 
+  const progress = ((step + 1) / steps.length) * 100;
+
   return (
-    <div className="min-h-screen gradient-degen flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50 bg-background/80 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src={logo} alt="Degen Tools" className="h-8 sm:h-10 w-auto" />
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* ── HEADER ── */}
+      <header className="border-b border-border px-3 sm:px-5 h-14 flex items-center justify-between sticky top-0 z-50 bg-background/90 backdrop-blur-xl">
+        <div className="flex items-center gap-3 min-w-0">
+          <button onClick={() => navigate('/')} className="flex-shrink-0 hover:opacity-80 transition-opacity">
+            <img src={logo} alt="Degen Tools" className="h-7 sm:h-8 w-auto" />
           </button>
           <div className="hidden sm:block h-5 w-px bg-border" />
-          <span className="hidden sm:block text-xs text-muted-foreground font-medium truncate max-w-[180px]">
-            {data.name || 'Untitled Site'}
-          </span>
+          <div className="hidden sm:flex items-center gap-2 min-w-0">
+            <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <span className="text-xs text-muted-foreground font-medium truncate max-w-[160px]">
+              {data.name || 'Untitled Site'}
+            </span>
+          </div>
         </div>
+
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="lg:hidden text-xs" onClick={() => setShowPreview(!showPreview)}>
-            <Eye className="w-3.5 h-3.5 mr-1" /> {showPreview ? 'Editor' : 'Preview'}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden text-xs h-8 px-3 text-muted-foreground hover:text-foreground"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? <PanelLeft className="w-4 h-4 mr-1.5" /> : <Eye className="w-4 h-4 mr-1.5" />}
+            {showPreview ? 'Editor' : 'Preview'}
           </Button>
-          <Button size="sm" onClick={handlePublish} className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs">
-            <Rocket className="w-3.5 h-3.5 mr-1" /> {editingId ? 'Update' : 'Publish'}
+          <Button
+            size="sm"
+            onClick={handlePublish}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8 px-4 font-semibold shadow-[0_0_16px_hsl(var(--primary)/0.25)]"
+          >
+            <Rocket className="w-3.5 h-3.5 mr-1.5" />
+            {editingId ? 'Update' : 'Publish'}
           </Button>
         </div>
       </header>
 
+      {/* ── MAIN ── */}
       <div className="flex flex-1 overflow-hidden">
-        <div className={cn('w-full lg:w-1/2 xl:w-[45%] border-r border-border overflow-y-auto flex flex-col pb-16 lg:pb-0', showPreview && 'hidden lg:flex')} style={{ height: 'calc(100vh - 49px)' }}>
-          {/* Step Progress Bar */}
-          <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center">
+        {/* ── LEFT PANEL: EDITOR ── */}
+        <div
+          className={cn(
+            'w-full lg:w-[480px] xl:w-[520px] border-r border-border overflow-y-auto flex flex-col pb-20 lg:pb-0',
+            showPreview && 'hidden lg:flex'
+          )}
+          style={{ height: 'calc(100vh - 56px)' }}
+        >
+          {/* ── STEP INDICATOR ── */}
+          <div className="px-4 pt-4 pb-2">
+            {/* Progress bar */}
+            <div className="h-1 rounded-full bg-muted/60 mb-4 overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={false}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+              />
+            </div>
+
+            {/* Step pills */}
+            <div className="flex items-center gap-1.5">
               {steps.map((s, i) => {
                 const isActive = step === i;
                 const isCompleted = i < step;
                 const Icon = s.icon;
                 return (
-                  <div key={i} className="flex items-center flex-1 last:flex-initial">
-                    <button
-                      onClick={() => setStep(i)}
-                      className="flex flex-col items-center gap-1.5 group"
-                    >
-                      <div
-                        className={cn(
-                          'w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 border-2',
-                          isActive
-                            ? 'border-primary bg-primary/15 text-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
-                            : isCompleted
-                            ? 'border-primary bg-primary text-primary-foreground'
-                            : 'border-border bg-muted/50 text-muted-foreground group-hover:border-muted-foreground/50'
-                        )}
-                      >
-                        {isCompleted ? (
-                          <Check className="w-4 h-4" strokeWidth={3} />
-                        ) : (
-                          <Icon className="w-4 h-4" />
-                        )}
-                      </div>
-                      <span
-                        className={cn(
-                          'text-[10px] font-medium transition-colors hidden sm:block',
-                          isActive ? 'text-primary' : isCompleted ? 'text-primary/70' : 'text-muted-foreground'
-                        )}
-                      >
-                        {s.label}
-                      </span>
-                    </button>
-                    {i < steps.length - 1 && (
-                      <div className="flex-1 mx-1.5 sm:mx-2 mt-[-18px] sm:mt-0">
-                        <div className={cn(
-                          'h-0.5 rounded-full transition-colors duration-300',
-                          isCompleted ? 'bg-primary' : 'bg-border'
-                        )} />
-                      </div>
+                  <button
+                    key={i}
+                    onClick={() => setStep(i)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200',
+                      isActive
+                        ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
+                        : isCompleted
+                        ? 'bg-muted/50 text-primary/70 hover:bg-muted'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                     )}
-                  </div>
+                  >
+                    {isCompleted ? (
+                      <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                    ) : (
+                      <Icon className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">{s.label}</span>
+                  </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="p-6 flex-1">{renderStep()}</div>
+          {/* ── STEP CONTENT ── */}
+          <div className="flex-1 px-5 py-4 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {renderStep()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-          <div className="p-6 pt-0 flex justify-between">
-            <Button variant="outline" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>
+          {/* ── FOOTER NAV ── */}
+          <div className="px-5 py-3 border-t border-border bg-background/80 backdrop-blur-sm flex items-center justify-between gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep(s => Math.max(0, s - 1))}
+              disabled={step === 0}
+              className="text-xs h-9 px-4 text-muted-foreground hover:text-foreground disabled:opacity-30"
+            >
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
+
+            <div className="flex items-center gap-1.5">
+              {steps.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setStep(i)}
+                  className={cn(
+                    'w-1.5 h-1.5 rounded-full transition-all duration-200',
+                    step === i ? 'bg-primary w-4' : i < step ? 'bg-primary/40' : 'bg-muted-foreground/20'
+                  )}
+                />
+              ))}
+            </div>
+
             <Button
+              size="sm"
               onClick={() => {
                 if (step === 0 && !slug.trim()) {
                   toast.error('Please enter a site slug before continuing.');
@@ -217,7 +267,12 @@ const Builder = () => {
                 }
                 step < 4 ? setStep(s => s + 1) : handlePublish();
               }}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className={cn(
+                'text-xs h-9 px-4 font-semibold',
+                step === 4
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
+                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
+              )}
             >
               {step < 4 ? (
                 <>Next <ChevronRight className="w-4 h-4 ml-1" /></>
@@ -228,10 +283,35 @@ const Builder = () => {
           </div>
         </div>
 
-        <div className={cn('flex-1 overflow-y-auto', !showPreview && 'hidden lg:block')} style={{ height: 'calc(100vh - 53px)' }}>
-          <div className="p-4">
-            <div className="text-xs text-muted-foreground mb-2 font-display">LIVE PREVIEW</div>
-            <LivePreview data={data} />
+        {/* ── RIGHT PANEL: PREVIEW ── */}
+        <div
+          className={cn(
+            'flex-1 overflow-y-auto bg-muted/20',
+            !showPreview && 'hidden lg:block'
+          )}
+          style={{ height: 'calc(100vh - 56px)' }}
+        >
+          <div className="p-3 sm:p-5">
+            {/* Preview chrome */}
+            <div className="rounded-xl overflow-hidden border border-border shadow-2xl shadow-black/20">
+              {/* Browser bar */}
+              <div className="bg-card/80 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                </div>
+                <div className="flex-1 flex justify-center">
+                  <div className="bg-muted/60 rounded-md px-4 py-1 text-[10px] text-muted-foreground font-mono max-w-[280px] truncate">
+                    {slug ? `degentools.com/s/${slug}` : 'degentools.com/s/your-site'}
+                  </div>
+                </div>
+                <div className="w-[54px]" /> {/* spacer to center URL */}
+              </div>
+
+              {/* Actual preview */}
+              <LivePreview data={data} />
+            </div>
           </div>
         </div>
       </div>
