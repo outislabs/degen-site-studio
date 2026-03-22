@@ -130,38 +130,80 @@ const Builder = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ── HEADER ── */}
-      <header className="border-b border-border px-3 sm:px-5 h-14 flex items-center justify-between sticky top-0 z-50 bg-background/90 backdrop-blur-xl">
-        <div className="flex items-center gap-3 min-w-0">
-          <button onClick={() => navigate('/')} className="flex-shrink-0 hover:opacity-80 transition-opacity">
-            <img src={logo} alt="Degen Tools" className="h-7 sm:h-8 w-auto" />
-          </button>
-          <div className="hidden sm:block h-5 w-px bg-border" />
-          <div className="hidden sm:flex items-center gap-2 min-w-0">
-            <Sparkles className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-            <span className="text-xs text-muted-foreground font-medium truncate max-w-[160px]">
-              {data.name || 'Untitled Site'}
-            </span>
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+        <div className="h-14 px-4 sm:px-6 flex items-center justify-between">
+          {/* Left: Logo + breadcrumb */}
+          <div className="flex items-center gap-3 min-w-0">
+            <button onClick={() => navigate('/')} className="flex-shrink-0 group">
+              <img src={logo} alt="Degen Tools" className="h-7 w-auto transition-transform group-hover:scale-105" />
+            </button>
+            <div className="hidden md:flex items-center gap-2 min-w-0">
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 flex-shrink-0" />
+              <div className="flex items-center gap-2 bg-muted/40 rounded-lg px-3 py-1.5 min-w-0">
+                {data.logoUrl ? (
+                  <img src={data.logoUrl} alt="" className="w-4 h-4 rounded-full flex-shrink-0 ring-1 ring-border" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-2.5 h-2.5 text-primary" />
+                  </div>
+                )}
+                <span className="text-xs font-medium text-foreground/80 truncate max-w-[140px]">
+                  {data.name || 'Untitled Site'}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden text-xs h-8 px-3 text-muted-foreground hover:text-foreground"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            {showPreview ? <PanelLeft className="w-4 h-4 mr-1.5" /> : <Eye className="w-4 h-4 mr-1.5" />}
-            {showPreview ? 'Editor' : 'Preview'}
-          </Button>
-          <Button
-            size="sm"
-            onClick={handlePublish}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8 px-4 font-semibold shadow-[0_0_16px_hsl(var(--primary)/0.25)]"
-          >
-            <Rocket className="w-3.5 h-3.5 mr-1.5" />
-            {editingId ? 'Update' : 'Publish'}
-          </Button>
+          {/* Center: Step pills (desktop only) */}
+          <div className="hidden lg:flex items-center gap-1 bg-muted/30 rounded-xl p-1">
+            {steps.map((s, i) => {
+              const isActive = step === i;
+              const isCompleted = i < step;
+              const Icon = s.icon;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setStep(i)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-primary/15 text-primary shadow-sm'
+                      : isCompleted
+                      ? 'text-primary/60 hover:bg-muted/60'
+                      : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-muted/60'
+                  )}
+                >
+                  {isCompleted ? (
+                    <Check className="w-3 h-3" strokeWidth={3} />
+                  ) : (
+                    <Icon className="w-3 h-3" />
+                  )}
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden text-xs h-8 px-3 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              {showPreview ? <PanelLeft className="w-4 h-4 mr-1.5" /> : <Eye className="w-4 h-4 mr-1.5" />}
+              <span className="hidden sm:inline">{showPreview ? 'Editor' : 'Preview'}</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={handlePublish}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8 px-5 font-semibold rounded-lg shadow-[0_0_20px_hsl(var(--primary)/0.2)] hover:shadow-[0_0_28px_hsl(var(--primary)/0.35)] transition-shadow"
+            >
+              <Rocket className="w-3.5 h-3.5 mr-1.5" />
+              {editingId ? 'Update' : 'Publish'}
+            </Button>
+          </div>
         </div>
       </header>
 
