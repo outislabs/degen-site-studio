@@ -10,6 +10,7 @@ interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
 const MinimalLayout = ({ data, style, countdown }: Props) => (
