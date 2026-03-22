@@ -114,7 +114,7 @@ const ComicHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
       </div>
 
       {/* ── STATS ── */}
-      <TokenStatsBar contractAddress={data.contractAddress} accentHex={style.accentHex} />
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
       {/* ── COUNTDOWN ── */}
       {data.showCountdown && data.launchDate && (
