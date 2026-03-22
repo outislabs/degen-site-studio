@@ -67,6 +67,7 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
       {layout === 'neon-cyberpunk' && <NeonCyberpunkLayout {...layoutProps} />}
       {layout === 'luxury' && <LuxuryLayout {...layoutProps} />}
       {layout === 'retro-8bit' && <Retro8BitLayout {...layoutProps} />}
+      {layout === 'newspaper' && <NewspaperLayout {...layoutProps} />}
     </div>
   );
 };
