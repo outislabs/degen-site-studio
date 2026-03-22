@@ -104,6 +104,7 @@ const App = () => {
                 <Route path="/api-dashboard" element={<ApiDashboard />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/connect-telegram" element={<ConnectTelegram />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
