@@ -309,7 +309,7 @@ const Auth = () => {
                       </>
                     )}
 
-                    {!isForgot && isTelegramWebApp && (
+                    {!isForgot && isTelegram && (
                       <p className="text-xs text-muted-foreground text-center mb-4">
                         Sign in with email or wallet — Google sign-in is not available in Telegram
                       </p>
