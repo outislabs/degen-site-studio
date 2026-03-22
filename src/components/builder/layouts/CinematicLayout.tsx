@@ -92,6 +92,8 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
         </div>
       )}
 
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
+
       {/* About Section - Full width dramatic */}
       <div className="px-6 sm:px-10 py-16 relative">
         <div className="absolute left-0 top-0 w-full h-px" style={{ background: `linear-gradient(90deg, transparent, ${style.accentHex}15, transparent)` }} />

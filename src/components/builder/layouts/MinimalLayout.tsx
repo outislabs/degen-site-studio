@@ -68,6 +68,8 @@ const MinimalLayout = ({ data, style, countdown, showWatermark }: Props) => (
       </div>
     )}
 
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
+
     {/* Description */}
     {data.description && (
       <div className="max-w-lg mx-auto px-8 py-12">

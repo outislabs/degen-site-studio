@@ -98,6 +98,8 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
       {/* Ticker Tape - Cartoon style */}
       <div className="my-4 relative z-10" style={{ transform: 'rotate(-1deg)' }}>
         <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
+
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
       </div>
 
       {/* Contract Address - Chunky card */}

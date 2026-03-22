@@ -104,6 +104,8 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
         </div>
       )}
 
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
+
       <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
 
       {/* CTA Buttons - Large */}

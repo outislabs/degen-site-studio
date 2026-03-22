@@ -37,6 +37,8 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
       <p className="text-sm text-white/50 max-w-sm mx-auto">{data.tagline || 'Your epic tagline goes here 🚀'}</p>
     </div>
 
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
+
     {/* Bento Grid */}
     <div className="px-6 sm:px-10 pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

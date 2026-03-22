@@ -44,6 +44,8 @@ const ClassicLayout = ({ data, style, countdown, showWatermark }: Props) => (
 
     {data.contractAddress && <div className="px-6 sm:px-10 pb-8"><ContractBlock data={data} style={style} /></div>}
 
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
+
     {data.description && (
       <>
         <Divider style={style} />
