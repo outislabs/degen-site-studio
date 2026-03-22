@@ -50,10 +50,10 @@ export const usePlan = (): UsePlanReturn => {
       .single();
 
     if (error && error.code === 'PGRST116') {
-      // No subscription found — create free tier
+      // No subscription found — create starter tier
       const { data: newSub } = await supabase
         .from('user_subscriptions')
-        .insert({ user_id: user.id, plan: 'free' })
+        .insert({ user_id: user.id, plan: 'starter' })
         .select('*')
         .single();
 
@@ -89,10 +89,10 @@ export const usePlan = (): UsePlanReturn => {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // Only grant paid plan if subscription is active; pending/cancelled fall back to free
+  // Only grant paid plan if subscription is active; pending/cancelled fall back to starter
   const isActive = subscription?.status === 'active';
-  const planId: PlanId = isActive ? ((subscription?.plan as PlanId) || 'free') : 'free';
-  const plan = PLANS[planId] || PLANS.free;
+  const planId: PlanId = isActive ? ((subscription?.plan as PlanId) || 'starter') : 'starter';
+  const plan = PLANS[planId] || PLANS.starter;
 
   const canCreateSite = (currentSiteCount: number) => {
     if (plan.maxSites === -1) return true;

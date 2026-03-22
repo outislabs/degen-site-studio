@@ -84,11 +84,11 @@ const LandingFooter = () => {
               Get Started
             </h4>
             <p className="text-xs text-muted-foreground/50 leading-relaxed mb-4">
-              Create your meme coin website for free. No coding required.
+              Create your meme coin website in minutes. No coding required.
             </p>
             <a href="/auth"
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
-              Launch Free Site →
+              Start Free Trial →
             </a>
           </div>
         </div>

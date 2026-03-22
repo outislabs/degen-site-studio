@@ -408,7 +408,7 @@ const Auth = () => {
                             onClick={() => setView(isSignUp ? 'signin' : 'signup')}
                             className="text-primary font-semibold hover:underline"
                           >
-                            {isSignUp ? 'Sign in' : 'Sign up free'}
+                            {isSignUp ? 'Sign in' : 'Sign up'}
                           </button>
                         </p>
                       )}

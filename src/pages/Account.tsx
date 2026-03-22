@@ -107,8 +107,8 @@ const Account = () => {
     : null;
 
   const subStatus = subscription?.status || 'active';
-  const subPlan = (subscription?.plan as PlanId) || 'free';
-  const subPlanConfig = PLANS[subPlan] || PLANS.free;
+  const subPlan = (subscription?.plan as PlanId) || 'starter';
+  const subPlanConfig = PLANS[subPlan] || PLANS.starter;
   const isPending = subStatus === 'pending';
   const isCancelled = subStatus === 'cancelled';
   const billingPeriod = subscription?.billing_period || 'monthly';
@@ -301,7 +301,7 @@ const Account = () => {
                       >
                         <div className={`text-[9px] font-bold uppercase tracking-wider ${isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>{p.name}</div>
                         <div className={`text-sm font-bold mt-0.5 ${isCurrent ? 'text-primary' : 'text-foreground'}`}>
-                          {p.priceMonthly === 0 ? 'Free' : `$${p.priceMonthly}`}
+                          {`$${p.priceMonthly}`}
                         </div>
                         {isCurrent && <div className="w-1 h-1 rounded-full bg-primary mx-auto mt-1" />}
                       </button>
@@ -328,7 +328,7 @@ const Account = () => {
               {/* Billing Summary */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: 'Plan', value: subPlanConfig.name, sub: subPlanConfig.priceMonthly === 0 ? 'Free' : billingPeriod === 'annual' ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/yr` : `$${subPlanConfig.priceMonthly}/mo` },
+                  { label: 'Plan', value: subPlanConfig.name, sub: billingPeriod === 'annual' ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/yr` : `$${subPlanConfig.priceMonthly}/mo` },
                   { label: 'Billing', value: billingPeriod === 'annual' ? 'Annual' : 'Monthly', sub: billingPeriod === 'annual' ? '20% off' : 'Standard' },
                   { label: 'Status', value: statusLabel, sub: subCreatedAt || '—' },
                 ].map((item) => (
@@ -346,7 +346,7 @@ const Account = () => {
                   <Receipt className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">Transactions</span>
                 </div>
-                {subscription && subPlan !== 'free' ? (
+                {subscription && subPlan !== 'starter' ? (
                   <div className="divide-y divide-border">
                     <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/10 transition-colors">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
@@ -405,7 +405,7 @@ const Account = () => {
                     {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                   </Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground">First 50 users get 30 days free on Degen Plan</p>
+                <p className="text-[10px] text-muted-foreground">All plans include crypto payment via NOWPayments</p>
               </div>
 
               {planId !== 'whale' && (

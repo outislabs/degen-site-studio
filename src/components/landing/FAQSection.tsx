@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: 'Can I use my own custom domain?',
-    a: 'Yes! Degen plan and above lets you connect your own custom domain for a fully branded experience. Free plan users get a branded subdomain.',
+    a: 'Yes! Degen plan and above lets you connect your own custom domain for a fully branded experience. Starter plan users get a branded subdomain.',
   },
   {
     q: 'What is the Content Studio?',
@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     q: 'How does pricing work?',
-    a: 'We offer a free tier to get started, plus paid plans starting at $19/mo. All plans are billed monthly and you can pay with crypto via NOWPayments. Upgrade or cancel anytime.',
+    a: 'We offer a Starter plan at $2.50/mo with a 7-day free trial, plus paid plans starting at $19/mo. All plans are billed monthly and you can pay with crypto via NOWPayments. Upgrade or cancel anytime.',
   },
   {
     q: 'Is my data safe?',
@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     q: 'Can I create multiple websites?',
-    a: 'Yes — depending on your plan. Free allows 1 site, Creator allows 3, Pro allows 10, and Whale gives you unlimited sites.',
+    a: 'Yes — depending on your plan. Starter allows 1 site, Creator allows 3, Pro allows 10, and Whale gives you unlimited sites.',
   },
 ];
 

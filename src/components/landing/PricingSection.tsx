@@ -10,13 +10,14 @@ interface Props {
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
+    name: 'Starter',
+    price: '$2.50',
     icon: Zap,
-    description: 'Get started with the basics',
-    features: ['1 coin website', '3 meme downloads/mo', 'Basic templates', 'Branded subdomain'],
-    cta: 'Get Started',
+    description: '7-day free trial included',
+    features: ['1 coin website', 'Basic templates', 'Branded subdomain', '3 meme downloads/mo', 'DegenTools watermark'],
+    cta: 'Start Free Trial',
     popular: false,
+    trial: true,
   },
   {
     name: 'Degen',
@@ -26,6 +27,7 @@ const plans = [
     features: ['Custom domain', 'No watermark', 'All templates', '50 meme downloads/mo', 'Basic shill templates'],
     cta: 'Go Degen',
     popular: false,
+    trial: false,
   },
   {
     name: 'Creator',
@@ -35,6 +37,7 @@ const plans = [
     features: ['3 coin websites', 'Full content studio', 'Unlimited downloads', 'Sticker pack builder', 'Brand kit & launch kit'],
     cta: 'Start Creating',
     popular: true,
+    trial: false,
   },
   {
     name: 'Pro',
@@ -44,6 +47,7 @@ const plans = [
     features: ['10 coin websites', 'Telegram buy bot', 'Whale alerts', 'Audit badge', 'Multi-platform blast'],
     cta: 'Go Pro',
     popular: false,
+    trial: false,
   },
   {
     name: 'Whale',
@@ -53,6 +57,7 @@ const plans = [
     features: ['Unlimited websites', 'Analytics dashboard', 'API access', 'White label', 'Priority support'],
     cta: 'Go Whale',
     popular: false,
+    trial: false,
   },
 ];
 
@@ -75,7 +80,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
             Choose your <span className="text-primary text-glow">degen energy</span>
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-md mx-auto px-2">
-            Start free. Upgrade when you're ready to go full send.
+            Start with a 7-day free trial. Upgrade when you're ready to go full send.
           </p>
         </motion.div>
 
@@ -100,6 +105,11 @@ const PricingSection = ({ onGetStarted }: Props) => {
                 {plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] sm:text-[9px] font-display tracking-wider px-3 sm:px-4 py-1">
                     MOST POPULAR
+                  </Badge>
+                )}
+                {plan.trial && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary/20 text-primary text-[8px] sm:text-[9px] font-display tracking-wider px-3 sm:px-4 py-1 border border-primary/30">
+                    7-DAY FREE TRIAL
                   </Badge>
                 )}
 
