@@ -258,7 +258,7 @@ const Auth = () => {
                     </div>
 
                     {/* Google Sign-in */}
-                    {!isForgot && (
+                    {!isForgot && !isTelegramWebApp && (
                       <>
                         <Button
                           type="button"
@@ -294,6 +294,12 @@ const Auth = () => {
                           </div>
                         </div>
                       </>
+                    )}
+
+                    {!isForgot && isTelegramWebApp && (
+                      <p className="text-xs text-muted-foreground text-center mb-4">
+                        Sign in with email or wallet — Google sign-in is not available in Telegram
+                      </p>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
