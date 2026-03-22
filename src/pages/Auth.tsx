@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '@/assets/logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,23 @@ import type { Provider } from '@reown/appkit-adapter-solana/react';
 type AuthView = 'signin' | 'signup' | 'forgot';
 
 const Auth = () => {
-  const isTelegramWebApp = typeof window !== 'undefined' &&
-    (Boolean((window as any).Telegram?.WebApp) ||
-     navigator.userAgent.includes('Telegram') ||
-     window.location.hash.includes('tgWebAppData') ||
-     window.location.search.includes('tgWebAppData'));
+  const [isTelegram, setIsTelegram] = useState(false);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isTG = 
+      userAgent.includes('telegram') ||
+      userAgent.includes('tgweb') ||
+      window.location.href.includes('tgWebApp') ||
+      document.referrer.includes('telegram') ||
+      // @ts-ignore
+      !!window.TelegramWebviewProxy ||
+      // @ts-ignore
+      !!window?.Telegram?.WebApp?.initData;
+    
+    setIsTelegram(isTG);
+    console.log('Is Telegram:', isTG, 'UserAgent:', userAgent);
+  }, []);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [view, setView] = useState<AuthView>('signin');
@@ -245,6 +257,7 @@ const Auth = () => {
                   </div>
                 ) : (
                   <>
+                    <p className="text-xs text-center mb-2 font-mono text-yellow-400 bg-yellow-400/10 rounded px-2 py-1">{isTelegram ? '✅ TELEGRAM DETECTED' : '❌ NOT TELEGRAM'}</p>
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
                         {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
@@ -259,7 +272,7 @@ const Auth = () => {
                     </div>
 
                     {/* Google Sign-in */}
-                    {!isForgot && !isTelegramWebApp && (
+                    {!isForgot && !isTelegram && (
                       <>
                         <Button
                           type="button"
@@ -297,7 +310,7 @@ const Auth = () => {
                       </>
                     )}
 
-                    {!isForgot && isTelegramWebApp && (
+                    {!isForgot && isTelegram && (
                       <p className="text-xs text-muted-foreground text-center mb-4">
                         Sign in with email or wallet — Google sign-in is not available in Telegram
                       </p>
