@@ -328,7 +328,7 @@ const Account = () => {
               {/* Billing Summary */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: 'Plan', value: subPlanConfig.name, sub: subPlanConfig.priceMonthly === 0 ? 'Free' : billingPeriod === 'annual' ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/yr` : `$${subPlanConfig.priceMonthly}/mo` },
+                  { label: 'Plan', value: subPlanConfig.name, sub: billingPeriod === 'annual' ? `$${Math.round(subPlanConfig.priceMonthly * 12 * 0.8)}/yr` : `$${subPlanConfig.priceMonthly}/mo` },
                   { label: 'Billing', value: billingPeriod === 'annual' ? 'Annual' : 'Monthly', sub: billingPeriod === 'annual' ? '20% off' : 'Standard' },
                   { label: 'Status', value: statusLabel, sub: subCreatedAt || '—' },
                 ].map((item) => (
