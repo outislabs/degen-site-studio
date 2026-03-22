@@ -140,6 +140,59 @@ const Admin = () => {
     if (data) setContent(data);
   };
 
+  const fetchPromoCodes = async () => {
+    setPromoLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setPromoCodes((data as unknown as PromoCode[]) || []);
+    } catch (e: any) {
+      toast.error('Failed to load promo codes');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const handleCreatePromo = async () => {
+    if (!newPromo.code.trim()) return;
+    setCreatingPromo(true);
+    try {
+      const { error } = await supabase.from('promo_codes').insert({
+        code: newPromo.code.toUpperCase().trim(),
+        plan: newPromo.plan,
+        duration_days: newPromo.duration_days,
+        max_uses: newPromo.max_uses,
+      });
+      if (error) throw error;
+      toast.success('Promo code created');
+      setNewPromo({ code: '', plan: 'degen', duration_days: 30, max_uses: 50 });
+      fetchPromoCodes();
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to create promo code');
+    } finally {
+      setCreatingPromo(false);
+    }
+  };
+
+  const handleTogglePromo = async (id: string, currentActive: boolean) => {
+    const { error } = await supabase
+      .from('promo_codes')
+      .update({ active: !currentActive } as any)
+      .eq('id', id);
+    if (error) toast.error(error.message);
+    else { toast.success(currentActive ? 'Promo deactivated' : 'Promo activated'); fetchPromoCodes(); }
+  };
+
+  const handleDeletePromo = async (id: string) => {
+    const { error } = await supabase.from('promo_codes').delete().eq('id', id);
+    if (error) toast.error(error.message);
+    else { toast.success('Promo code deleted'); fetchPromoCodes(); }
+    setDeleteDialog({ open: false, type: '', id: '', label: '' });
+  };
+
   const handleDeleteUser = async (userId: string) => {
     try {
       await invokeAdmin('delete_user', { user_id: userId });
