@@ -128,49 +128,49 @@ const comparisonFeatures: { category: string; features: { name: string; values: 
   {
     category: 'Websites',
     features: [
-      { name: 'Coin websites', values: { Free: '1', Degen: '1', Creator: '3', Pro: '10', Whale: 'Unlimited' } },
-      { name: 'Custom domain', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
-      { name: 'All templates', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
-      { name: 'No watermark', values: { Free: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'Coin websites', values: { Starter: '1', Degen: '1', Creator: '3', Pro: '10', Whale: 'Unlimited' } },
+      { name: 'Custom domain', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'All templates', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'No watermark', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
     ],
   },
   {
     category: 'Content Studio',
     features: [
-      { name: 'Meme downloads', values: { Free: '5/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
-      { name: 'Full content studio', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Sticker pack builder', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Shill templates', values: { Free: false, Degen: 'Basic', Creator: 'All', Pro: 'All', Whale: 'All' } },
+      { name: 'Meme downloads', values: { Starter: '3/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
+      { name: 'Full content studio', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Sticker pack builder', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Shill templates', values: { Starter: false, Degen: 'Basic', Creator: 'All', Pro: 'All', Whale: 'All' } },
     ],
   },
   {
     category: 'Branding & Launch',
     features: [
-      { name: 'Brand kit', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Launch announcement kit', values: { Free: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Contract audit badge', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Brand kit', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Launch announcement kit', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
+      { name: 'Contract audit badge', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
     ],
   },
   {
     category: 'Automation & Analytics',
     features: [
-      { name: 'Telegram buy bot', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Smart whale alerts', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Multi-platform blast', values: { Free: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Analytics dashboard', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
-      { name: 'API access', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'Telegram buy bot', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Smart whale alerts', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Multi-platform blast', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Analytics dashboard', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'API access', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
     ],
   },
   {
     category: 'Support & Extras',
     features: [
-      { name: 'White label option', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
-      { name: 'Priority support', values: { Free: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'White label option', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'Priority support', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
     ],
   },
 ];
 
-const planNames = ['Free', 'Degen', 'Creator', 'Pro', 'Whale'];
+const planNames = ['Starter', 'Degen', 'Creator', 'Pro', 'Whale'];
 
 const ComparisonTable = () => (
   <Card className="border-border overflow-hidden">
