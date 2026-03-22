@@ -13,6 +13,10 @@ import type { Provider } from '@reown/appkit-adapter-solana/react';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
+const isTelegramWebApp = typeof window !== 'undefined' &&
+  ((window as any).Telegram?.WebApp?.initData !== undefined ||
+   navigator.userAgent.includes('Telegram'));
+
 const Auth = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -254,7 +258,7 @@ const Auth = () => {
                     </div>
 
                     {/* Google Sign-in */}
-                    {!isForgot && (
+                    {!isForgot && !isTelegramWebApp && (
                       <>
                         <Button
                           type="button"
@@ -290,6 +294,12 @@ const Auth = () => {
                           </div>
                         </div>
                       </>
+                    )}
+
+                    {!isForgot && isTelegramWebApp && (
+                      <p className="text-xs text-muted-foreground text-center mb-4">
+                        Sign in with email or wallet — Google sign-in is not available in Telegram
+                      </p>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
