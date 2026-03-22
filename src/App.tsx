@@ -23,6 +23,7 @@ import NotFound from "./pages/NotFound.tsx";
 import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
 import ApiDashboard from "./pages/ApiDashboard.tsx";
+import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,7 @@ const App = () => {
                 <Route path="/api-dashboard" element={<ApiDashboard />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/connect-telegram" element={<ConnectTelegram />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
