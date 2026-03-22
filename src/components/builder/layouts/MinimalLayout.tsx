@@ -3,14 +3,17 @@ import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
 import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
+
 
 interface Props {
   data: CoinData;
   style: ThemeConfig;
   countdown: { d: number; h: number; m: number; s: number };
+  showWatermark?: boolean;
 }
 
-const MinimalLayout = ({ data, style, countdown }: Props) => (
+const MinimalLayout = ({ data, style, countdown, showWatermark }: Props) => (
   <>
     {/* Full-screen hero */}
     <div className="min-h-[85vh] flex flex-col items-center justify-center px-8 text-center relative">
@@ -64,6 +67,8 @@ const MinimalLayout = ({ data, style, countdown }: Props) => (
         </div>
       </div>
     )}
+
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
     {/* Description */}
     {data.description && (

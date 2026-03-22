@@ -3,6 +3,7 @@ import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
 import { ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 import { Copy } from 'lucide-react';
 import DonutChart from '../DonutChart';
 
@@ -35,6 +36,8 @@ const BentoLayout = ({ data, style, countdown, showWatermark }: Props) => (
       )}
       <p className="text-sm text-white/50 max-w-sm mx-auto">{data.tagline || 'Your epic tagline goes here 🚀'}</p>
     </div>
+
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
     {/* Bento Grid */}
     <div className="px-6 sm:px-10 pb-10">

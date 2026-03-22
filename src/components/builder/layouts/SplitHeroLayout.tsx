@@ -3,6 +3,7 @@ import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import TickerTape from '../TickerTape';
 import { SectionHeader, Divider, ContractBlock, TokenomicsBlock, RoadmapBlock, SocialsBlock, Footer, CountdownBlock, DescriptionBlock, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 
 interface Props {
   data: CoinData;
@@ -49,6 +50,8 @@ const SplitHeroLayout = ({ data, style, countdown, showWatermark }: Props) => (
     </div>
 
     {data.contractAddress && <div className="px-6 sm:px-10 pb-8"><ContractBlock data={data} style={style} /></div>}
+
+    <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
     {data.description && (
       <>

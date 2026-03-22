@@ -5,6 +5,7 @@ import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowDown, ShieldCheck
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
 import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 
 interface Props {
   data: CoinData;
@@ -98,6 +99,8 @@ const CartoonLayout = ({ data, style, countdown, showWatermark }: Props) => {
       <div className="my-4 relative z-10" style={{ transform: 'rotate(-1deg)' }}>
         <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
       </div>
+
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
       {/* Contract Address - Chunky card */}
       {data.contractAddress && (

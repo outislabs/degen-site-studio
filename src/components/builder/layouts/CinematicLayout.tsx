@@ -5,6 +5,7 @@ import { Copy, Send, MessageCircle, ExternalLink } from 'lucide-react';
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
 import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 
 interface Props {
   data: CoinData;
@@ -90,6 +91,8 @@ const CinematicLayout = ({ data, style, countdown, showWatermark }: Props) => {
           </div>
         </div>
       )}
+
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
       {/* About Section - Full width dramatic */}
       <div className="px-6 sm:px-10 py-16 relative">

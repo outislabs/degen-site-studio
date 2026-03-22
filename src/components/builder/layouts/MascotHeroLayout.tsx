@@ -5,6 +5,7 @@ import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowRight, ShieldChec
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
 import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 
 interface Props {
   data: CoinData;
@@ -102,6 +103,8 @@ const MascotHeroLayout = ({ data, style, countdown, showWatermark }: Props) => {
           {data.socials.dex && <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110" style={{ border: `1px solid ${style.accentHex}20`, background: `${style.accentHex}08` }}><ExternalLink className={cn('w-4 h-4', style.accent)} /></a>}
         </div>
       )}
+
+      <TokenStatsBar contractAddress={data.contractAddress} style={style} />
 
       <TickerTape name={data.name} ticker={data.ticker} accentHex={style.accentHex} />
 
