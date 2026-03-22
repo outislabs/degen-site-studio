@@ -405,7 +405,7 @@ const Account = () => {
                     {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
                   </Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground">First 50 users get 30 days free on Degen Plan</p>
+                <p className="text-[10px] text-muted-foreground">All plans include crypto payment via NOWPayments</p>
               </div>
 
               {planId !== 'whale' && (

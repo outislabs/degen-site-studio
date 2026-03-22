@@ -31,8 +31,7 @@ const SiteView = () => {
 
       // Check if site owner has a paid plan (no watermark)
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
-      setShowWatermark(!plan || plan === 'free');
-      setShowWatermark(plan === 'free');
+      setShowWatermark(!plan || plan === 'starter');
       setLoading(false);
     });
   }, [id]);

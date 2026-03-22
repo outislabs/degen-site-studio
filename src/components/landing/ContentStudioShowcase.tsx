@@ -6,7 +6,7 @@ const tools = [
     icon: Image,
     title: 'Meme Generator',
     desc: 'AI-powered memes tailored to your token. Diamond hands, rug pull survivors, moon missions.',
-    tag: 'Free',
+    tag: 'Starter',
     prompt: '"Diamond hands Pepe with laser eyes"',
   },
   {
