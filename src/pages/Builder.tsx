@@ -217,10 +217,10 @@ const Builder = () => {
           )}
           style={{ height: 'calc(100vh - 56px)' }}
         >
-          {/* ── STEP INDICATOR ── */}
-          <div className="px-4 pt-4 pb-2">
+          {/* ── STEP INDICATOR (mobile/tablet only) ── */}
+          <div className="px-4 pt-4 pb-2 lg:hidden">
             {/* Progress bar */}
-            <div className="h-1 rounded-full bg-muted/60 mb-4 overflow-hidden">
+            <div className="h-1 rounded-full bg-muted/60 mb-3 overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-primary"
                 initial={false}
@@ -228,8 +228,6 @@ const Builder = () => {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
               />
             </div>
-
-            {/* Step pills */}
             <div className="flex items-center gap-1.5">
               {steps.map((s, i) => {
                 const isActive = step === i;
@@ -240,7 +238,7 @@ const Builder = () => {
                     key={i}
                     onClick={() => setStep(i)}
                     className={cn(
-                      'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200',
+                      'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                       isActive
                         ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
                         : isCompleted
