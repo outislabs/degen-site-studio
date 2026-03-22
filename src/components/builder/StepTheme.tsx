@@ -25,6 +25,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'cartoon-sky', name: 'Cartoon Sky', desc: 'Light sky background, clouds, massive bold text', icon: <CloudSun className="w-5 h-5" />, premium: true },
   { id: 'comic-hero', name: 'Comic Hero', desc: 'High energy comic book style with action mascot', icon: <Zap className="w-5 h-5" />, premium: true },
   { id: 'terminal', name: 'Terminal', desc: 'Hacker/Matrix aesthetic with green monospace text', icon: <Terminal className="w-5 h-5" />, premium: true },
+  { id: 'neon-cyberpunk', name: 'Neon Cyberpunk', desc: 'Futuristic dark aesthetic with neon glows and glitch effects', icon: <Cpu className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
