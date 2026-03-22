@@ -2,7 +2,7 @@ import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -29,6 +29,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'luxury', name: 'Luxury', desc: 'Premium black and gold aesthetic inspired by luxury fashion brands', icon: <Gem className="w-5 h-5" />, premium: true },
   { id: 'retro-8bit', name: 'Retro 8-Bit', desc: 'Classic pixel art arcade game aesthetic with retro vibes', icon: <Gamepad2 className="w-5 h-5" />, premium: true },
   { id: 'newspaper', name: 'Newspaper', desc: 'Satirical crypto newspaper with editorial black & white design', icon: <Newspaper className="w-5 h-5" />, premium: true },
+  { id: 'minimalist', name: 'Minimalist', desc: 'Clean Apple-inspired product page with lots of whitespace', icon: <Circle className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
