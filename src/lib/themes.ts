@@ -382,6 +382,25 @@ export const themes: Record<ThemeId, ThemeConfig> = {
     previewBorder: 'border-[#c0c0c0]',
     previewBg: 'bg-[#000000]',
   },
+  'cartoon-sky': {
+    id: 'cartoon-sky',
+    name: 'Cartoon Sky',
+    desc: 'Bright sky blue & sunshine yellow. Fun cartoon crypto vibes.',
+    emoji: '🎨',
+    bg: 'bg-[#7ec8e3]',
+    bgGradient: 'linear-gradient(180deg, #7ec8e3 0%, #a8dff0 40%, #c9ecf7 70%, #e8f8ff 100%)',
+    accent: 'text-[#ff6b1a]',
+    accentHex: '#ff6b1a',
+    accentHex2: '#ffb800',
+    glow: '',
+    border: 'border-[#ff6b1a]/25',
+    button: 'bg-gradient-to-r from-[#ff6b1a] to-[#ffb800] hover:from-[#ffb800] hover:to-[#ff6b1a] shadow-[0_0_25px_rgba(255,107,26,0.35)]',
+    buttonText: 'text-white',
+    cardBg: 'bg-white/50 backdrop-blur-md border-2 border-[#2a2a2a]/20',
+    textSecondary: 'text-[#1a3a5c]',
+    previewBorder: 'border-[#ff6b1a]',
+    previewBg: 'bg-[#7ec8e3]',
+  },
 };
 
 export const themeList = Object.values(themes);
