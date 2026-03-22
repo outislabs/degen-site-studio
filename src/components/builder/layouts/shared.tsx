@@ -17,17 +17,27 @@ export const cleanTicker = (ticker: string) => ticker.replace(/^\$+/, '');
 
 /** Returns the best "Buy" URL for a token. Bags.fm for Solana, DexScreener for others. */
 export const getBuyUrl = (data: CoinData): string => {
-  // Solana tokens → Bags.fm
-  if (data.blockchain === 'solana' && data.contractAddress && !/^0x/i.test(data.contractAddress)) {
-    return `https://bags.fm/${data.contractAddress}`;
-  }
-  // User-provided DEX link
-  if (data.socials.dex) return ensureUrl(data.socials.dex);
-  // Fallback to DexScreener
   if (data.contractAddress) {
+    const ca = data.contractAddress;
+    // Pump.fun tokens end with "pump"
+    if (/pump$/i.test(ca)) {
+      return `https://pump.fun/${ca}`;
+    }
+    // Bags.fm tokens end with "BAGS" (case-sensitive on Solana)
+    if (ca.endsWith('BAGS')) {
+      return `https://bags.fm/${ca}`;
+    }
+    // Other Solana tokens → Bags.fm
+    if (data.blockchain === 'solana' && !/^0x/i.test(ca)) {
+      return `https://bags.fm/${ca}`;
+    }
+    // User-provided DEX link
+    if (data.socials.dex) return ensureUrl(data.socials.dex);
+    // Fallback to DexScreener
     const chain = data.blockchain || 'solana';
-    return `https://dexscreener.com/${chain}/${data.contractAddress}`;
+    return `https://dexscreener.com/${chain}/${ca}`;
   }
+  if (data.socials.dex) return ensureUrl(data.socials.dex);
   return '#';
 };
 
