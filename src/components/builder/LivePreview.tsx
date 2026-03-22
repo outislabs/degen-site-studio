@@ -15,6 +15,7 @@ import TerminalLayout from './layouts/TerminalLayout';
 import NeonCyberpunkLayout from './layouts/NeonCyberpunkLayout';
 import LuxuryLayout from './layouts/LuxuryLayout';
 import Retro8BitLayout from './layouts/Retro8BitLayout';
+import NewspaperLayout from './layouts/NewspaperLayout';
 
 interface Props {
   data: CoinData;
@@ -66,6 +67,7 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
       {layout === 'neon-cyberpunk' && <NeonCyberpunkLayout {...layoutProps} />}
       {layout === 'luxury' && <LuxuryLayout {...layoutProps} />}
       {layout === 'retro-8bit' && <Retro8BitLayout {...layoutProps} />}
+      {layout === 'newspaper' && <NewspaperLayout {...layoutProps} />}
     </div>
   );
 };
