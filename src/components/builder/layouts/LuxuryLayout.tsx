@@ -91,13 +91,12 @@ const LuxuryLayout = ({ data, style, countdown, showWatermark }: Props) => {
           </div>
 
           {/* Name */}
-          <h2 className="mb-5" style={{
+          <h2 className="mb-5 luxury-shimmer-text" style={{
             fontFamily: HEADING,
             fontSize: 'clamp(2rem, 7vw, 4rem)',
             fontWeight: 400,
             letterSpacing: '0.3em',
             lineHeight: 1.1,
-            color: '#fff',
           }}>
             {data.name || 'TOKEN'}
           </h2>
