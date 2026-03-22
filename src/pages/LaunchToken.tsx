@@ -121,7 +121,7 @@ const LaunchToken = () => {
 
       toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [] }
+        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [], bagsConfigType: selectedLaunchType }
       });
       if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
       const { configKey, transactions: configTxs } = configData;
