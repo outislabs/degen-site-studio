@@ -107,8 +107,8 @@ const Account = () => {
     : null;
 
   const subStatus = subscription?.status || 'active';
-  const subPlan = (subscription?.plan as PlanId) || 'free';
-  const subPlanConfig = PLANS[subPlan] || PLANS.free;
+  const subPlan = (subscription?.plan as PlanId) || 'starter';
+  const subPlanConfig = PLANS[subPlan] || PLANS.starter;
   const isPending = subStatus === 'pending';
   const isCancelled = subStatus === 'cancelled';
   const billingPeriod = subscription?.billing_period || 'monthly';
