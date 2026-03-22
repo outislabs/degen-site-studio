@@ -72,6 +72,7 @@ const Admin = () => {
       fetchUsers();
       fetchSites();
       fetchContent();
+      fetchPromoCodes();
     }
   }, [isAdmin]);
 
