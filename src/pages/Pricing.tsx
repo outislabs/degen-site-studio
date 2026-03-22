@@ -17,19 +17,19 @@ import { PlanId, PLAN_ORDER } from '@/lib/plans';
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
+    name: 'Starter',
+    price: '$2.50',
     period: '/mo',
     icon: Zap,
-    description: 'Get started with the basics',
+    description: '7-day free trial included',
     features: [
       '1 coin website',
       'Branded subdomain ($ticker.degentools.co)',
       'DegenTools watermark',
-      '5 meme downloads per month',
+      '3 meme downloads per month',
       'Basic website templates',
     ],
-    cta: 'Get Started',
+    cta: 'Start Free Trial',
     variant: 'outline' as const,
     popular: false,
   },
