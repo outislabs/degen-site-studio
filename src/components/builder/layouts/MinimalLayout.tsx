@@ -13,7 +13,7 @@ interface Props {
   showWatermark?: boolean;
 }
 
-const MinimalLayout = ({ data, style, countdown }: Props) => (
+const MinimalLayout = ({ data, style, countdown, showWatermark }: Props) => (
   <>
     {/* Full-screen hero */}
     <div className="min-h-[85vh] flex flex-col items-center justify-center px-8 text-center relative">
