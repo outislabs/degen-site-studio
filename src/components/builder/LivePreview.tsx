@@ -63,6 +63,7 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
       {layout === 'comic-hero' && <ComicHeroLayout {...layoutProps} />}
       {layout === 'terminal' && <TerminalLayout {...layoutProps} />}
       {layout === 'neon-cyberpunk' && <NeonCyberpunkLayout {...layoutProps} />}
+      {layout === 'luxury' && <LuxuryLayout {...layoutProps} />}
     </div>
   );
 };
