@@ -125,6 +125,9 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
           >
             <Crown className="w-3 h-3 mr-1" />
             {plan.name}
+            {planId === 'starter' && (
+              <span className="ml-1 text-[8px] text-primary">· Free Trial</span>
+            )}
           </Badge>
 
           {/* New Site button */}

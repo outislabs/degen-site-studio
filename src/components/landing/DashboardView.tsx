@@ -66,16 +66,21 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
       <div className="flex items-center justify-between mb-6 gradient-card border border-border rounded-xl px-5 py-3">
         <div className="flex items-center gap-3">
           <Crown className="w-4 h-4 text-primary" />
-          <div>
+          <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
-            <span className="text-xs text-muted-foreground ml-2">
+            {planId === 'starter' && (
+              <Badge className="bg-primary/15 text-primary text-[9px] border border-primary/30 px-1.5 py-0">
+                7-day free trial
+              </Badge>
+            )}
+            <span className="text-xs text-muted-foreground">
               {sites.length}/{siteLimit} sites
             </span>
           </div>
         </div>
         {planId !== 'whale' && (
           <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs">
-            Upgrade
+            {planId === 'starter' ? 'Start Free Trial' : 'Upgrade'}
           </Button>
         )}
       </div>
