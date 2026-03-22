@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: 'Can I use my own custom domain?',
-    a: 'Yes! Degen plan and above lets you connect your own custom domain for a fully branded experience. Free plan users get a branded subdomain.',
+    a: 'Yes! Degen plan and above lets you connect your own custom domain for a fully branded experience. Starter plan users get a branded subdomain.',
   },
   {
     q: 'What is the Content Studio?',
