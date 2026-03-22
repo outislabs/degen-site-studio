@@ -63,23 +63,23 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       {/* Plan banner */}
-      <div className="flex items-center justify-between mb-6 gradient-card border border-border rounded-xl px-5 py-3">
-        <div className="flex items-center gap-3">
-          <Crown className="w-4 h-4 text-primary" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3 gradient-card border border-border rounded-xl px-5 py-3">
+        <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
+            <Crown className="w-4 h-4 text-primary" />
             <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
             {planId === 'starter' && (
               <Badge className="bg-primary/15 text-primary text-[9px] border border-primary/30 px-1.5 py-0">
                 7-day free trial
               </Badge>
             )}
-            <span className="text-xs text-muted-foreground">
-              {sites.length}/{siteLimit} sites
-            </span>
           </div>
+          <span className="text-xs text-muted-foreground ml-6">
+            {sites.length}/{siteLimit} sites
+          </span>
         </div>
         {planId !== 'whale' && (
-          <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs">
+          <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs w-full sm:w-auto">
             {planId === 'starter' ? 'Start Free Trial' : 'Upgrade'}
           </Button>
         )}
@@ -93,8 +93,8 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
               <div className="flex items-center gap-2">
                 <span className="text-lg">🎁</span>
                 <div>
-                  <p className="text-xs font-medium text-foreground">Have a promo code?</p>
-                  <p className="text-[10px] text-muted-foreground">Use <span className="text-primary font-mono font-bold">DEGEN50</span> for 30 days free on Degen Plan</p>
+                   <p className="text-xs font-medium text-foreground">Have a promo code?</p>
+                   <p className="text-[10px] text-muted-foreground">Claim your free upgrade</p>
                 </div>
               </div>
               <button
