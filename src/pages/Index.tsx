@@ -98,26 +98,8 @@ const Index = () => {
       />
       <HeroSection onGetStarted={handleNewSite} />
 
-      {/* Promo Banner */}
-      <div className="section-padding pt-0">
-        <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 flex items-center justify-between gap-3 max-w-2xl mx-auto">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🎁</span>
-            <div>
-              <p className="text-sm font-medium text-foreground">Try DegenTools with a 7-day free trial on the Starter plan</p>
-              <p className="text-xs text-muted-foreground">
-                Use code <span className="text-primary font-mono font-bold">DEGEN50</span> at signup for 30 days free on Degen
-                {spotsLeft !== null && (
-                  <span className="text-yellow-400 ml-1">· {spotsLeft} spots left</span>
-                )}
-              </p>
-            </div>
-          </div>
-          <a href="/auth" className="shrink-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors">
-            Claim Now
-          </a>
-        </div>
-      </div>
+
+
 
       <FeaturesGrid />
       <BagsFmSection />
