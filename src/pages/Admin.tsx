@@ -55,6 +55,12 @@ const Admin = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: string; id: string; label: string }>({ open: false, type: '', id: '', label: '' });
 
+  // Promo codes state
+  const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [newPromo, setNewPromo] = useState({ code: '', plan: 'degen', duration_days: 30, max_uses: 50 });
+  const [creatingPromo, setCreatingPromo] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth');
     if (!adminLoading && !isAdmin && !authLoading && user) navigate('/');
