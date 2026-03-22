@@ -54,6 +54,24 @@ const LaunchToken = () => {
   const [showUrlFallback, setShowUrlFallback] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Pre-fill from URL query parameters (e.g. Telegram bot deep link)
+  useEffect(() => {
+    const qName = searchParams.get('name');
+    const qTicker = searchParams.get('ticker');
+    const qDescription = searchParams.get('description');
+    const qLogo = searchParams.get('logo');
+    const qTwitter = searchParams.get('twitter');
+    const qTelegram = searchParams.get('telegram');
+    const qWebsite = searchParams.get('website');
+    if (qName) setName(qName);
+    if (qTicker) setSymbol(qTicker);
+    if (qDescription) setDescription(qDescription);
+    if (qLogo) setImageUrl(qLogo);
+    if (qTwitter) setTwitter(qTwitter);
+    if (qTelegram) setTelegram(qTelegram);
+    if (qWebsite) setWebsite(qWebsite);
+  }, []);
+
   // Fee settings
   const LAUNCH_TYPES = [
     { id: "fa29606e-5e48-4c37-827f-4b03d58ee23d", name: "Founder Mode", description: "Earn 2% of total trading volume pre and post migration", icon: "👑" },
