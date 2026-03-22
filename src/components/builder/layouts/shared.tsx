@@ -15,14 +15,15 @@ export const ensureUrl = (url: string) => {
 /** Strip leading $ from ticker so we can always prefix consistently */
 export const cleanTicker = (ticker: string) => ticker.replace(/^\$+/, '');
 
-/** Returns the best "Buy" URL for a token. Pump.fun tokens link to pump.fun, others to DEX link or DexScreener. */
+/** Returns the best "Buy" URL for a token. Bags.fm for Solana, DexScreener for others. */
 export const getBuyUrl = (data: CoinData): string => {
-  // If contract address looks like a Solana address and blockchain is solana, link to pump.fun
+  // Solana tokens → Bags.fm
   if (data.blockchain === 'solana' && data.contractAddress && !/^0x/i.test(data.contractAddress)) {
-    return `https://pump.fun/coin/${data.contractAddress}`;
+    return `https://bags.fm/${data.contractAddress}`;
   }
-  // Otherwise use the user-provided DEX link, or fall back to DexScreener
+  // User-provided DEX link
   if (data.socials.dex) return ensureUrl(data.socials.dex);
+  // Fallback to DexScreener
   if (data.contractAddress) {
     const chain = data.blockchain || 'solana';
     return `https://dexscreener.com/${chain}/${data.contractAddress}`;
