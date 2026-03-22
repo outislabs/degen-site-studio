@@ -2,7 +2,7 @@ import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -24,6 +24,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" />, premium: true },
   { id: 'cartoon-sky', name: 'Cartoon Sky', desc: 'Light sky background, clouds, massive bold text', icon: <CloudSun className="w-5 h-5" />, premium: true },
   { id: 'comic-hero', name: 'Comic Hero', desc: 'High energy comic book style with action mascot', icon: <Zap className="w-5 h-5" />, premium: true },
+  { id: 'terminal', name: 'Terminal', desc: 'Hacker/Matrix aesthetic with green monospace text', icon: <Terminal className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
