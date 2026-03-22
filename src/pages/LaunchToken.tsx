@@ -418,8 +418,38 @@ const LaunchToken = () => {
             {/* ── STEP 2: Fee Settings ── */}
             {step === 2 && (
               <div className="space-y-4">
-                <GlassCard title="FEE SETTINGS" icon={<Settings2 className="w-3.5 h-3.5" />}>
-                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed · ~0% fees after bonding</p>
+                <GlassCard title="LAUNCH TYPE" icon={<Sparkles className="w-3.5 h-3.5" />}>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-3">Select a fee structure for your token launch</p>
+                  <div className="grid gap-2.5">
+                    {LAUNCH_TYPES.map(lt => (
+                      <button
+                        key={lt.id}
+                        onClick={() => setSelectedLaunchType(lt.id)}
+                        className={`w-full text-left rounded-xl border-2 p-4 transition-all duration-200 ${
+                          selectedLaunchType === lt.id
+                            ? 'border-[#39FF14] bg-[#39FF14]/5 shadow-[0_0_16px_rgba(57,255,20,0.15)]'
+                            : 'border-border bg-card/60 hover:border-muted-foreground/30'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl mt-0.5">{lt.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold ${selectedLaunchType === lt.id ? 'text-foreground' : 'text-foreground/80'}`}>{lt.name}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{lt.description}</p>
+                          </div>
+                          {selectedLaunchType === lt.id && (
+                            <div className="w-5 h-5 rounded-full bg-[#39FF14] flex items-center justify-center shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 text-black" strokeWidth={3} />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </GlassCard>
+
+                <GlassCard title="FEE SHARING" icon={<Settings2 className="w-3.5 h-3.5" />}>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed</p>
 
                   <RadioOption
                     selected={feeOption === 'keep'}
