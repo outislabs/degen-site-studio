@@ -300,6 +300,7 @@ const Admin = () => {
             <TabsTrigger value="sites" className="gap-1.5 text-xs"><Globe className="w-3.5 h-3.5" />Sites</TabsTrigger>
             <TabsTrigger value="subscriptions" className="gap-1.5 text-xs"><CreditCard className="w-3.5 h-3.5" />Plans</TabsTrigger>
             <TabsTrigger value="content" className="gap-1.5 text-xs"><Image className="w-3.5 h-3.5" />Content</TabsTrigger>
+            <TabsTrigger value="promos" className="gap-1.5 text-xs"><Tag className="w-3.5 h-3.5" />Promos</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
