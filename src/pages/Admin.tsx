@@ -341,7 +341,7 @@ const Admin = () => {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Select
-                              value={u.subscription?.plan || 'free'}
+                              value={u.subscription?.plan || 'starter'}
                               onValueChange={(val) => handleUpdatePlan(u.id, val)}
                             >
                               <SelectTrigger className="h-7 w-24 text-[10px] bg-card border-border">
