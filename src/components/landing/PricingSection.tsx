@@ -10,46 +10,20 @@ interface Props {
 
 const heroPlans = [
   {
-    name: 'Creator',
-    price: '$49',
-    icon: Crown,
-    description: 'Full creative suite',
-    features: [
-      '3 coin websites',
-      'Full content studio',
-      'Unlimited downloads',
-      'Sticker pack builder',
-      'Brand kit & launch kit',
-      'All premium templates',
-    ],
-    cta: 'Start Creating',
-    popular: true,
-  },
-  {
-    name: 'Pro',
-    price: '$99',
-    icon: Star,
-    description: 'Advanced tools & automation',
-    features: [
-      '10 coin websites',
-      'Telegram buy bot',
-      'Whale alerts',
-      'Audit badge',
-      'Multi-platform blast',
-      'Everything in Creator',
-    ],
-    cta: 'Go Pro',
-    popular: false,
-  },
-];
-
-const compactPlans = [
-  {
     name: 'Starter',
     price: '$2.50',
     icon: Zap,
-    description: '7-day free trial',
-    highlight: '1 site · Basic templates · Watermark',
+    description: '7-day free trial included',
+    features: [
+      '1 coin website',
+      'Basic templates',
+      'Branded subdomain',
+      '3 meme downloads/mo',
+      'DegenTools watermark',
+      'Community support',
+    ],
+    cta: 'Start Free Trial',
+    popular: false,
     trial: true,
   },
   {
@@ -57,7 +31,35 @@ const compactPlans = [
     price: '$19',
     icon: Rocket,
     description: 'For serious degens',
-    highlight: 'Custom domain · No watermark · 50 downloads',
+    features: [
+      'Custom domain',
+      'No watermark',
+      'All templates',
+      '50 meme downloads/mo',
+      'Basic shill templates',
+      'Priority support',
+    ],
+    cta: 'Go Degen',
+    popular: true,
+    trial: false,
+  },
+];
+
+const compactPlans = [
+  {
+    name: 'Creator',
+    price: '$49',
+    icon: Crown,
+    description: 'Full creative suite',
+    highlight: '3 sites · Content studio · Sticker packs',
+    trial: false,
+  },
+  {
+    name: 'Pro',
+    price: '$99',
+    icon: Star,
+    description: 'Advanced tools',
+    highlight: '10 sites · Telegram bot · Whale alerts · Audit badge',
     trial: false,
   },
   {
