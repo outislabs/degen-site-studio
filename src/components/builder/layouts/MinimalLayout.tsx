@@ -3,6 +3,8 @@ import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Copy, ExternalLink, Send, MessageCircle } from 'lucide-react';
 import { CountdownBlock, ensureUrl, copyToClipboard, DescriptionBlock, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
+import { themes } from '@/lib/themes';
 
 interface Props {
   data: CoinData;
