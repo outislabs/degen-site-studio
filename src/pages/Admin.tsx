@@ -348,7 +348,7 @@ const Admin = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {['free', 'degen', 'creator', 'pro', 'whale'].map(p => (
+                                {['starter', 'degen', 'creator', 'pro', 'whale'].map(p => (
                                   <SelectItem key={p} value={p} className="text-xs capitalize">{p}</SelectItem>
                                 ))}
                               </SelectContent>
