@@ -42,6 +42,17 @@ interface Stats {
   planBreakdown: Record<string, number>;
 }
 
+interface PromoCode {
+  id: string;
+  code: string;
+  plan: string;
+  duration_days: number;
+  max_uses: number;
+  uses_count: number;
+  active: boolean;
+  created_at: string;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
