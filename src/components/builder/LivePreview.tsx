@@ -12,6 +12,7 @@ import CartoonLayout from './layouts/CartoonLayout';
 import CartoonSkyLayout from './layouts/CartoonSkyLayout';
 import ComicHeroLayout from './layouts/ComicHeroLayout';
 import TerminalLayout from './layouts/TerminalLayout';
+import NeonCyberpunkLayout from './layouts/NeonCyberpunkLayout';
 
 interface Props {
   data: CoinData;
@@ -60,6 +61,7 @@ const LivePreview = ({ data, showWatermark = false }: Props) => {
       {layout === 'cartoon-sky' && <CartoonSkyLayout {...layoutProps} />}
       {layout === 'comic-hero' && <ComicHeroLayout {...layoutProps} />}
       {layout === 'terminal' && <TerminalLayout {...layoutProps} />}
+      {layout === 'neon-cyberpunk' && <NeonCyberpunkLayout {...layoutProps} />}
     </div>
   );
 };
