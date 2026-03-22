@@ -333,8 +333,8 @@ const Pricing = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-20">
           {plans.map((plan) => {
             const Icon = plan.icon;
-            const price = billing === 'annual' && plan.price !== '$0'
-              ? `$${Math.round(parseInt(plan.price.replace('$', '')) * 0.8)}`
+            const price = billing === 'annual' && plan.price !== '$2.50'
+              ? `$${Math.round(parseFloat(plan.price.replace('$', '')) * 0.8)}`
               : plan.price;
 
             const isCurrent = planIdMap[plan.name] === currentPlan;
