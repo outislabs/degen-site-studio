@@ -50,10 +50,10 @@ export const usePlan = (): UsePlanReturn => {
       .single();
 
     if (error && error.code === 'PGRST116') {
-      // No subscription found — create free tier
+      // No subscription found — create starter tier
       const { data: newSub } = await supabase
         .from('user_subscriptions')
-        .insert({ user_id: user.id, plan: 'free' })
+        .insert({ user_id: user.id, plan: 'starter' })
         .select('*')
         .single();
 
