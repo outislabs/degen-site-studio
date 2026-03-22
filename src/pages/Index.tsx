@@ -31,23 +31,11 @@ const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
-  const [spotsLeft, setSpotsLeft] = useState<number | null>(null);
   const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
 
   useEffect(() => {
     if (user) fetchSites();
   }, [user]);
-
-  useEffect(() => {
-    supabase
-      .from('promo_codes')
-      .select('max_uses, uses_count')
-      .eq('code', 'DEGEN50')
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setSpotsLeft(data.max_uses - data.uses_count);
-      });
-  }, []);
 
   const fetchSites = async () => {
     const { data, error } = await supabase
