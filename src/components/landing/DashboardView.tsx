@@ -93,8 +93,8 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
               <div className="flex items-center gap-2">
                 <span className="text-lg">🎁</span>
                 <div>
-                  <p className="text-xs font-medium text-foreground">Have a promo code?</p>
-                  <p className="text-[10px] text-muted-foreground">Use <span className="text-primary font-mono font-bold">DEGEN50</span> for 30 days free on Degen Plan</p>
+                   <p className="text-xs font-medium text-foreground">Have a promo code?</p>
+                   <p className="text-[10px] text-muted-foreground">Claim your free upgrade</p>
                 </div>
               </div>
               <button
