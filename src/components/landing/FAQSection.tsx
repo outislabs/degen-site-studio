@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     q: 'How does pricing work?',
-    a: 'We offer a free tier to get started, plus paid plans starting at $19/mo. All plans are billed monthly and you can pay with crypto via NOWPayments. Upgrade or cancel anytime.',
+    a: 'We offer a Starter plan at $2.50/mo with a 7-day free trial, plus paid plans starting at $19/mo. All plans are billed monthly and you can pay with crypto via NOWPayments. Upgrade or cancel anytime.',
   },
   {
     q: 'Is my data safe?',
