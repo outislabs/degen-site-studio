@@ -5,6 +5,7 @@ import { Copy, Send, MessageCircle, ExternalLink, Wallet, ArrowRight, ShieldChec
 import TickerTape from '../TickerTape';
 import DonutChart from '../DonutChart';
 import { CountdownBlock, Footer, ensureUrl, copyToClipboard, getBuyUrl, getChartUrl, cleanTicker } from './shared';
+import TokenStatsBar from '../TokenStatsBar';
 
 interface Props {
   data: CoinData;
