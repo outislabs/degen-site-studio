@@ -29,6 +29,7 @@ const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactN
   { id: 'luxury', name: 'Luxury', desc: 'Premium black and gold aesthetic inspired by luxury fashion brands', icon: <Gem className="w-5 h-5" />, premium: true },
   { id: 'retro-8bit', name: 'Retro 8-Bit', desc: 'Classic pixel art arcade game aesthetic with retro vibes', icon: <Gamepad2 className="w-5 h-5" />, premium: true },
   { id: 'newspaper', name: 'Newspaper', desc: 'Satirical crypto newspaper with editorial black & white design', icon: <Newspaper className="w-5 h-5" />, premium: true },
+  { id: 'minimalist', name: 'Minimalist', desc: 'Clean Apple-inspired product page with lots of whitespace', icon: <Circle className="w-5 h-5" />, premium: true },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
