@@ -254,8 +254,14 @@ const Pricing = () => {
     }
 
     const targetPlan = planIdMap[planName];
-    if (!targetPlan || targetPlan === 'free') {
+    if (!targetPlan) {
       navigate('/');
+      return;
+    }
+
+    if (targetPlan === 'starter') {
+      // Starter uses free trial flow
+      navigate('/auth');
       return;
     }
 
