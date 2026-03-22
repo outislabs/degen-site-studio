@@ -13,6 +13,10 @@ import type { Provider } from '@reown/appkit-adapter-solana/react';
 
 type AuthView = 'signin' | 'signup' | 'forgot';
 
+const isTelegramWebApp = typeof window !== 'undefined' &&
+  ((window as any).Telegram?.WebApp?.initData !== undefined ||
+   navigator.userAgent.includes('Telegram'));
+
 const Auth = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
