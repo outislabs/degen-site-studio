@@ -35,7 +35,7 @@ const Retro8BitLayout = ({ data, style, countdown, showWatermark }: Props) => {
   const buyUrl = getBuyUrl(data);
 
   return (
-    <div className="min-h-full relative overflow-hidden" style={{ background: BG, color: WHITE }}>
+    <div className="min-h-full relative overflow-hidden retro-screen" style={{ background: BG, color: WHITE }}>
       <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
       <style>{`
@@ -52,7 +52,33 @@ const Retro8BitLayout = ({ data, style, countdown, showWatermark }: Props) => {
           50% { transform: scale(1.08); }
           100% { transform: scale(1); }
         }
+        @keyframes retro-scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100vh); }
+        }
+        @keyframes retro-shake {
+          0%, 100% { transform: translate(0); }
+          20% { transform: translate(-2px, 1px); }
+          40% { transform: translate(2px, -1px); }
+          60% { transform: translate(-1px, -2px); }
+          80% { transform: translate(1px, 2px); }
+        }
+        .retro-screen:hover {
+          animation: retro-shake 0.4s ease-in-out;
+        }
       `}</style>
+
+      {/* ── Scanline overlay ── */}
+      <div className="absolute inset-0 pointer-events-none z-50 opacity-[0.04]" style={{
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.8) 2px, rgba(0,0,0,0.8) 4px)',
+        backgroundSize: '100% 4px',
+      }} />
+      <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+        <div className="w-full h-[6px] opacity-[0.07]" style={{
+          background: `linear-gradient(transparent, ${CYAN}, transparent)`,
+          animation: 'retro-scanline 5s linear infinite',
+        }} />
+      </div>
 
       {/* ── Pixel grid BG ── */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.06]" style={{
