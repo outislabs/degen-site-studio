@@ -2,7 +2,7 @@ import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2 } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
