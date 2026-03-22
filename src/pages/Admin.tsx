@@ -819,6 +819,7 @@ const Admin = () => {
                 if (deleteDialog.type === 'user') handleDeleteUser(deleteDialog.id);
                 else if (deleteDialog.type === 'site') handleDeleteSite(deleteDialog.id);
                 else if (deleteDialog.type === 'content') handleDeleteContent(deleteDialog.id);
+                else if (deleteDialog.type === 'promo') handleDeletePromo(deleteDialog.id);
               }}
             >
               Delete
