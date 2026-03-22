@@ -199,7 +199,7 @@ const Admin = () => {
   if (!isAdmin) return null;
 
   const planColors: Record<string, string> = {
-    free: 'bg-muted text-muted-foreground',
+    starter: 'bg-muted text-muted-foreground',
     degen: 'bg-primary/20 text-primary',
     creator: 'bg-accent/20 text-accent',
     pro: 'bg-[hsl(var(--neon-blue))/0.2] text-[hsl(var(--neon-blue))]',
