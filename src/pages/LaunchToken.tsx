@@ -55,6 +55,12 @@ const LaunchToken = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Fee settings
+  const LAUNCH_TYPES = [
+    { id: "fa29606e-5e48-4c37-827f-4b03d58ee23d", name: "Founder Mode", description: "Earn 2% of total trading volume pre and post migration", icon: "👑" },
+    { id: "d16d3585-6488-4a6c-9a6f-e6c39ca0fda3", name: "~0% Mode", description: "0.25% pre-migration, 1% post-migration with 50% fee compounding", icon: "🎯" },
+    { id: "a7c8e1f2-3d4b-5a6c-9e0f-1b2c3d4e5f6a", name: "Paper Hand Tax", description: "1% pre-migration, 0.25% post-migration with 50% fee compounding", icon: "📄" },
+  ];
+  const [selectedLaunchType, setSelectedLaunchType] = useState(LAUNCH_TYPES[0].id);
   const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
   const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github'; username: string; bps: number }>>([]);
   const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
@@ -115,7 +121,7 @@ const LaunchToken = () => {
 
       toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [] }
+        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [], bagsConfigType: selectedLaunchType }
       });
       if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
       const { configKey, transactions: configTxs } = configData;
@@ -412,8 +418,38 @@ const LaunchToken = () => {
             {/* ── STEP 2: Fee Settings ── */}
             {step === 2 && (
               <div className="space-y-4">
-                <GlassCard title="FEE SETTINGS" icon={<Settings2 className="w-3.5 h-3.5" />}>
-                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed · ~0% fees after bonding</p>
+                <GlassCard title="LAUNCH TYPE" icon={<Sparkles className="w-3.5 h-3.5" />}>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-3">Select a fee structure for your token launch</p>
+                  <div className="grid gap-2.5">
+                    {LAUNCH_TYPES.map(lt => (
+                      <button
+                        key={lt.id}
+                        onClick={() => setSelectedLaunchType(lt.id)}
+                        className={`w-full text-left rounded-xl border-2 p-4 transition-all duration-200 ${
+                          selectedLaunchType === lt.id
+                            ? 'border-[#39FF14] bg-[#39FF14]/5 shadow-[0_0_16px_rgba(57,255,20,0.15)]'
+                            : 'border-border bg-card/60 hover:border-muted-foreground/30'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl mt-0.5">{lt.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold ${selectedLaunchType === lt.id ? 'text-foreground' : 'text-foreground/80'}`}>{lt.name}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{lt.description}</p>
+                          </div>
+                          {selectedLaunchType === lt.id && (
+                            <div className="w-5 h-5 rounded-full bg-[#39FF14] flex items-center justify-center shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 text-black" strokeWidth={3} />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </GlassCard>
+
+                <GlassCard title="FEE SHARING" icon={<Settings2 className="w-3.5 h-3.5" />}>
+                  <p className="text-xs text-muted-foreground -mt-1 mb-2">Choose how trading fees are distributed</p>
 
                   <RadioOption
                     selected={feeOption === 'keep'}
