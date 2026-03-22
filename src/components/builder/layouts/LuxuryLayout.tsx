@@ -30,6 +30,27 @@ const LuxuryLayout = ({ data, style, countdown, showWatermark }: Props) => {
   return (
     <div className="min-h-full relative overflow-hidden" style={{ background: BG, color: '#fff' }}>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      <style>{`
+        @keyframes luxury-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .luxury-shimmer-text {
+          background: linear-gradient(
+            90deg,
+            #fff 0%,
+            #fff 35%,
+            ${GOLD} 50%,
+            #fff 65%,
+            #fff 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: luxury-shimmer 6s ease-in-out infinite;
+        }
+      `}</style>
 
       {/* Subtle gold texture overlay */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.02]" style={{
