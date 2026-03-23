@@ -24,6 +24,7 @@ import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
 import ApiDashboard from "./pages/ApiDashboard.tsx";
 import ConnectTelegram from "./pages/ConnectTelegram.tsx";
+import Docs from "./pages/Docs.tsx";
 
 const queryClient = new QueryClient();
 
