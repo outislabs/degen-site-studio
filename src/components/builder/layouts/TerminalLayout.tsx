@@ -172,43 +172,43 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       </section>
 
       {/* ── STATS (terminal style) ── */}
-      <section className="relative z-10 px-5 py-6 border-t border-b" style={{ borderColor: FAINT_GREEN }}>
+      <section className="relative z-10 px-3 sm:px-5 py-4 sm:py-6 border-t border-b" style={{ borderColor: FAINT_GREEN }}>
         <TokenStatsBar contractAddress={data.contractAddress} style={style} />
       </section>
 
       {/* ── COUNTDOWN ── */}
       {data.showCountdown && data.launchDate && (
-        <section className="relative z-10 py-8 px-5">
+        <section className="relative z-10 py-6 sm:py-8 px-3 sm:px-5">
           <CountdownBlock countdown={countdown} style={style} />
         </section>
       )}
 
       {/* ── ABOUT ── */}
       {data.description && (
-        <section id="about" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <section id="about" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
           <div className="max-w-3xl mx-auto">
-            <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+            <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
               {'>'} cat about.txt
             </h3>
-            <div className="px-4 py-4 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.02)' }}>
-              <p className="text-xs mb-2" style={{ color: DIM_GREEN }}>/*</p>
-              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: DIM_GREEN }}>
+            <div className="px-3 sm:px-4 py-3 sm:py-4 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.02)' }}>
+              <p className="text-[10px] sm:text-xs mb-2" style={{ color: DIM_GREEN }}>/*</p>
+              <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-line" style={{ color: DIM_GREEN }}>
                 {data.description}
               </p>
-              <p className="text-xs mt-2" style={{ color: DIM_GREEN }}>*/</p>
+              <p className="text-[10px] sm:text-xs mt-2" style={{ color: DIM_GREEN }}>*/</p>
             </div>
           </div>
         </section>
       )}
 
       {/* ── TOKENOMICS ── */}
-      <section id="tokenomics" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+      <section id="tokenomics" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
         <div className="max-w-3xl mx-auto">
-          <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+          <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
             {'>'} cat tokenomics.dat
           </h3>
-          {/* ASCII table */}
-          <div className="text-xs leading-relaxed mb-6 overflow-x-auto" style={{ color: GREEN }}>
+          {/* ASCII table — desktop only */}
+          <div className="hidden sm:block text-xs leading-relaxed mb-6 overflow-x-auto" style={{ color: GREEN }}>
             <pre className="inline-block min-w-[320px]">
 {`┌──────────────────┬───────────────────────┐
 │  FIELD           │  VALUE                │
@@ -224,6 +224,24 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
 └──────────────────┴───────────────────────┘`}
             </pre>
           </div>
+          {/* Mobile: compact list */}
+          <div className="sm:hidden space-y-1.5 mb-5 text-[11px]" style={{ color: GREEN }}>
+            {[
+              ['Supply', data.totalSupply || '—'],
+              ['Buy Tax', data.buyTax + '%'],
+              ['Sell Tax', data.sellTax + '%'],
+              ['LP Status', data.liquidityStatus === 'locked' ? '🔒 Locked' : '🔥 Burned'],
+              ['LP Pool', data.distribution.lp + '%'],
+              ['Team', data.distribution.team + '%'],
+              ['Marketing', data.distribution.marketing + '%'],
+              ['Burn', data.distribution.burn + '%'],
+            ].map(([label, val]) => (
+              <div key={label} className="flex justify-between px-2 py-1.5 border-b" style={{ borderColor: FAINT_GREEN }}>
+                <span style={{ color: DIM_GREEN }}>$ {label}</span>
+                <span>{val}</span>
+              </div>
+            ))}
+          </div>
           <div className="flex justify-center">
             <DonutChart distribution={data.distribution} accentHex={GREEN} />
           </div>
@@ -231,25 +249,25 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       </section>
 
       {/* ── HOW TO BUY ── */}
-      <section id="howtobuy" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+      <section id="howtobuy" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
         <div className="max-w-3xl mx-auto">
-          <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+          <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
             {'>'} ./how-to-buy.sh
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
-              { step: '01', cmd: 'install_wallet', title: 'Get a Wallet', desc: 'Download Phantom or any Solana-compatible wallet', icon: <Wallet className="w-5 h-5" /> },
-              { step: '02', cmd: `fund_wallet --token ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, title: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: 'Buy from an exchange and transfer to your wallet', icon: <ArrowRight className="w-5 h-5" /> },
-              { step: '03', cmd: `swap --pair ${ticker || 'TOKEN'}/SOL`, title: 'Go to DEX', desc: `Swap for $${ticker || 'TOKEN'} using the contract address`, icon: <ExternalLink className="w-5 h-5" /> },
+              { step: '01', cmd: 'install_wallet', title: 'Get a Wallet', desc: 'Download Phantom or any Solana-compatible wallet', icon: <Wallet className="w-4 h-4 sm:w-5 sm:h-5" /> },
+              { step: '02', cmd: `fund_wallet --token ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, title: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: 'Buy from an exchange and transfer to your wallet', icon: <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /> },
+              { step: '03', cmd: `swap --pair ${ticker || 'TOKEN'}/SOL`, title: 'Go to DEX', desc: `Swap for $${ticker || 'TOKEN'} using the contract address`, icon: <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" /> },
             ].map((item) => (
-              <div key={item.step} className="flex items-start gap-4 p-4 border transition-colors hover:bg-[rgba(0,255,65,0.03)]" style={{ borderColor: FAINT_GREEN }}>
-                <div className="w-10 h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: GREEN, color: GREEN }}>
+              <div key={item.step} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 border transition-colors hover:bg-[rgba(0,255,65,0.03)]" style={{ borderColor: FAINT_GREEN }}>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: GREEN, color: GREEN }}>
                   {item.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] mb-1" style={{ color: DIM_GREEN }}>$ step {item.step}: {item.cmd}</p>
-                  <h4 className="font-bold text-sm mb-1" style={{ color: GREEN }}>{item.title}</h4>
-                  <p className="text-xs" style={{ color: DIM_GREEN }}>{item.desc}</p>
+                  <p className="text-[9px] sm:text-[10px] mb-0.5 sm:mb-1 truncate" style={{ color: DIM_GREEN }}>$ {item.cmd}</p>
+                  <h4 className="font-bold text-xs sm:text-sm mb-0.5 sm:mb-1" style={{ color: GREEN }}>{item.title}</h4>
+                  <p className="text-[10px] sm:text-xs" style={{ color: DIM_GREEN }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -259,22 +277,22 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
 
       {/* ── ROADMAP ── */}
       {data.roadmap.length > 0 && (
-        <section id="roadmap" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <section id="roadmap" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
           <div className="max-w-3xl mx-auto">
-            <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+            <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
               {'>'} cat roadmap.md
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {data.roadmap.map((phase, i) => (
-                <div key={phase.id} className="border p-4" style={{ borderColor: FAINT_GREEN }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs px-2 py-0.5 border font-bold" style={{ borderColor: GREEN, color: GREEN }}>[{String(i + 1).padStart(2, '0')}]</span>
-                    <h4 className="font-bold text-sm uppercase" style={{ color: GREEN }}>{phase.title.replace(/Phase \d+:\s*/, '')}</h4>
+                <div key={phase.id} className="border p-3 sm:p-4" style={{ borderColor: FAINT_GREEN }}>
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 border font-bold" style={{ borderColor: GREEN, color: GREEN }}>[{String(i + 1).padStart(2, '0')}]</span>
+                    <h4 className="font-bold text-xs sm:text-sm uppercase" style={{ color: GREEN }}>{phase.title.replace(/Phase \d+:\s*/, '')}</h4>
                   </div>
-                  <ul className="space-y-1.5 pl-6">
+                  <ul className="space-y-1 sm:space-y-1.5 pl-4 sm:pl-6">
                     {phase.items.filter(Boolean).map((item, j) => (
-                      <li key={j} className="text-xs flex items-start gap-2" style={{ color: DIM_GREEN }}>
-                        <span style={{ color: GREEN }}>├──</span> {item}
+                      <li key={j} className="text-[10px] sm:text-xs flex items-start gap-1.5 sm:gap-2" style={{ color: DIM_GREEN }}>
+                        <span className="flex-shrink-0" style={{ color: GREEN }}>├──</span> <span className="break-words">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -283,6 +301,33 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
             </div>
           </div>
         </section>
+      )}
+
+      {/* ── SOCIALS ── */}
+      <section className="relative z-10 py-6 sm:py-8 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
+          {data.socials.telegram && (
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-1.5" style={{ borderColor: GREEN, color: GREEN }}>
+              <Send className="w-3 h-3" /> [TG]
+            </a>
+          )}
+          {data.socials.twitter && (
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+              [𝕏]
+            </a>
+          )}
+          {data.socials.discord && (
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+              [DISCORD]
+            </a>
+          )}
+          {data.socials.dex && (
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-1.5" style={{ borderColor: GREEN, color: GREEN }}>
+              <ExternalLink className="w-3 h-3" /> [DEX]
+            </a>
+          )}
+        </div>
+      </section>
       )}
 
       {/* ── SOCIALS ── */}
