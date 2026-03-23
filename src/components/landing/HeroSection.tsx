@@ -75,8 +75,8 @@ const HeroSection = ({ onGetStarted }: Props) => {
 
           {/* Heading */}
           <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-4 sm:mb-8">
-            YOUR TOOLKIT FOR<br />
-            <span className="text-primary text-glow">MEME COIN</span> DOMINATION
+            THE ULTIMATE<br />
+            <span className="text-primary text-glow">MEME COIN</span> LAUNCH STACK
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-12 px-2">
