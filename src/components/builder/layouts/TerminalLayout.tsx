@@ -96,10 +96,10 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       }} />
 
       {/* ── NAV ── */}
-      <nav className="relative z-10 flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,0,0,0.8)' }}>
-        <div className="flex items-center gap-2">
-          <span style={{ color: DIM_GREEN }}>{'>'}_</span>
-          <span className="font-bold text-sm tracking-wider uppercase">{data.name || 'TOKEN'}</span>
+      <nav className="relative z-10 flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,0,0,0.8)' }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="hidden sm:inline" style={{ color: DIM_GREEN }}>{'>'}_</span>
+          <span className="font-bold text-xs sm:text-sm tracking-wider uppercase truncate max-w-[120px] sm:max-w-none">{data.name || 'TOKEN'}</span>
         </div>
         <div className="hidden md:flex items-center gap-5 text-xs">
           {data.socials.twitter && (
@@ -112,103 +112,103 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
             <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: DIM_GREEN }}>discord</a>
           )}
         </div>
-        <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider border" style={{ borderColor: GREEN, color: GREEN, background: 'transparent' }}>
-          [Buy Now]
+        <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider border flex-shrink-0" style={{ borderColor: GREEN, color: GREEN, background: 'transparent' }}>
+          [Buy]
         </a>
       </nav>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 px-5 pt-12 pb-8">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          {/* Left */}
-          <div className="flex-1">
-            <p className="text-xs mb-3" style={{ color: DIM_GREEN }}>{'>'} LOADING {fullText}...</p>
-            <h2 className="font-bold leading-none mb-4" style={{
-              fontSize: 'clamp(2.5rem, 10vw, 6rem)',
-              color: GREEN,
-              textShadow: `0 0 20px ${FAINT_GREEN}, 0 0 40px rgba(0,255,65,0.08)`,
-              letterSpacing: '-0.02em',
-            }}>
-              {doneTyping ? fullText : typed}<Cursor />
-            </h2>
-            <p className="text-sm mb-5" style={{ color: DIM_GREEN }}>
-              // {data.tagline || data.name || 'Your path to the moon'}
-            </p>
-            {data.contractAddress && (
-              <div className="flex items-center gap-2 mb-5 px-3 py-2 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.03)' }}>
-                <span className="text-xs" style={{ color: DIM_GREEN }}>$&nbsp;contract:</span>
-                <code className="text-xs truncate flex-1" style={{ color: GREEN }}>{data.contractAddress}</code>
-                <button onClick={() => copyToClipboard(data.contractAddress)} className="p-1 hover:bg-white/5 transition-colors">
-                  <Copy className="w-3.5 h-3.5" style={{ color: GREEN }} />
-                </button>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-3">
-              <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
-                [BUY ${ticker || 'TOKEN'}]
-              </a>
-              <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: DIM_GREEN, color: DIM_GREEN }}>
-                <ExternalLink className="w-3.5 h-3.5" /> [VIEW CHART]
-              </a>
-            </div>
-          </div>
-          {/* Right: logo */}
-          <div className="flex-shrink-0">
+      <section className="relative z-10 px-4 sm:px-5 pt-8 sm:pt-12 pb-6 sm:pb-8">
+        <div className="max-w-4xl mx-auto flex flex-col items-center md:flex-row md:items-center gap-6 sm:gap-8">
+          {/* Logo first on mobile, right on desktop */}
+          <div className="flex-shrink-0 order-first md:order-last">
             <div className="border-2 p-1 relative" style={{ borderColor: GREEN, boxShadow: `0 0 30px ${FAINT_GREEN}` }}>
               <span className="absolute -top-3 -left-3 text-lg font-bold" style={{ color: GREEN }}>[</span>
               <span className="absolute -top-3 -right-3 text-lg font-bold" style={{ color: GREEN }}>]</span>
               <span className="absolute -bottom-3 -left-3 text-lg font-bold" style={{ color: GREEN }}>[</span>
               <span className="absolute -bottom-3 -right-3 text-lg font-bold" style={{ color: GREEN }}>]</span>
               {data.logoUrl ? (
-                <img src={data.logoUrl} alt={data.name} className="w-[200px] h-[200px] md:w-[260px] md:h-[260px] object-contain" />
+                <img src={data.logoUrl} alt={data.name} className="w-[140px] h-[140px] sm:w-[200px] sm:h-[200px] md:w-[260px] md:h-[260px] object-contain" />
               ) : (
-                <div className="w-[200px] h-[200px] md:w-[260px] md:h-[260px] flex items-center justify-center" style={{ background: 'rgba(0,255,65,0.03)' }}>
-                  <span className="text-5xl">{'>'}_</span>
+                <div className="w-[140px] h-[140px] sm:w-[200px] sm:h-[200px] md:w-[260px] md:h-[260px] flex items-center justify-center" style={{ background: 'rgba(0,255,65,0.03)' }}>
+                  <span className="text-3xl sm:text-5xl">{'>'}_</span>
                 </div>
               )}
+            </div>
+          </div>
+          {/* Text content */}
+          <div className="flex-1 text-center md:text-left">
+            <p className="text-[10px] sm:text-xs mb-2 sm:mb-3" style={{ color: DIM_GREEN }}>{'>'} LOADING {fullText}...</p>
+            <h2 className="font-bold leading-none mb-3 sm:mb-4" style={{
+              fontSize: 'clamp(1.8rem, 8vw, 6rem)',
+              color: GREEN,
+              textShadow: `0 0 20px ${FAINT_GREEN}, 0 0 40px rgba(0,255,65,0.08)`,
+              letterSpacing: '-0.02em',
+            }}>
+              {doneTyping ? fullText : typed}<Cursor />
+            </h2>
+            <p className="text-xs sm:text-sm mb-4 sm:mb-5" style={{ color: DIM_GREEN }}>
+              // {data.tagline || data.name || 'Your path to the moon'}
+            </p>
+            {data.contractAddress && (
+              <div className="flex items-center gap-2 mb-4 sm:mb-5 px-2 sm:px-3 py-2 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.03)' }}>
+                <span className="text-[10px] sm:text-xs flex-shrink-0" style={{ color: DIM_GREEN }}>$</span>
+                <code className="text-[10px] sm:text-xs truncate flex-1" style={{ color: GREEN }}>{data.contractAddress}</code>
+                <button onClick={() => copyToClipboard(data.contractAddress)} className="p-1 hover:bg-white/5 transition-colors flex-shrink-0">
+                  <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: GREEN }} />
+                </button>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center md:justify-start">
+              <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+                [BUY ${ticker || 'TOKEN'}]
+              </a>
+              <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: DIM_GREEN, color: DIM_GREEN }}>
+                <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> [CHART]
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── STATS (terminal style) ── */}
-      <section className="relative z-10 px-5 py-6 border-t border-b" style={{ borderColor: FAINT_GREEN }}>
+      <section className="relative z-10 px-3 sm:px-5 py-4 sm:py-6 border-t border-b" style={{ borderColor: FAINT_GREEN }}>
         <TokenStatsBar contractAddress={data.contractAddress} style={style} />
       </section>
 
       {/* ── COUNTDOWN ── */}
       {data.showCountdown && data.launchDate && (
-        <section className="relative z-10 py-8 px-5">
+        <section className="relative z-10 py-6 sm:py-8 px-3 sm:px-5">
           <CountdownBlock countdown={countdown} style={style} />
         </section>
       )}
 
       {/* ── ABOUT ── */}
       {data.description && (
-        <section id="about" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <section id="about" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
           <div className="max-w-3xl mx-auto">
-            <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+            <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
               {'>'} cat about.txt
             </h3>
-            <div className="px-4 py-4 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.02)' }}>
-              <p className="text-xs mb-2" style={{ color: DIM_GREEN }}>/*</p>
-              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: DIM_GREEN }}>
+            <div className="px-3 sm:px-4 py-3 sm:py-4 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.02)' }}>
+              <p className="text-[10px] sm:text-xs mb-2" style={{ color: DIM_GREEN }}>/*</p>
+              <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-line" style={{ color: DIM_GREEN }}>
                 {data.description}
               </p>
-              <p className="text-xs mt-2" style={{ color: DIM_GREEN }}>*/</p>
+              <p className="text-[10px] sm:text-xs mt-2" style={{ color: DIM_GREEN }}>*/</p>
             </div>
           </div>
         </section>
       )}
 
       {/* ── TOKENOMICS ── */}
-      <section id="tokenomics" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+      <section id="tokenomics" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
         <div className="max-w-3xl mx-auto">
-          <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+          <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
             {'>'} cat tokenomics.dat
           </h3>
-          {/* ASCII table */}
-          <div className="text-xs leading-relaxed mb-6 overflow-x-auto" style={{ color: GREEN }}>
+          {/* ASCII table — desktop only */}
+          <div className="hidden sm:block text-xs leading-relaxed mb-6 overflow-x-auto" style={{ color: GREEN }}>
             <pre className="inline-block min-w-[320px]">
 {`┌──────────────────┬───────────────────────┐
 │  FIELD           │  VALUE                │
@@ -224,6 +224,24 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
 └──────────────────┴───────────────────────┘`}
             </pre>
           </div>
+          {/* Mobile: compact list */}
+          <div className="sm:hidden space-y-1.5 mb-5 text-[11px]" style={{ color: GREEN }}>
+            {[
+              ['Supply', data.totalSupply || '—'],
+              ['Buy Tax', data.buyTax + '%'],
+              ['Sell Tax', data.sellTax + '%'],
+              ['LP Status', data.liquidityStatus === 'locked' ? '🔒 Locked' : '🔥 Burned'],
+              ['LP Pool', data.distribution.lp + '%'],
+              ['Team', data.distribution.team + '%'],
+              ['Marketing', data.distribution.marketing + '%'],
+              ['Burn', data.distribution.burn + '%'],
+            ].map(([label, val]) => (
+              <div key={label} className="flex justify-between px-2 py-1.5 border-b" style={{ borderColor: FAINT_GREEN }}>
+                <span style={{ color: DIM_GREEN }}>$ {label}</span>
+                <span>{val}</span>
+              </div>
+            ))}
+          </div>
           <div className="flex justify-center">
             <DonutChart distribution={data.distribution} accentHex={GREEN} />
           </div>
@@ -231,25 +249,25 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       </section>
 
       {/* ── HOW TO BUY ── */}
-      <section id="howtobuy" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+      <section id="howtobuy" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
         <div className="max-w-3xl mx-auto">
-          <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+          <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
             {'>'} ./how-to-buy.sh
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
-              { step: '01', cmd: 'install_wallet', title: 'Get a Wallet', desc: 'Download Phantom or any Solana-compatible wallet', icon: <Wallet className="w-5 h-5" /> },
-              { step: '02', cmd: `fund_wallet --token ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, title: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: 'Buy from an exchange and transfer to your wallet', icon: <ArrowRight className="w-5 h-5" /> },
-              { step: '03', cmd: `swap --pair ${ticker || 'TOKEN'}/SOL`, title: 'Go to DEX', desc: `Swap for $${ticker || 'TOKEN'} using the contract address`, icon: <ExternalLink className="w-5 h-5" /> },
+              { step: '01', cmd: 'install_wallet', title: 'Get a Wallet', desc: 'Download Phantom or any Solana-compatible wallet', icon: <Wallet className="w-4 h-4 sm:w-5 sm:h-5" /> },
+              { step: '02', cmd: `fund_wallet --token ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, title: `Get some ${data.blockchain === 'solana' ? 'SOL' : 'ETH'}`, desc: 'Buy from an exchange and transfer to your wallet', icon: <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" /> },
+              { step: '03', cmd: `swap --pair ${ticker || 'TOKEN'}/SOL`, title: 'Go to DEX', desc: `Swap for $${ticker || 'TOKEN'} using the contract address`, icon: <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" /> },
             ].map((item) => (
-              <div key={item.step} className="flex items-start gap-4 p-4 border transition-colors hover:bg-[rgba(0,255,65,0.03)]" style={{ borderColor: FAINT_GREEN }}>
-                <div className="w-10 h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: GREEN, color: GREEN }}>
+              <div key={item.step} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 border transition-colors hover:bg-[rgba(0,255,65,0.03)]" style={{ borderColor: FAINT_GREEN }}>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 border flex items-center justify-center flex-shrink-0" style={{ borderColor: GREEN, color: GREEN }}>
                   {item.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] mb-1" style={{ color: DIM_GREEN }}>$ step {item.step}: {item.cmd}</p>
-                  <h4 className="font-bold text-sm mb-1" style={{ color: GREEN }}>{item.title}</h4>
-                  <p className="text-xs" style={{ color: DIM_GREEN }}>{item.desc}</p>
+                  <p className="text-[9px] sm:text-[10px] mb-0.5 sm:mb-1 truncate" style={{ color: DIM_GREEN }}>$ {item.cmd}</p>
+                  <h4 className="font-bold text-xs sm:text-sm mb-0.5 sm:mb-1" style={{ color: GREEN }}>{item.title}</h4>
+                  <p className="text-[10px] sm:text-xs" style={{ color: DIM_GREEN }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -259,22 +277,22 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
 
       {/* ── ROADMAP ── */}
       {data.roadmap.length > 0 && (
-        <section id="roadmap" className="relative z-10 py-10 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <section id="roadmap" className="relative z-10 py-8 sm:py-10 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
           <div className="max-w-3xl mx-auto">
-            <h3 className="font-bold text-lg mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
+            <h3 className="font-bold text-base sm:text-lg mb-4 sm:mb-6 uppercase" style={{ color: GREEN, textShadow: `0 0 10px ${FAINT_GREEN}` }}>
               {'>'} cat roadmap.md
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {data.roadmap.map((phase, i) => (
-                <div key={phase.id} className="border p-4" style={{ borderColor: FAINT_GREEN }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs px-2 py-0.5 border font-bold" style={{ borderColor: GREEN, color: GREEN }}>[{String(i + 1).padStart(2, '0')}]</span>
-                    <h4 className="font-bold text-sm uppercase" style={{ color: GREEN }}>{phase.title.replace(/Phase \d+:\s*/, '')}</h4>
+                <div key={phase.id} className="border p-3 sm:p-4" style={{ borderColor: FAINT_GREEN }}>
+                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                    <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 border font-bold" style={{ borderColor: GREEN, color: GREEN }}>[{String(i + 1).padStart(2, '0')}]</span>
+                    <h4 className="font-bold text-xs sm:text-sm uppercase" style={{ color: GREEN }}>{phase.title.replace(/Phase \d+:\s*/, '')}</h4>
                   </div>
-                  <ul className="space-y-1.5 pl-6">
+                  <ul className="space-y-1 sm:space-y-1.5 pl-4 sm:pl-6">
                     {phase.items.filter(Boolean).map((item, j) => (
-                      <li key={j} className="text-xs flex items-start gap-2" style={{ color: DIM_GREEN }}>
-                        <span style={{ color: GREEN }}>├──</span> {item}
+                      <li key={j} className="text-[10px] sm:text-xs flex items-start gap-1.5 sm:gap-2" style={{ color: DIM_GREEN }}>
+                        <span className="flex-shrink-0" style={{ color: GREEN }}>├──</span> <span className="break-words">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -286,26 +304,26 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       )}
 
       {/* ── SOCIALS ── */}
-      <section className="relative z-10 py-8 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
-        <div className="flex justify-center gap-3 flex-wrap">
+      <section className="relative z-10 py-6 sm:py-8 px-3 sm:px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
+        <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
           {data.socials.telegram && (
-            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: GREEN, color: GREEN }}>
-              <Send className="w-3.5 h-3.5" /> [TELEGRAM]
+            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-1.5" style={{ borderColor: GREEN, color: GREEN }}>
+              <Send className="w-3 h-3" /> [TG]
             </a>
           )}
           {data.socials.twitter && (
-            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
-              [𝕏_TWITTER]
+            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+              [𝕏]
             </a>
           )}
           {data.socials.discord && (
-            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
               [DISCORD]
             </a>
           )}
           {data.socials.dex && (
-            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: GREEN, color: GREEN }}>
-              <ExternalLink className="w-3.5 h-3.5" /> [DEX]
+            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-1.5" style={{ borderColor: GREEN, color: GREEN }}>
+              <ExternalLink className="w-3 h-3" /> [DEX]
             </a>
           )}
         </div>
