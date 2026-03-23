@@ -96,10 +96,10 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
       }} />
 
       {/* ── NAV ── */}
-      <nav className="relative z-10 flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,0,0,0.8)' }}>
-        <div className="flex items-center gap-2">
-          <span style={{ color: DIM_GREEN }}>{'>'}_</span>
-          <span className="font-bold text-sm tracking-wider uppercase">{data.name || 'TOKEN'}</span>
+      <nav className="relative z-10 flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,0,0,0.8)' }}>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="hidden sm:inline" style={{ color: DIM_GREEN }}>{'>'}_</span>
+          <span className="font-bold text-xs sm:text-sm tracking-wider uppercase truncate max-w-[120px] sm:max-w-none">{data.name || 'TOKEN'}</span>
         </div>
         <div className="hidden md:flex items-center gap-5 text-xs">
           {data.socials.twitter && (
@@ -112,60 +112,60 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
             <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="hover:underline" style={{ color: DIM_GREEN }}>discord</a>
           )}
         </div>
-        <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider border" style={{ borderColor: GREEN, color: GREEN, background: 'transparent' }}>
-          [Buy Now]
+        <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider border flex-shrink-0" style={{ borderColor: GREEN, color: GREEN, background: 'transparent' }}>
+          [Buy]
         </a>
       </nav>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 px-5 pt-12 pb-8">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
-          {/* Left */}
-          <div className="flex-1">
-            <p className="text-xs mb-3" style={{ color: DIM_GREEN }}>{'>'} LOADING {fullText}...</p>
-            <h2 className="font-bold leading-none mb-4" style={{
-              fontSize: 'clamp(2.5rem, 10vw, 6rem)',
-              color: GREEN,
-              textShadow: `0 0 20px ${FAINT_GREEN}, 0 0 40px rgba(0,255,65,0.08)`,
-              letterSpacing: '-0.02em',
-            }}>
-              {doneTyping ? fullText : typed}<Cursor />
-            </h2>
-            <p className="text-sm mb-5" style={{ color: DIM_GREEN }}>
-              // {data.tagline || data.name || 'Your path to the moon'}
-            </p>
-            {data.contractAddress && (
-              <div className="flex items-center gap-2 mb-5 px-3 py-2 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.03)' }}>
-                <span className="text-xs" style={{ color: DIM_GREEN }}>$&nbsp;contract:</span>
-                <code className="text-xs truncate flex-1" style={{ color: GREEN }}>{data.contractAddress}</code>
-                <button onClick={() => copyToClipboard(data.contractAddress)} className="p-1 hover:bg-white/5 transition-colors">
-                  <Copy className="w-3.5 h-3.5" style={{ color: GREEN }} />
-                </button>
-              </div>
-            )}
-            <div className="flex flex-wrap gap-3">
-              <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
-                [BUY ${ticker || 'TOKEN'}]
-              </a>
-              <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: DIM_GREEN, color: DIM_GREEN }}>
-                <ExternalLink className="w-3.5 h-3.5" /> [VIEW CHART]
-              </a>
-            </div>
-          </div>
-          {/* Right: logo */}
-          <div className="flex-shrink-0">
+      <section className="relative z-10 px-4 sm:px-5 pt-8 sm:pt-12 pb-6 sm:pb-8">
+        <div className="max-w-4xl mx-auto flex flex-col items-center md:flex-row md:items-center gap-6 sm:gap-8">
+          {/* Logo first on mobile, right on desktop */}
+          <div className="flex-shrink-0 order-first md:order-last">
             <div className="border-2 p-1 relative" style={{ borderColor: GREEN, boxShadow: `0 0 30px ${FAINT_GREEN}` }}>
               <span className="absolute -top-3 -left-3 text-lg font-bold" style={{ color: GREEN }}>[</span>
               <span className="absolute -top-3 -right-3 text-lg font-bold" style={{ color: GREEN }}>]</span>
               <span className="absolute -bottom-3 -left-3 text-lg font-bold" style={{ color: GREEN }}>[</span>
               <span className="absolute -bottom-3 -right-3 text-lg font-bold" style={{ color: GREEN }}>]</span>
               {data.logoUrl ? (
-                <img src={data.logoUrl} alt={data.name} className="w-[200px] h-[200px] md:w-[260px] md:h-[260px] object-contain" />
+                <img src={data.logoUrl} alt={data.name} className="w-[140px] h-[140px] sm:w-[200px] sm:h-[200px] md:w-[260px] md:h-[260px] object-contain" />
               ) : (
-                <div className="w-[200px] h-[200px] md:w-[260px] md:h-[260px] flex items-center justify-center" style={{ background: 'rgba(0,255,65,0.03)' }}>
-                  <span className="text-5xl">{'>'}_</span>
+                <div className="w-[140px] h-[140px] sm:w-[200px] sm:h-[200px] md:w-[260px] md:h-[260px] flex items-center justify-center" style={{ background: 'rgba(0,255,65,0.03)' }}>
+                  <span className="text-3xl sm:text-5xl">{'>'}_</span>
                 </div>
               )}
+            </div>
+          </div>
+          {/* Text content */}
+          <div className="flex-1 text-center md:text-left">
+            <p className="text-[10px] sm:text-xs mb-2 sm:mb-3" style={{ color: DIM_GREEN }}>{'>'} LOADING {fullText}...</p>
+            <h2 className="font-bold leading-none mb-3 sm:mb-4" style={{
+              fontSize: 'clamp(1.8rem, 8vw, 6rem)',
+              color: GREEN,
+              textShadow: `0 0 20px ${FAINT_GREEN}, 0 0 40px rgba(0,255,65,0.08)`,
+              letterSpacing: '-0.02em',
+            }}>
+              {doneTyping ? fullText : typed}<Cursor />
+            </h2>
+            <p className="text-xs sm:text-sm mb-4 sm:mb-5" style={{ color: DIM_GREEN }}>
+              // {data.tagline || data.name || 'Your path to the moon'}
+            </p>
+            {data.contractAddress && (
+              <div className="flex items-center gap-2 mb-4 sm:mb-5 px-2 sm:px-3 py-2 border" style={{ borderColor: FAINT_GREEN, background: 'rgba(0,255,65,0.03)' }}>
+                <span className="text-[10px] sm:text-xs flex-shrink-0" style={{ color: DIM_GREEN }}>$</span>
+                <code className="text-[10px] sm:text-xs truncate flex-1" style={{ color: GREEN }}>{data.contractAddress}</code>
+                <button onClick={() => copyToClipboard(data.contractAddress)} className="p-1 hover:bg-white/5 transition-colors flex-shrink-0">
+                  <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: GREEN }} />
+                </button>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2 sm:gap-3 justify-center md:justify-start">
+              <a href={buyUrl} target="_blank" rel="noopener noreferrer" className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
+                [BUY ${ticker || 'TOKEN'}]
+              </a>
+              <a href={getChartUrl(data)} target="_blank" rel="noopener noreferrer" className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold border tracking-wider hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: DIM_GREEN, color: DIM_GREEN }}>
+                <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> [CHART]
+              </a>
             </div>
           </div>
         </div>
