@@ -257,7 +257,7 @@ const Auth = () => {
                   </div>
                 ) : (
                   <>
-                    <p className="text-xs text-center mb-2 font-mono text-yellow-400 bg-yellow-400/10 rounded px-2 py-1">{isTelegram ? '✅ TELEGRAM DETECTED' : '❌ NOT TELEGRAM'}</p>
+                    
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
                         {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
