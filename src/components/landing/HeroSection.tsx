@@ -112,7 +112,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
             className="mt-6 sm:mt-8"
           >
             <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em] font-display mb-2">
-              Official $BAGS Token
+              Official $DGTOOLS Token
             </p>
             <button
               onClick={handleCopy}
