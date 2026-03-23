@@ -328,33 +328,6 @@ const TerminalLayout = ({ data, style, countdown, showWatermark }: Props) => {
           )}
         </div>
       </section>
-      )}
-
-      {/* ── SOCIALS ── */}
-      <section className="relative z-10 py-8 px-5 border-t" style={{ borderColor: FAINT_GREEN }}>
-        <div className="flex justify-center gap-3 flex-wrap">
-          {data.socials.telegram && (
-            <a href={ensureUrl(data.socials.telegram)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: GREEN, color: GREEN }}>
-              <Send className="w-3.5 h-3.5" /> [TELEGRAM]
-            </a>
-          )}
-          {data.socials.twitter && (
-            <a href={ensureUrl(data.socials.twitter)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
-              [𝕏_TWITTER]
-            </a>
-          )}
-          {data.socials.discord && (
-            <a href={ensureUrl(data.socials.discord)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors" style={{ borderColor: GREEN, color: GREEN }}>
-              [DISCORD]
-            </a>
-          )}
-          {data.socials.dex && (
-            <a href={ensureUrl(data.socials.dex)} target="_blank" rel="noopener noreferrer" className="px-4 py-2 text-xs font-bold border hover:bg-[rgba(0,255,65,0.1)] transition-colors flex items-center gap-2" style={{ borderColor: GREEN, color: GREEN }}>
-              <ExternalLink className="w-3.5 h-3.5" /> [DEX]
-            </a>
-          )}
-        </div>
-      </section>
 
       {/* ── FOOTER ── */}
       <Footer style={style} showWatermark={showWatermark} />
