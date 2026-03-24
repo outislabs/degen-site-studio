@@ -95,7 +95,7 @@ export const useCustomDomain = (): CustomDomainResult => {
 
       const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
-      setState({ isCustomDomain: true, siteData: coinData, showWatermark: plan === 'starter', loading: false, error: false });
+      setState({ isCustomDomain: true, siteData: coinData, showWatermark: !plan || plan === 'free', loading: false, error: false });
     };
 
     fetchSite();
