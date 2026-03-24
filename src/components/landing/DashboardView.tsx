@@ -80,7 +80,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
         </div>
         {planId !== 'whale' && (
           <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs w-full sm:w-auto">
-            {planId === 'starter' ? 'Start Free Trial' : 'Upgrade'}
+            {planId === 'free' ? 'Upgrade' : 'Upgrade'}
           </Button>
         )}
       </div>
