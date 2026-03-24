@@ -589,7 +589,7 @@ const Admin = () => {
                         <TableRow key={u.id} className="border-border">
                           <TableCell className="text-xs text-foreground">{u.email}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'starter'])}>
+                            <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
                               {u.subscription?.plan}
                             </Badge>
                           </TableCell>
