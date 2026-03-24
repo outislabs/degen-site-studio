@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { Zap, ArrowRight, Copy, Check } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 import bagsfmLogo from '@/assets/integrations/bagsfm.png';
 import pumpfunLogo from '@/assets/integrations/pumpfun.png';
