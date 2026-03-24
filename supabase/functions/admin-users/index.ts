@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
       let activePaid = 0
       subs?.forEach(s => {
         planBreakdown[s.plan] = (planBreakdown[s.plan] || 0) + 1
-        if (s.plan !== 'starter' && s.status === 'active') activePaid++
+        if (s.plan !== 'free' && s.plan !== 'starter' && s.status === 'active') activePaid++
       })
 
       const weekAgo = new Date()

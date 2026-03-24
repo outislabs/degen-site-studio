@@ -544,7 +544,7 @@ Deno.serve(async (req) => {
           break;
         }
         const plan = await checkUserPlan(chatId);
-        const validPlans = ["starter", "degen", "creator", "pro", "whale"];
+        const validPlans = ["free", "degen", "creator", "whale"];
         if (!plan || !validPlans.includes(plan)) {
           await sendMessage(chatId, "❌ You need a DegenTools account to build a site. Sign up free at degentools.co then use /connect to link your account.");
           break;

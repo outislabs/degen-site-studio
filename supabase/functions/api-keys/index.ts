@@ -85,11 +85,12 @@ Deno.serve(async (req) => {
           .eq("status", "active")
           .single();
 
-        const plan = sub?.plan ?? "starter";
+        const plan = sub?.plan ?? "free";
         const [requestsPerMinute, requestsPerDay] =
-          plan === "pro"   ? [60, 5000] :
-          plan === "degen" ? [30, 2000] :
-                             [10,  500];
+          plan === "whale"   ? [60, 5000] :
+          plan === "creator" ? [30, 2000] :
+          plan === "degen"   ? [30, 2000] :
+                               [10,  500];
 
         const rawKey  = generateRawKey();
         const keyHash = await hashKey(rawKey);
