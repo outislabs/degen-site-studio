@@ -6,7 +6,7 @@ const steps = [
     icon: Link2,
     num: '01',
     title: 'Import Your Alpha',
-    desc: 'Paste any link from Pump.fun, DexScreener, or Raydium. We auto-fill your tokenomics, charts, and contract data instantly.',
+    desc: 'Paste any link from Bags.fm, Pump.fun, or DexScreener. We auto-fill your tokenomics, charts, and contract data instantly.',
   },
   {
     icon: Palette,
