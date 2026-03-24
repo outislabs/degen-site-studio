@@ -75,12 +75,12 @@ const HeroSection = ({ onGetStarted }: Props) => {
 
           {/* Heading */}
           <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-4 sm:mb-8">
-            THE ULTIMATE<br />
-            <span className="text-primary text-glow">MEME COIN</span> TOOLKIT
+            FROM TOKEN TO <span className="text-primary text-glow">TOP 10</span><br />
+            IN 5 MINUTES
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-12 px-2">
-            Everything your meme coin needs, website, memes, shill content, and more. Built for devs who move fast and ship faster.
+            The only no-code landing page builder designed for meme coin domination. Import your data from any chain, pick a degen-approved theme, and ship a website that actually looks legit.
           </p>
 
           {/* CTA */}
@@ -91,7 +91,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
               className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[10px] sm:text-[11px] px-8 sm:px-10 py-6 sm:py-7 box-glow group rounded-xl"
             >
               <Zap className="w-4 h-4 mr-2" />
-              START BUILDING
+              START BUILDING FOR FREE
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button
@@ -100,9 +100,19 @@ const HeroSection = ({ onGetStarted }: Props) => {
               onClick={onGetStarted}
               className="w-full sm:w-auto border-border text-muted-foreground hover:text-foreground hover:border-primary/30 font-display text-[10px] sm:text-[11px] px-8 sm:px-10 py-6 sm:py-7 rounded-xl"
             >
-              VIEW DEMO
+              VIEW LIVE DEMO
             </Button>
           </div>
+
+          {/* Social proof */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-4 sm:mt-6 text-[10px] sm:text-xs text-muted-foreground/50"
+          >
+            Join 500+ devs launching on Solana, Base, and Ethereum.
+          </motion.p>
 
           {/* Official Token CA */}
           <motion.div
@@ -129,7 +139,6 @@ const HeroSection = ({ onGetStarted }: Props) => {
             </button>
           </motion.div>
         </motion.div>
-
 
         {/* Integrations */}
         <motion.div
