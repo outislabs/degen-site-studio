@@ -70,7 +70,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
             <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
             {planId === 'free' && (
               <Badge className="bg-primary/15 text-primary text-[9px] border border-primary/30 px-1.5 py-0">
-                7-day free trial
+                Free Plan
               </Badge>
             )}
           </div>
