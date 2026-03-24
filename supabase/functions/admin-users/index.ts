@@ -24,7 +24,7 @@ function checkRateLimit(key: string): boolean {
 
 // --- Input Validation ---
 const VALID_ACTIONS = ["list", "delete_user", "update_plan", "set_role", "stats"];
-const VALID_PLANS = ["starter", "degen", "creator", "pro", "whale"];
+const VALID_PLANS = ["free", "degen", "creator", "whale"];
 const VALID_ROLES = ["admin", "moderator", "user"];
 
 Deno.serve(async (req) => {
