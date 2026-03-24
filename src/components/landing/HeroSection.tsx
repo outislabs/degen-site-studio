@@ -75,12 +75,12 @@ const HeroSection = ({ onGetStarted }: Props) => {
 
           {/* Heading */}
           <h1 className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-[1.6] sm:leading-[1.8] mb-4 sm:mb-8">
-            FROM TOKEN TO <span className="text-primary text-glow">TOP 10</span><br />
-            IN 5 MINUTES
+            THE ULTIMATE<br />
+            <span className="text-primary text-glow">MEME COIN TOOLKIT</span>
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-12 px-2">
-            The only no-code landing page builder designed for meme coin domination. Import your data from any chain, pick a degen-approved theme, and ship a website that actually looks legit.
+            Everything your meme coin needs in less than 5 minutes, website, memes, shills, and more. Built for devs who move fast and ship faster.
           </p>
 
           {/* CTA */}
