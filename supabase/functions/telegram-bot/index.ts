@@ -90,6 +90,7 @@ async function checkUserPlan(chatId: number): Promise<string | null> {
 
 function isPaidPlan(plan: string | null): boolean {
   return plan !== null && plan !== "free" && plan !== "starter";
+}
 
 async function fetchTokenStats(input: string) {
   try {
