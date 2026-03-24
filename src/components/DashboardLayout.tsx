@@ -119,7 +119,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             variant="outline"
             className={cn(
               'hidden sm:inline-flex text-[10px] cursor-pointer hover:bg-primary/10 transition-colors',
-              planId !== 'starter' && 'border-primary/30 text-primary'
+              planId !== 'free' && 'border-primary/30 text-primary'
             )}
             onClick={() => navigate('/pricing')}
           >
