@@ -107,8 +107,8 @@ const Account = () => {
     : null;
 
   const subStatus = subscription?.status || 'active';
-  const subPlan = (subscription?.plan as PlanId) || 'starter';
-  const subPlanConfig = PLANS[subPlan] || PLANS.starter;
+  const subPlan = (subscription?.plan as PlanId) || 'free';
+  const subPlanConfig = PLANS[subPlan] || PLANS.free;
   const isPending = subStatus === 'pending';
   const isCancelled = subStatus === 'cancelled';
   const billingPeriod = subscription?.billing_period || 'monthly';
@@ -346,7 +346,7 @@ const Account = () => {
                   <Receipt className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">Transactions</span>
                 </div>
-                {subscription && subPlan !== 'starter' ? (
+                {subscription && subPlan !== 'free' ? (
                   <div className="divide-y divide-border">
                     <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/10 transition-colors">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${

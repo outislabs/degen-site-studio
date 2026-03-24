@@ -272,7 +272,7 @@ const Admin = () => {
   if (!isAdmin) return null;
 
   const planColors: Record<string, string> = {
-    starter: 'bg-muted text-muted-foreground',
+    free: 'bg-muted text-muted-foreground',
     degen: 'bg-primary/20 text-primary',
     creator: 'bg-accent/20 text-accent',
     pro: 'bg-[hsl(var(--neon-blue))/0.2] text-[hsl(var(--neon-blue))]',
@@ -394,8 +394,8 @@ const Admin = () => {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'starter'])}>
-                            {u.subscription?.plan || 'starter'}
+                          <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
+                            {u.subscription?.plan || 'free'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{u.site_count}</TableCell>
@@ -415,14 +415,14 @@ const Admin = () => {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Select
-                              value={u.subscription?.plan || 'starter'}
+                              value={u.subscription?.plan || 'free'}
                               onValueChange={(val) => handleUpdatePlan(u.id, val)}
                             >
                               <SelectTrigger className="h-7 w-24 text-[10px] bg-card border-border">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {['starter', 'degen', 'creator', 'pro', 'whale'].map(p => (
+                                {['free', 'degen', 'creator', 'whale'].map(p => (
                                   <SelectItem key={p} value={p} className="text-xs capitalize">{p}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -589,7 +589,7 @@ const Admin = () => {
                         <TableRow key={u.id} className="border-border">
                           <TableCell className="text-xs text-foreground">{u.email}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'starter'])}>
+                            <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
                               {u.subscription?.plan}
                             </Badge>
                           </TableCell>
@@ -672,7 +672,7 @@ const Admin = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {['starter', 'degen', 'creator', 'pro', 'whale'].map(p => (
+                      {['free', 'degen', 'creator', 'whale'].map(p => (
                         <SelectItem key={p} value={p} className="text-xs capitalize">{p}</SelectItem>
                       ))}
                     </SelectContent>

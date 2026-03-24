@@ -11,20 +11,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Check, Zap, Crown, Rocket, Star, Diamond, Minus, Loader2 } from 'lucide-react';
+import { Check, Zap, Crown, Rocket, Diamond, Minus, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PlanId, PLAN_ORDER } from '@/lib/plans';
 
 const plans = [
   {
-    name: 'Starter',
+    name: 'Free',
     price: '$0',
     period: '/mo',
     icon: Zap,
     description: 'Get started with the basics',
     features: [
       '1 coin website',
-      'Branded subdomain ($ticker.degentools.co)',
       'DegenTools watermark',
       '5 meme downloads per month',
       'Basic website templates',
@@ -40,12 +39,12 @@ const plans = [
     icon: Rocket,
     description: 'For serious degens',
     features: [
+      '3 coin websites',
       'Custom domain support',
       'No watermark',
       'All website templates',
       '50 meme downloads per month',
       'Basic shill templates',
-      '1 coin website',
     ],
     cta: 'Go Degen',
     variant: 'outline' as const,
@@ -58,49 +57,29 @@ const plans = [
     icon: Crown,
     description: 'Full creative suite',
     features: [
-      'Everything in Degen',
+      '10 coin websites',
       'Full content studio access',
       'Unlimited meme downloads',
       'Sticker pack builder',
-      'Brand kit (logo, colors, mascot)',
-      'Launch announcement kit',
-      '3 coin websites',
+      'Brand kit & launch kit',
+      'Priority support',
     ],
     cta: 'Start Creating',
     variant: 'default' as const,
     popular: true,
   },
   {
-    name: 'Pro',
-    price: '$99',
-    period: '/mo',
-    icon: Star,
-    description: 'Advanced tools & automation',
-    features: [
-      'Everything in Creator',
-      'Telegram buy bot',
-      'Smart whale alerts',
-      'Contract audit badge',
-      'Multi-platform blast tool',
-      '10 coin websites',
-    ],
-    cta: 'Go Pro',
-    variant: 'outline' as const,
-    popular: false,
-  },
-  {
     name: 'Whale',
-    price: '$249',
+    price: '$99',
     period: '/mo',
     icon: Diamond,
     description: 'Unlimited everything',
     features: [
-      'Everything in Pro',
       'Unlimited coin websites',
       'Analytics dashboard',
       'API access',
       'White label option',
-      'Priority support',
+      'Everything in Creator',
     ],
     cta: 'Go Whale',
     variant: 'outline' as const,
@@ -124,53 +103,53 @@ const addOns = [
 
 type FeatureValue = boolean | string;
 
+const planNames = ['Free', 'Degen', 'Creator', 'Whale'];
+
 const comparisonFeatures: { category: string; features: { name: string; values: Record<string, FeatureValue> }[] }[] = [
   {
     category: 'Websites',
     features: [
-      { name: 'Coin websites', values: { Starter: '1', Degen: '1', Creator: '3', Pro: '10', Whale: 'Unlimited' } },
-      { name: 'Custom domain', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
-      { name: 'All templates', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
-      { name: 'No watermark', values: { Starter: false, Degen: true, Creator: true, Pro: true, Whale: true } },
+      { name: 'Coin websites', values: { Free: '1', Degen: '3', Creator: '10', Whale: 'Unlimited' } },
+      { name: 'Custom domain', values: { Free: false, Degen: true, Creator: true, Whale: true } },
+      { name: 'All templates', values: { Free: false, Degen: true, Creator: true, Whale: true } },
+      { name: 'No watermark', values: { Free: false, Degen: true, Creator: true, Whale: true } },
     ],
   },
   {
     category: 'Content Studio',
     features: [
-      { name: 'Meme downloads', values: { Starter: '5/mo', Degen: '50/mo', Creator: 'Unlimited', Pro: 'Unlimited', Whale: 'Unlimited' } },
-      { name: 'Full content studio', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Sticker pack builder', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Shill templates', values: { Starter: false, Degen: 'Basic', Creator: 'All', Pro: 'All', Whale: 'All' } },
+      { name: 'Meme downloads', values: { Free: '5/mo', Degen: '50/mo', Creator: 'Unlimited', Whale: 'Unlimited' } },
+      { name: 'Full content studio', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Sticker pack builder', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Shill templates', values: { Free: false, Degen: 'Basic', Creator: 'All', Whale: 'All' } },
     ],
   },
   {
     category: 'Branding & Launch',
     features: [
-      { name: 'Brand kit', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Launch announcement kit', values: { Starter: false, Degen: false, Creator: true, Pro: true, Whale: true } },
-      { name: 'Contract audit badge', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
+      { name: 'Brand kit', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Launch announcement kit', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Contract audit badge', values: { Free: false, Degen: false, Creator: true, Whale: true } },
     ],
   },
   {
     category: 'Automation & Analytics',
     features: [
-      { name: 'Telegram buy bot', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Smart whale alerts', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Multi-platform blast', values: { Starter: false, Degen: false, Creator: false, Pro: true, Whale: true } },
-      { name: 'Analytics dashboard', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
-      { name: 'API access', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'Telegram buy bot', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Smart whale alerts', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Multi-platform blast', values: { Free: false, Degen: false, Creator: true, Whale: true } },
+      { name: 'Analytics dashboard', values: { Free: false, Degen: false, Creator: false, Whale: true } },
+      { name: 'API access', values: { Free: false, Degen: false, Creator: false, Whale: true } },
     ],
   },
   {
     category: 'Support & Extras',
     features: [
-      { name: 'White label option', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
-      { name: 'Priority support', values: { Starter: false, Degen: false, Creator: false, Pro: false, Whale: true } },
+      { name: 'White label option', values: { Free: false, Degen: false, Creator: false, Whale: true } },
+      { name: 'Priority support', values: { Free: false, Degen: false, Creator: true, Whale: true } },
     ],
   },
 ];
-
-const planNames = ['Starter', 'Degen', 'Creator', 'Pro', 'Whale'];
 
 const ComparisonTable = () => (
   <Card className="border-border overflow-hidden">
@@ -189,7 +168,7 @@ const ComparisonTable = () => (
         {comparisonFeatures.map((category) => (
           <React.Fragment key={category.category}>
             <TableRow className="border-border bg-secondary/30">
-              <TableCell colSpan={6} className="text-[10px] font-display text-primary tracking-wider py-2">
+              <TableCell colSpan={5} className="text-[10px] font-display text-primary tracking-wider py-2">
                 {category.category.toUpperCase()}
               </TableCell>
             </TableRow>
@@ -220,10 +199,9 @@ const ComparisonTable = () => (
 );
 
 const planIdMap: Record<string, PlanId> = {
-  Starter: 'starter',
+  Free: 'free',
   Degen: 'degen',
   Creator: 'creator',
-  Pro: 'pro',
   Whale: 'whale',
 };
 
@@ -235,7 +213,6 @@ const Pricing = () => {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const [subscribing, setSubscribing] = useState<string | null>(null);
 
-  // Handle payment success redirect
   React.useEffect(() => {
     const payment = searchParams.get('payment');
     const plan = searchParams.get('plan');
@@ -254,7 +231,7 @@ const Pricing = () => {
     }
 
     const targetPlan = planIdMap[planName];
-    if (!targetPlan || targetPlan === 'starter') {
+    if (!targetPlan || targetPlan === 'free') {
       navigate('/');
       return;
     }
@@ -293,14 +270,12 @@ const Pricing = () => {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-16">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="font-display text-xl sm:text-2xl text-primary text-glow mb-4">PRICING</h1>
           <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
             Choose the plan that matches your degen energy. Upgrade or downgrade anytime.
           </p>
 
-          {/* Billing toggle */}
           <div className="flex items-center justify-center gap-3 mt-6">
             <button
               onClick={() => setBilling('monthly')}
@@ -323,8 +298,7 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-20">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const price = billing === 'annual' && plan.price !== '$0'
@@ -402,7 +376,6 @@ const Pricing = () => {
           })}
         </div>
 
-        {/* Comparison Table */}
         <div className="mb-20">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">COMPARE PLANS</h2>
           <div className="overflow-x-auto">
@@ -410,7 +383,6 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* One-Time Purchases */}
         <div className="mb-16">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">ONE-TIME PURCHASES</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
@@ -431,7 +403,6 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Add-Ons */}
         <div>
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">ADD-ONS</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">

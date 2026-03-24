@@ -1,4 +1,4 @@
-export type PlanId = 'starter' | 'degen' | 'creator' | 'pro' | 'whale';
+export type PlanId = 'free' | 'degen' | 'creator' | 'whale';
 
 export interface PlanConfig {
   id: PlanId;
@@ -26,12 +26,12 @@ export interface PlanConfig {
 }
 
 export const PLANS: Record<PlanId, PlanConfig> = {
-  starter: {
-    id: 'starter',
-    name: 'Starter',
+  free: {
+    id: 'free',
+    name: 'Free',
     priceMonthly: 0,
     maxSites: 1,
-    maxMemeDownloads: 3,
+    maxMemeDownloads: 5,
     hasCustomDomain: false,
     hasNoWatermark: false,
     hasAllTemplates: false,
@@ -54,7 +54,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'degen',
     name: 'Degen',
     priceMonthly: 19,
-    maxSites: 1,
+    maxSites: 3,
     maxMemeDownloads: 50,
     hasCustomDomain: true,
     hasNoWatermark: true,
@@ -78,30 +78,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: 'creator',
     name: 'Creator',
     priceMonthly: 49,
-    maxSites: 3,
-    maxMemeDownloads: -1,
-    hasCustomDomain: true,
-    hasNoWatermark: true,
-    hasAllTemplates: true,
-    hasFullContentStudio: true,
-    hasStickerPackBuilder: true,
-    hasBasicShillTemplates: true,
-    hasAllShillTemplates: true,
-    hasBrandKit: true,
-    hasLaunchKit: true,
-    hasAuditBadge: false,
-    hasTelegramBot: false,
-    hasWhaleAlerts: false,
-    hasMultiPlatformBlast: false,
-    hasAnalyticsDashboard: false,
-    hasApiAccess: false,
-    hasWhiteLabel: false,
-    hasPrioritySupport: false,
-  },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    priceMonthly: 99,
     maxSites: 10,
     maxMemeDownloads: -1,
     hasCustomDomain: true,
@@ -120,12 +96,12 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     hasAnalyticsDashboard: false,
     hasApiAccess: false,
     hasWhiteLabel: false,
-    hasPrioritySupport: false,
+    hasPrioritySupport: true,
   },
   whale: {
     id: 'whale',
     name: 'Whale',
-    priceMonthly: 249,
+    priceMonthly: 99,
     maxSites: -1,
     maxMemeDownloads: -1,
     hasCustomDomain: true,
@@ -148,4 +124,4 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   },
 };
 
-export const PLAN_ORDER: PlanId[] = ['starter', 'degen', 'creator', 'pro', 'whale'];
+export const PLAN_ORDER: PlanId[] = ['free', 'degen', 'creator', 'whale'];

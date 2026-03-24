@@ -119,14 +119,14 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             variant="outline"
             className={cn(
               'hidden sm:inline-flex text-[10px] cursor-pointer hover:bg-primary/10 transition-colors',
-              planId !== 'starter' && 'border-primary/30 text-primary'
+              planId !== 'free' && 'border-primary/30 text-primary'
             )}
             onClick={() => navigate('/pricing')}
           >
             <Crown className="w-3 h-3 mr-1" />
             {plan.name}
-            {planId === 'starter' && (
-              <span className="ml-1 text-[8px] text-primary">· Free Trial</span>
+            {planId === 'free' && (
+              <span className="ml-1 text-[8px] text-primary">· Free</span>
             )}
           </Badge>
 
