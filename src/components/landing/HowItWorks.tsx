@@ -2,9 +2,24 @@ import { motion } from 'framer-motion';
 import { Link2, Palette, Rocket } from 'lucide-react';
 
 const steps = [
-  { icon: Link2, num: '01', title: 'Import Your Token', desc: 'Paste any Pump.fun, DexScreener, or Jupiter link to auto-fill your token data instantly.' },
-  { icon: Palette, num: '02', title: 'Customize & Style', desc: 'Pick a theme, add socials, tokenomics, and roadmap — all drag-and-drop simple.' },
-  { icon: Rocket, num: '03', title: 'Publish & Share', desc: 'One click to go live. Get a shareable link or connect your own custom domain.' },
+  {
+    icon: Link2,
+    num: '01',
+    title: 'Import Your Alpha',
+    desc: 'Paste any link from Pump.fun, DexScreener, or Raydium. We auto-fill your tokenomics, charts, and contract data instantly.',
+  },
+  {
+    icon: Palette,
+    num: '02',
+    title: 'Choose Your Vibe',
+    desc: 'Select from 19+ "Degen Dark" and "Midnight Chrome" themes. Fully customizable, mobile-optimized, and built for speed.',
+  },
+  {
+    icon: Rocket,
+    num: '03',
+    title: 'Ship & Shill',
+    desc: 'One-click deploy to a custom domain. Your site is live, secured, and ready to handle the candle.',
+  },
 ];
 
 const HowItWorks = () => (
@@ -22,7 +37,7 @@ const HowItWorks = () => (
       >
         <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">HOW IT WORKS</span>
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mt-4 mb-3 sm:mb-4">
-          Three steps. <span className="text-primary text-glow">Zero code.</span>
+          Zero Code. Zero Hosting. <span className="text-primary text-glow">Total Domination.</span>
         </h2>
         <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-md mx-auto px-2">
           From token link to live website in under 5 minutes.

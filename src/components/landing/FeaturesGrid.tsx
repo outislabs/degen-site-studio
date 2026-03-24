@@ -1,39 +1,39 @@
 import { motion } from 'framer-motion';
-import { Zap, Palette, BarChart3, Link2, Shield, Globe } from 'lucide-react';
+import { Globe, BarChart3, Shield, Bot, Zap, Link2 } from 'lucide-react';
 
 const features = [
   {
-    icon: Zap,
-    title: 'Instant Deploy',
-    desc: 'Zero to live in under 5 minutes. No code, no hosting hassle.',
-    gradient: 'from-primary/20 to-primary/5',
-    iconColor: 'text-primary',
-  },
-  {
     icon: Link2,
-    title: 'Multi-Chain Import',
-    desc: 'Paste any Pump.fun, DexScreener, Jupiter, or Raydium link to auto-fill your token data.',
+    title: 'Multi-Chain DNA',
+    desc: 'Supports Solana, Base, Ethereum, and BSC. Wherever the liquidity goes, we follow.',
     gradient: 'from-neon-blue/20 to-neon-blue/5',
     iconColor: 'text-neon-blue',
   },
   {
-    icon: Palette,
-    title: '19 Degen Themes',
-    desc: 'From Degen Dark to Midnight Chrome. Each theme is crafted for maximum visual impact.',
-    gradient: 'from-neon-purple/20 to-neon-purple/5',
-    iconColor: 'text-neon-purple',
-  },
-  {
     icon: BarChart3,
-    title: 'Tokenomics Charts',
-    desc: 'Auto-generated donut charts, tax breakdowns, and supply distribution visuals.',
+    title: 'Auto-Generated Tokenomics',
+    desc: 'Beautiful donut charts and tax breakdowns that update in real-time.',
     gradient: 'from-neon-pink/20 to-neon-pink/5',
     iconColor: 'text-neon-pink',
   },
   {
     icon: Shield,
-    title: 'Trust Signals',
-    desc: 'LP lock status, contract address copy, and audit badges built right in.',
+    title: 'Trust Signals Built-In',
+    desc: 'One-click integration for LP locks, audit badges, and "Mint Revoked" tags to prove you\'re legit.',
+    gradient: 'from-primary/20 to-primary/5',
+    iconColor: 'text-primary',
+  },
+  {
+    icon: Bot,
+    title: 'AI Content Studio',
+    desc: 'Need memes? Stickers? Shilling copy? Our AI generates marketing assets tailored to your token\'s personality.',
+    gradient: 'from-neon-purple/20 to-neon-purple/5',
+    iconColor: 'text-neon-purple',
+  },
+  {
+    icon: Zap,
+    title: 'Lightning-Fast Hosting',
+    desc: 'Built on serverless infrastructure. No matter how hard you\'re being botted, your site stays up.',
     gradient: 'from-primary/20 to-primary/5',
     iconColor: 'text-primary',
   },
@@ -60,12 +60,12 @@ const FeaturesGrid = () => {
           viewport={{ once: true }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">FEATURES</span>
+          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">THE TOOLKIT</span>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mt-4 mb-3 sm:mb-4">
-            Everything you need to <span className="text-primary text-glow">launch</span>
+            Everything you need to <span className="text-primary text-glow">dominate</span>
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-lg mx-auto px-2">
-            A complete toolkit for building meme coin sites that actually look legit.
+            Punchy features, built for degens who move fast and ship faster.
           </p>
         </motion.div>
 

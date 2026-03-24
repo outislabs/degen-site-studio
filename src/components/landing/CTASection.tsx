@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Bot, ArrowRight } from 'lucide-react';
+import { Rocket, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
@@ -22,18 +22,18 @@ const CTASection = ({ onGetStarted }: Props) => {
 
           <div className="relative z-10">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
-              Ready to <span className="text-primary text-glow">launch</span>?
+              Ready to <span className="text-primary text-glow">Send It</span>?
             </h2>
-            <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-5 sm:mb-6" />
+            <Rocket className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-5 sm:mb-6" />
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-8 sm:mb-10 max-w-md mx-auto leading-relaxed px-2">
-              Join thousands of degens who shipped their token site in under 5 minutes. No code required.
+              Build your first site for $0. Upgrade for custom domains and pro features when you're ready to trend.
             </p>
             <Button
               size="lg"
               onClick={onGetStarted}
               className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-display text-[9px] sm:text-[10px] md:text-[11px] px-8 sm:px-12 py-6 sm:py-7 box-glow rounded-xl group"
             >
-              <Bot className="w-4 h-4 mr-2" /> CREATE YOUR SITE
+              <Rocket className="w-4 h-4 mr-2" /> LAUNCH YOUR SITE NOW
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
