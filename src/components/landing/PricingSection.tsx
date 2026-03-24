@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, Zap, Rocket, Crown, Star, Diamond } from 'lucide-react';
+import { Check, Zap, Rocket, Crown, Diamond } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -10,11 +10,11 @@ interface Props {
 
 const plans = [
   {
-    name: 'Starter',
+    name: 'Free',
     price: '$0',
     icon: Zap,
     description: 'Get started with the basics',
-    features: ['1 coin website', '3 meme downloads/mo', 'Basic templates', 'Branded subdomain'],
+    features: ['1 coin website', 'DegenTools watermark', '5 meme downloads/mo', 'Basic templates'],
     cta: 'Get Started',
     popular: false,
   },
@@ -23,7 +23,7 @@ const plans = [
     price: '$19',
     icon: Rocket,
     description: 'For serious degens',
-    features: ['Custom domain', 'No watermark', 'All templates', '50 meme downloads/mo', 'Basic shill templates'],
+    features: ['3 coin websites', 'Custom domain', 'No watermark', 'All templates', '50 meme downloads/mo'],
     cta: 'Go Degen',
     popular: false,
   },
@@ -32,25 +32,16 @@ const plans = [
     price: '$49',
     icon: Crown,
     description: 'Full creative suite',
-    features: ['3 coin websites', 'Full content studio', 'Unlimited downloads', 'Sticker pack builder', 'Brand kit & launch kit'],
+    features: ['10 coin websites', 'Full content studio', 'Unlimited downloads', 'Sticker pack builder', 'Priority support'],
     cta: 'Start Creating',
     popular: true,
   },
   {
-    name: 'Pro',
-    price: '$99',
-    icon: Star,
-    description: 'Advanced tools & automation',
-    features: ['10 coin websites', 'Telegram buy bot', 'Whale alerts', 'Audit badge', 'Multi-platform blast'],
-    cta: 'Go Pro',
-    popular: false,
-  },
-  {
     name: 'Whale',
-    price: '$249',
+    price: '$99',
     icon: Diamond,
     description: 'Unlimited everything',
-    features: ['Unlimited websites', 'Analytics dashboard', 'API access', 'White label', 'Priority support'],
+    features: ['Unlimited websites', 'Analytics dashboard', 'API access', 'White label', 'Everything in Creator'],
     cta: 'Go Whale',
     popular: false,
   },
@@ -63,7 +54,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[800px] h-[300px] bg-primary/3 blur-[150px] sm:blur-[200px] rounded-full" />
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -79,8 +70,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
           </p>
         </motion.div>
 
-        {/* Stack on mobile, grid on large screens */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           {plans.map((plan, i) => {
             const Icon = plan.icon;
             return (

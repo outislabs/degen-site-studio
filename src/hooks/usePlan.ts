@@ -5,7 +5,7 @@ import { PLANS, PlanId, PlanConfig } from '@/lib/plans';
 
 interface Subscription {
   id: string;
-  plan: PlanId;
+  plan: string;
   status: string;
   billing_period: string;
   meme_downloads_used: number;
@@ -13,6 +13,15 @@ interface Subscription {
   payment_id: string | null;
   created_at: string;
 }
+
+// Map legacy DB plan names to new PlanId
+const normalizePlanId = (raw: string | undefined | null): PlanId => {
+  if (!raw) return 'free';
+  if (raw === 'starter') return 'free';
+  if (raw === 'pro') return 'creator'; // pro merged into creator
+  if (raw in PLANS) return raw as PlanId;
+  return 'free';
+};
 
 interface UsePlanReturn {
   plan: PlanConfig;
@@ -26,7 +35,7 @@ interface UsePlanReturn {
   canUseCustomDomain: () => boolean;
   canUseAllTemplates: () => boolean;
   showWatermark: () => boolean;
-  remainingDownloads: () => number | null; // null = unlimited
+  remainingDownloads: () => number | null;
   incrementDownloads: () => Promise<void>;
   refetch: () => Promise<void>;
 }
@@ -50,10 +59,9 @@ export const usePlan = (): UsePlanReturn => {
       .single();
 
     if (error && error.code === 'PGRST116') {
-      // No subscription found — create starter tier
       const { data: newSub } = await supabase
         .from('user_subscriptions')
-        .insert({ user_id: user.id, plan: 'starter' })
+        .insert({ user_id: user.id, plan: 'free' })
         .select('*')
         .single();
 
@@ -61,7 +69,6 @@ export const usePlan = (): UsePlanReturn => {
         setSubscription(newSub as unknown as Subscription);
       }
     } else if (data) {
-      // Check if we need to reset monthly downloads
       const resetAt = new Date(data.meme_downloads_reset_at);
       if (new Date() >= resetAt) {
         const nextReset = new Date();
@@ -89,10 +96,9 @@ export const usePlan = (): UsePlanReturn => {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // Only grant paid plan if subscription is active; pending/cancelled fall back to starter
   const isActive = subscription?.status === 'active';
-  const planId: PlanId = isActive ? ((subscription?.plan as PlanId) || 'starter') : 'starter';
-  const plan = PLANS[planId] || PLANS.starter;
+  const planId: PlanId = isActive ? normalizePlanId(subscription?.plan) : 'free';
+  const plan = PLANS[planId] || PLANS.free;
 
   const canCreateSite = (currentSiteCount: number) => {
     if (plan.maxSites === -1) return true;
@@ -104,12 +110,7 @@ export const usePlan = (): UsePlanReturn => {
     return (subscription?.meme_downloads_used || 0) < plan.maxMemeDownloads;
   };
 
-  const canAccessContentStudio = () => {
-    // All plans can access basic content studio (memes tab)
-    // Full access (all tabs) requires creator+
-    return true; // Basic access for all, gated per-feature
-  };
-
+  const canAccessContentStudio = () => true;
   const canAccessStickerPacks = () => plan.hasStickerPackBuilder;
   const canUseCustomDomain = () => plan.hasCustomDomain;
   const canUseAllTemplates = () => plan.hasAllTemplates;
