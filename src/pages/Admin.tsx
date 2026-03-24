@@ -394,8 +394,8 @@ const Admin = () => {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'starter'])}>
-                            {u.subscription?.plan || 'starter'}
+                          <Badge variant="outline" className={cn('text-[10px] capitalize', planColors[u.subscription?.plan || 'free'])}>
+                            {u.subscription?.plan || 'free'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{u.site_count}</TableCell>
