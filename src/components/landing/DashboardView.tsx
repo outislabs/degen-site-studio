@@ -86,7 +86,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
       </div>
 
       {/* Promo code banner for free users */}
-      {planId === 'starter' && (
+      {planId === 'free' && (
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-8">
           {!showPromoInput ? (
             <div className="flex items-center justify-between gap-3">
