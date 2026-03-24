@@ -28,17 +28,7 @@ interface Props {
   onGetStarted: () => void;
 }
 
-const OFFICIAL_CA = '64fo2EVTZ8LJhA3Parx95Zu69WUfm32bEEj39pMSBAGS';
-
 const HeroSection = ({ onGetStarted }: Props) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(OFFICIAL_CA);
-    setCopied(true);
-    toast.success('Contract address copied!');
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <section className="relative section-padding pt-16 sm:pt-28 md:pt-36 pb-12 sm:pb-28 overflow-hidden">
