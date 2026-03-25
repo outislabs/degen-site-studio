@@ -114,6 +114,31 @@ const HeroSection = ({ onGetStarted }: Props) => {
             Join 500+ devs launching on Solana, Base, and Ethereum.
           </motion.p>
 
+          {/* Contract Address */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-4 sm:mt-6"
+          >
+            <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em] font-display mb-2">
+              Official $DGTOOLS Token
+            </p>
+            <button
+              onClick={handleCopy}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/15 bg-primary/5 backdrop-blur-sm hover:border-primary/30 transition-all group"
+            >
+              <code className="text-[9px] sm:text-xs text-muted-foreground font-mono truncate max-w-[200px] sm:max-w-none">
+                {OFFICIAL_CA}
+              </code>
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+              )}
+            </button>
+          </motion.div>
+
         </motion.div>
 
         {/* Integrations */}
