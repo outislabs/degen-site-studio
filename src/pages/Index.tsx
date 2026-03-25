@@ -30,6 +30,7 @@ interface SavedSite {
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
   const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
