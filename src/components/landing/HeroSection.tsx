@@ -121,9 +121,6 @@ const HeroSection = ({ onGetStarted }: Props) => {
             transition={{ delay: 0.5 }}
             className="mt-4 sm:mt-6"
           >
-            <p className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.2em] font-display mb-2">
-              Official $DGTOOLS Token
-            </p>
             <button
               onClick={handleCopy}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/15 bg-primary/5 backdrop-blur-sm hover:border-primary/30 transition-all group"
