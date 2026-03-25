@@ -68,12 +68,24 @@ const Auth = () => {
         toast.success('Check your email for a password reset link!');
         setView('signin');
       } else if (view === 'signup') {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+        // Track referral signup if a referral code exists
+        const referralCode = localStorage.getItem('referral_code');
+        if (referralCode && data.user) {
+          await supabase.functions.invoke('referral', {
+            body: {
+              action: 'track_signup',
+              code: referralCode,
+              referredUserId: data.user.id
+            }
+          });
+          localStorage.removeItem('referral_code');
+        }
         setSignupEmail(email);
         setShowOTP(true);
       } else {
