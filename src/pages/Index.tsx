@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,9 +30,20 @@ interface SavedSite {
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signOut } = useAuth();
   const [sites, setSites] = useState<SavedSite[]>([]);
   const { plan, planId, canCreateSite, loading: planLoading } = usePlan();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      localStorage.setItem('referral_code', ref);
+      supabase.functions.invoke('referral', {
+        body: { action: 'track_click', code: ref }
+      });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user) fetchSites();
