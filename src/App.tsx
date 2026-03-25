@@ -25,6 +25,7 @@ import BagsWallet from "./pages/BagsWallet.tsx";
 import ApiDashboard from "./pages/ApiDashboard.tsx";
 import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 import Docs from "./pages/Docs.tsx";
+import Affiliate from "./pages/Affiliate.tsx";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => {
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/connect-telegram" element={<ConnectTelegram />} />
                 <Route path="/docs" element={<Docs />} />
+                <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

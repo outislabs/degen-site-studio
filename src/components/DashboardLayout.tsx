@@ -31,6 +31,7 @@ import {
   Wallet,
   Code2,
   Book,
+  Gift,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -48,6 +49,7 @@ const navItems = [
   { label: 'API', icon: Code2, path: '/api-dashboard' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
   { label: 'Account', icon: UserCog, path: '/account' },
+  { label: 'Affiliate', icon: Gift, path: '/affiliate' },
 ];
 
 const DashboardLayout = ({ children, onNewSite }: Props) => {

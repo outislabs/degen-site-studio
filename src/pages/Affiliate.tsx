@@ -86,7 +86,7 @@ const Affiliate = () => {
       await supabase.functions.invoke('referral', {
         body: { action: 'request_payout' },
       });
-      toast.success('Payout requested! You'll receive it within 48 hours.');
+      toast.success('Payout requested! You will receive it within 48 hours.');
     } catch {
       toast.error('Failed to request payout');
     }
