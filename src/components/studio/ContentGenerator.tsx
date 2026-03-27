@@ -47,6 +47,7 @@ const quickPrompts: Record<string, string[]> = {
 };
 
 const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange }: Props) => {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [urlInput, setUrlInput] = useState('');
