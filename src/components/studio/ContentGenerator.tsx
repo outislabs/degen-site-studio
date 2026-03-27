@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -46,6 +47,7 @@ const quickPrompts: Record<string, string[]> = {
 };
 
 const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange }: Props) => {
+  const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [urlInput, setUrlInput] = useState('');
@@ -70,7 +72,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
     setUploading(true);
     try {
       const ext = file.name.split('.').pop();
-      const path = `reference/${Date.now()}.${ext}`;
+      const path = `${user?.id}/reference/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from('generated-content').upload(path, file);
       if (error) throw error;
 
