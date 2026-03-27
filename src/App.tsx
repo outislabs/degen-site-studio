@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { useEffect } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { useCustomDomain } from "@/hooks/useCustomDomain";
 import LivePreview from "@/components/builder/LivePreview";
 import "@/lib/reown"; // Initialize AppKit
@@ -26,6 +27,7 @@ import ApiDashboard from "./pages/ApiDashboard.tsx";
 import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 import Docs from "./pages/Docs.tsx";
 import Affiliate from "./pages/Affiliate.tsx";
+import MemeShare from "./pages/MemeShare.tsx";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +86,7 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
@@ -109,12 +112,14 @@ const App = () => {
                 <Route path="/connect-telegram" element={<ConnectTelegram />} />
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/affiliate" element={<Affiliate />} />
+                <Route path="/meme/:id" element={<MemeShare />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
           </CustomDomainHandler>
         </TooltipProvider>
       </AuthProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 };

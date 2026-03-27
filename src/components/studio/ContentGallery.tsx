@@ -75,10 +75,11 @@ const ContentGallery = ({ type, refreshKey }: Props) => {
     toast.success('Copied to clipboard!');
   };
 
-  const shareToTwitter = (text: string, imageUrl?: string) => {
-    const tweetText = encodeURIComponent(text.slice(0, 280));
-    const url = imageUrl ? `https://twitter.com/intent/tweet?text=${tweetText}&url=${encodeURIComponent(imageUrl)}` : `https://twitter.com/intent/tweet?text=${tweetText}`;
-    window.open(url, '_blank');
+  const shareToTwitter = (item: ContentItem) => {
+    const tokenName = item.metadata?.tokenName || item.title || 'Meme';
+    const text = encodeURIComponent(`Check out ${tokenName}! Made with @degentoolshq 🔥`);
+    const shareUrl = encodeURIComponent(`https://degentools.co/meme/${item.id}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`, '_blank');
   };
 
   if (loading) {
@@ -126,7 +127,7 @@ const ContentGallery = ({ type, refreshKey }: Props) => {
                       <Button size="sm" variant="secondary" onClick={() => downloadImage(item.image_url!, item.title)}>
                         <Download className="w-3 h-3 mr-1" /> Save
                       </Button>
-                      <Button size="sm" variant="secondary" onClick={() => shareToTwitter(item.content_text || `Check out ${item.metadata?.tokenName}!`, item.image_url!)}>
+                      <Button size="sm" variant="secondary" onClick={() => shareToTwitter(item)}>
                         <Share2 className="w-3 h-3 mr-1" /> Tweet
                       </Button>
                     </div>
@@ -165,7 +166,7 @@ const ContentGallery = ({ type, refreshKey }: Props) => {
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyText(item.content_text || '')}>
                   <Copy className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => shareToTwitter(item.content_text || '')}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => shareToTwitter(item)}>
                   <Share2 className="w-3 h-3" />
                 </Button>
                 <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteItem(item.id)}>
