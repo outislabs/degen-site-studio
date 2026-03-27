@@ -166,7 +166,7 @@ const ContentGallery = ({ type, refreshKey }: Props) => {
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyText(item.content_text || '')}>
                   <Copy className="w-3 h-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => shareToTwitter(item.content_text || '')}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => shareToTwitter(item)}>
                   <Share2 className="w-3 h-3" />
                 </Button>
                 <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => deleteItem(item.id)}>
