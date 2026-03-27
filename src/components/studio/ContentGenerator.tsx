@@ -72,7 +72,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
     setUploading(true);
     try {
       const ext = file.name.split('.').pop();
-      const path = `reference/${Date.now()}.${ext}`;
+      const path = `${user?.id}/reference/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from('generated-content').upload(path, file);
       if (error) throw error;
 
