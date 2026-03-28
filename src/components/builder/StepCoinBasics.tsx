@@ -1,4 +1,5 @@
 import { CoinData } from '@/types/coin';
+import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
