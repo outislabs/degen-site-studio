@@ -523,7 +523,7 @@ const Docs = () => {
               {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <button
-              onClick={() => navigate('/api')}
+              onClick={() => navigate('/api-dashboard')}
               className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
             >
               API Dashboard →
