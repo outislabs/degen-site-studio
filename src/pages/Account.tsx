@@ -41,6 +41,7 @@ const Account = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { plan, planId, subscription, loading: planLoading, remainingDownloads } = usePlan();
+  const identity = useUserIdentity(user);
   const [siteCount, setSiteCount] = useState(0);
   const [activeTab, setActiveTab] = useState<'overview' | 'billing' | 'features'>('overview');
   const [promoCode, setPromoCode] = useState('');
@@ -92,8 +93,6 @@ const Account = () => {
 
   if (!user) return null;
 
-  const identity = useUserIdentity(user);
-  const joinDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const joinDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const remaining = remainingDownloads();
