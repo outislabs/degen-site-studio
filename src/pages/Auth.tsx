@@ -68,24 +68,12 @@ const Auth = () => {
         toast.success('Check your email for a password reset link!');
         setView('signin');
       } else if (view === 'signup') {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        // Track referral signup if a referral code exists
-        const referralCode = localStorage.getItem('referral_code');
-        if (referralCode && data.user) {
-          await supabase.functions.invoke('referral', {
-            body: {
-              action: 'track_signup',
-              code: referralCode,
-              referredUserId: data.user.id
-            }
-          });
-          localStorage.removeItem('referral_code');
-        }
         setSignupEmail(email);
         setShowOTP(true);
       } else {
@@ -277,7 +265,7 @@ const Auth = () => {
                 ) : (
                   <>
                     
-                    <div className="mb-8">
+                     <div className="mb-8">
                       <h2 className="text-2xl font-bold text-foreground mb-2">
                         {isForgot ? 'Reset password' : isSignUp ? 'Create your account' : 'Welcome back'}
                       </h2>
@@ -288,6 +276,12 @@ const Auth = () => {
                             ? 'Start building your degen empire'
                             : 'Sign in to continue to your dashboard'}
                       </p>
+                      {localStorage.getItem('referral_code') && !isForgot && (
+                        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs text-primary">
+                          <Sparkles className="w-3 h-3" />
+                          Referred by a friend
+                        </div>
+                      )}
                     </div>
 
                     {/* Google Sign-in */}

@@ -25,10 +25,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Track referral on first sign-in (covers email, OAuth, wallet)
+      if (event === 'SIGNED_IN' && session?.user) {
+        const refCode = localStorage.getItem('referral_code');
+        if (refCode) {
+          try {
+            await supabase.functions.invoke('referral', {
+              body: { action: 'track_signup', code: refCode, referredUserId: session.user.id }
+            });
+          } catch (e) {
+            console.error('Referral tracking failed:', e);
+          }
+          localStorage.removeItem('referral_code');
+        }
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
