@@ -27,9 +27,10 @@ export const getUserIdentity = (user: User | null, walletAddress?: string): User
     };
   }
 
-  // 3. Wallet address — from AppKit or Supabase identity
+  // 3. Wallet address — from AppKit, persisted metadata, or Supabase identity
   const addr =
     walletAddress ||
+    user?.user_metadata?.wallet_address ||
     user?.user_metadata?.address ||
     user?.identities?.find((i) => i.provider === 'web3' || i.provider === 'solana')
       ?.identity_data?.address;

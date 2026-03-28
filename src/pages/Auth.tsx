@@ -135,6 +135,13 @@ const Auth = () => {
         wallet: walletProvider,
       });
       if (error) throw error;
+
+      // Persist wallet address to user metadata (once)
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser && !currentUser.user_metadata?.wallet_address && address) {
+        await supabase.auth.updateUser({ data: { wallet_address: address } });
+      }
+
       toast.success('Signed in with wallet! 🚀');
       navigate('/');
     } catch (err: any) {
