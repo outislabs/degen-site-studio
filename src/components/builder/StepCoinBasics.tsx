@@ -30,7 +30,7 @@ const blockchains = [
   { value: 'ton', label: 'TON' },
 ];
 
-const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange }: Props) => {
+const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaymentStatus, onPaymentStatusChange, slugError }: Props) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [pumpLink, setPumpLink] = useState('');
@@ -241,16 +241,18 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       </div>
 
       <div className="space-y-2">
-        <Label>Site Slug</Label>
+        <Label>Site Slug <span className="text-destructive">*</span></Label>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground whitespace-nowrap">/site/</span>
           <Input
             placeholder="e.g. dogmoon"
             value={slug}
-            onChange={e => onSlugChange(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+            onChange={e => onSlugChange(e.target.value)}
+            className={cn(slugError && 'border-destructive ring-destructive')}
           />
         </div>
-        <p className="text-xs text-muted-foreground">Letters, numbers, and hyphens only. Leave empty to use default ID.</p>
+        {slugError && <p className="text-xs text-destructive">{slugError}</p>}
+        <p className="text-xs text-muted-foreground">Min 3 characters. Letters, numbers, and hyphens only.</p>
         {slug && (
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1">
             <p className="text-xs font-medium text-foreground">🔗 Your site URL</p>
