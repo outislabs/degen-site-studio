@@ -26,6 +26,17 @@ const steps = [
   { label: 'Theme', icon: Palette },
 ];
 
+const validateSlug = (s: string): string | null => {
+  if (!s.trim()) return 'Site slug is required.';
+  if (s.length < 3) return 'Slug must be at least 3 characters.';
+  if (!/^[a-z0-9-]+$/.test(s)) return 'Only lowercase letters, numbers, and hyphens allowed.';
+  if (s.startsWith('-') || s.endsWith('-')) return 'Slug cannot start or end with a hyphen.';
+  return null;
+};
+
+const formatSlug = (v: string) =>
+  v.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
 const Builder = () => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<CoinData>({ ...defaultCoinData });
@@ -34,7 +45,22 @@ const Builder = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
+
+  const tryNavigateStep = (target: number | ((prev: number) => number)) => {
+    const nextStep = typeof target === 'function' ? target(step) : target;
+    if (step === 0 && nextStep > 0) {
+      const err = validateSlug(slug);
+      if (err) {
+        setSlugError(err);
+        toast.error(err);
+        return;
+      }
+    }
+    setSlugError(null);
+    setStep(nextStep);
+  };
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -81,7 +107,7 @@ const Builder = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={setSlug} siteId={editingId} domainPaymentStatus={domainPaymentStatus} onPaymentStatusChange={setDomainPaymentStatus} />;
+      case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={v => { setSlug(formatSlug(v)); setSlugError(null); }} siteId={editingId} domainPaymentStatus={domainPaymentStatus} onPaymentStatusChange={setDomainPaymentStatus} slugError={slugError} />;
       case 1: return <StepTokenomics data={data} onChange={update} />;
       case 2: return <StepSocials data={data} onChange={update} />;
       case 3: return <StepRoadmap data={data} onChange={update} />;
@@ -163,7 +189,7 @@ const Builder = () => {
               return (
                 <button
                   key={i}
-                  onClick={() => setStep(i)}
+                  onClick={() => tryNavigateStep(i)}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200',
                     isActive
@@ -236,7 +262,7 @@ const Builder = () => {
                 return (
                   <button
                     key={i}
-                    onClick={() => setStep(i)}
+                    onClick={() => tryNavigateStep(i)}
                     className={cn(
                       'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                       isActive
@@ -278,7 +304,7 @@ const Builder = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setStep(s => Math.max(0, s - 1))}
+              onClick={() => tryNavigateStep(s => Math.max(0, s - 1))}
               disabled={step === 0}
               className="text-xs h-9 px-4 text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
@@ -289,7 +315,7 @@ const Builder = () => {
               {steps.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setStep(i)}
+                  onClick={() => tryNavigateStep(i)}
                   className={cn(
                     'w-1.5 h-1.5 rounded-full transition-all duration-200',
                     step === i ? 'bg-primary w-4' : i < step ? 'bg-primary/40' : 'bg-muted-foreground/20'
@@ -301,11 +327,13 @@ const Builder = () => {
             <Button
               size="sm"
               onClick={() => {
-                if (step === 0 && !slug.trim()) {
-                  toast.error('Please enter a site slug before continuing.');
-                  return;
+                if (step < 4) {
+                  tryNavigateStep(s => s + 1);
+                } else {
+                  const err = validateSlug(slug);
+                  if (err) { setSlugError(err); toast.error(err); return; }
+                  handlePublish();
                 }
-                step < 4 ? setStep(s => s + 1) : handlePublish();
               }}
               className={cn(
                 'text-xs h-9 px-4 font-semibold',
