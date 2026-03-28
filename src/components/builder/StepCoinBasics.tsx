@@ -19,6 +19,7 @@ interface Props {
   siteId?: string | null;
   domainPaymentStatus?: string;
   onPaymentStatusChange?: (status: string) => void;
+  slugError?: string | null;
 }
 
 const blockchains = [

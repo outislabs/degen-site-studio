@@ -26,6 +26,17 @@ const steps = [
   { label: 'Theme', icon: Palette },
 ];
 
+const validateSlug = (s: string): string | null => {
+  if (!s.trim()) return 'Site slug is required.';
+  if (s.length < 3) return 'Slug must be at least 3 characters.';
+  if (!/^[a-z0-9-]+$/.test(s)) return 'Only lowercase letters, numbers, and hyphens allowed.';
+  if (s.startsWith('-') || s.endsWith('-')) return 'Slug cannot start or end with a hyphen.';
+  return null;
+};
+
+const formatSlug = (v: string) =>
+  v.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
 const Builder = () => {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<CoinData>({ ...defaultCoinData });
@@ -34,7 +45,22 @@ const Builder = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [publishedId, setPublishedId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
+
+  const tryNavigateStep = (target: number | ((prev: number) => number)) => {
+    const nextStep = typeof target === 'function' ? target(step) : target;
+    if (step === 0 && nextStep > 0) {
+      const err = validateSlug(slug);
+      if (err) {
+        setSlugError(err);
+        toast.error(err);
+        return;
+      }
+    }
+    setSlugError(null);
+    setStep(nextStep);
+  };
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
