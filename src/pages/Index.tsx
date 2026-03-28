@@ -38,7 +38,6 @@ const Index = () => {
   useEffect(() => {
     const ref = searchParams.get('ref');
     if (ref) {
-      localStorage.setItem('referral_code', ref);
       supabase.functions.invoke('referral', {
         body: { action: 'track_click', code: ref }
       });

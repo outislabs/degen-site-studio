@@ -31,6 +31,18 @@ import MemeShare from "./pages/MemeShare.tsx";
 
 const queryClient = new QueryClient();
 
+// Capture referral code from URL on any page load
+const ReferralCapture = () => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('referral_code', ref);
+    }
+  }, []);
+  return null;
+};
+
 const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
@@ -87,6 +99,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
+      <ReferralCapture />
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
