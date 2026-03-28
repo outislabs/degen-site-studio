@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useUserIdentity } from '@/hooks/useUserIdentity';
 
 
 interface Props {
@@ -58,17 +59,12 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   const { user, signOut } = useAuth();
   const { plan, planId } = usePlan();
   const { isAdmin } = useAdmin();
+  const identity = useUserIdentity(user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const allNavItems = isAdmin
     ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
     : navItems;
-
-  const email = user?.email || '';
-  const initials = email
-    .split('@')[0]
-    .slice(0, 2)
-    .toUpperCase();
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
@@ -149,7 +145,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
               <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/20 transition-all p-0.5">
                 <Avatar className="h-8 w-8 border border-border">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                    {initials}
+                    {identity.initials}
                   </AvatarFallback>
                 </Avatar>
               </button>
@@ -158,7 +154,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium text-foreground leading-none">Account</p>
-                  <p className="text-xs text-muted-foreground truncate">{email}</p>
+                  <p className="text-xs text-muted-foreground truncate">{identity.displayName}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
