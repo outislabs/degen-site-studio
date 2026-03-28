@@ -35,6 +35,7 @@ import { PLAN_ORDER, PLANS, PlanId } from '@/lib/plans';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
+import { useUserIdentity } from '@/hooks/useUserIdentity';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -91,8 +92,8 @@ const Account = () => {
 
   if (!user) return null;
 
-  const email = user.email || '';
-  const initials = email.split('@')[0].slice(0, 2).toUpperCase();
+  const identity = useUserIdentity(user);
+  const joinDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const joinDate = new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const remaining = remainingDownloads();
@@ -160,11 +161,11 @@ const Account = () => {
           <div className="px-5 pb-5 -mt-8 relative z-10">
             <div className="flex items-end gap-4 mb-4">
               <div className="w-16 h-16 rounded-2xl bg-background border-2 border-border flex items-center justify-center text-primary font-display text-lg font-bold shadow-lg">
-                {initials}
+                {identity.initials}
               </div>
               <div className="flex-1 min-w-0 pb-1">
-                <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">{email.split('@')[0]}</h1>
-                <p className="text-xs text-muted-foreground truncate">{email}</p>
+                <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">{identity.displayName}</h1>
+                {user.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
               </div>
             </div>
 
