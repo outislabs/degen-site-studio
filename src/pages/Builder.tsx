@@ -189,7 +189,7 @@ const Builder = () => {
               return (
                 <button
                   key={i}
-                  onClick={() => setStep(i)}
+                  onClick={() => tryNavigateStep(i)}
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200',
                     isActive
@@ -262,7 +262,7 @@ const Builder = () => {
                 return (
                   <button
                     key={i}
-                    onClick={() => setStep(i)}
+                    onClick={() => tryNavigateStep(i)}
                     className={cn(
                       'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200',
                       isActive
@@ -304,7 +304,7 @@ const Builder = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setStep(s => Math.max(0, s - 1))}
+              onClick={() => tryNavigateStep(s => Math.max(0, s - 1))}
               disabled={step === 0}
               className="text-xs h-9 px-4 text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
@@ -315,7 +315,7 @@ const Builder = () => {
               {steps.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setStep(i)}
+                  onClick={() => tryNavigateStep(i)}
                   className={cn(
                     'w-1.5 h-1.5 rounded-full transition-all duration-200',
                     step === i ? 'bg-primary w-4' : i < step ? 'bg-primary/40' : 'bg-muted-foreground/20'
@@ -327,11 +327,13 @@ const Builder = () => {
             <Button
               size="sm"
               onClick={() => {
-                if (step === 0 && !slug.trim()) {
-                  toast.error('Please enter a site slug before continuing.');
-                  return;
+                if (step < 4) {
+                  tryNavigateStep(s => s + 1);
+                } else {
+                  const err = validateSlug(slug);
+                  if (err) { setSlugError(err); toast.error(err); return; }
+                  handlePublish();
                 }
-                step < 4 ? setStep(s => s + 1) : handlePublish();
               }}
               className={cn(
                 'text-xs h-9 px-4 font-semibold',
