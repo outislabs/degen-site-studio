@@ -796,6 +796,11 @@ const Admin = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* TEMPLATES TAB */}
+          <TabsContent value="templates" className="space-y-4 mt-4">
+            <TemplatesTab />
+          </TabsContent>
         </Tabs>
       </div>
 
