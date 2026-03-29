@@ -148,6 +148,71 @@ export type Database = {
           },
         ]
       }
+      nft_collections: {
+        Row: {
+          collection_address: string | null
+          created_at: string
+          faq: Json
+          gallery_images: Json
+          id: string
+          is_whitelist: boolean
+          mint_date: string | null
+          mint_price: number | null
+          mint_status: string
+          site_id: string
+          source: string | null
+          source_url: string | null
+          team: Json
+          total_supply: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          collection_address?: string | null
+          created_at?: string
+          faq?: Json
+          gallery_images?: Json
+          id?: string
+          is_whitelist?: boolean
+          mint_date?: string | null
+          mint_price?: number | null
+          mint_status?: string
+          site_id: string
+          source?: string | null
+          source_url?: string | null
+          team?: Json
+          total_supply?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          collection_address?: string | null
+          created_at?: string
+          faq?: Json
+          gallery_images?: Json
+          id?: string
+          is_whitelist?: boolean
+          mint_date?: string | null
+          mint_price?: number | null
+          mint_status?: string
+          site_id?: string
+          source?: string | null
+          source_url?: string | null
+          team?: Json
+          total_supply?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nft_collections_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: true
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       promo_codes: {
         Row: {
           active: boolean
@@ -228,6 +293,7 @@ export type Database = {
           domain_payment_status: string
           id: string
           name: string
+          site_type: string
           slug: string | null
           ticker: string
           updated_at: string
@@ -241,6 +307,7 @@ export type Database = {
           domain_payment_status?: string
           id?: string
           name?: string
+          site_type?: string
           slug?: string | null
           ticker?: string
           updated_at?: string
@@ -254,6 +321,7 @@ export type Database = {
           domain_payment_status?: string
           id?: string
           name?: string
+          site_type?: string
           slug?: string | null
           ticker?: string
           updated_at?: string

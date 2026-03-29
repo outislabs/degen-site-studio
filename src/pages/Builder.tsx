@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { CoinData, defaultCoinData } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
+import StepNftGallery from '@/components/builder/StepNftGallery';
 import StepSocials from '@/components/builder/StepSocials';
 import StepRoadmap from '@/components/builder/StepRoadmap';
 import StepTheme from '@/components/builder/StepTheme';
 import LivePreview from '@/components/builder/LivePreview';
 import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check, PanelLeft, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check, PanelLeft, Sparkles, ImageIcon } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -18,9 +19,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const steps = [
+const memecoinSteps = [
   { label: 'Basics', icon: Coins },
   { label: 'Tokenomics', icon: PieChart },
+  { label: 'Socials', icon: Share2 },
+  { label: 'Roadmap', icon: Map },
+  { label: 'Theme', icon: Palette },
+];
+
+const nftSteps = [
+  { label: 'Basics', icon: Coins },
+  { label: 'Gallery', icon: ImageIcon },
   { label: 'Socials', icon: Share2 },
   { label: 'Roadmap', icon: Map },
   { label: 'Theme', icon: Palette },
@@ -48,6 +57,9 @@ const Builder = () => {
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
 
+  const isNft = data.siteType === 'nft';
+  const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
+  const lastStep = steps.length - 1;
   const tryNavigateStep = (target: number | ((prev: number) => number)) => {
     const nextStep = typeof target === 'function' ? target(step) : target;
     if (step === 0 && nextStep > 0) {
@@ -108,7 +120,7 @@ const Builder = () => {
   const renderStep = () => {
     switch (step) {
       case 0: return <StepCoinBasics data={data} onChange={update} slug={slug} onSlugChange={v => { setSlug(formatSlug(v)); setSlugError(null); }} siteId={editingId} domainPaymentStatus={domainPaymentStatus} onPaymentStatusChange={setDomainPaymentStatus} slugError={slugError} />;
-      case 1: return <StepTokenomics data={data} onChange={update} />;
+      case 1: return isNft ? <StepNftGallery data={data} onChange={update} /> : <StepTokenomics data={data} onChange={update} />;
       case 2: return <StepSocials data={data} onChange={update} />;
       case 3: return <StepRoadmap data={data} onChange={update} />;
       case 4: return <StepTheme data={data} onChange={update} />;
@@ -119,32 +131,55 @@ const Builder = () => {
     if (!user) return;
     try {
       const slugValue = slug.trim() || null;
+      const sitePayload = {
+        name: data.name,
+        ticker: data.ticker || '',
+        slug: slugValue,
+        custom_domain: data.customDomain || null,
+        site_type: data.siteType || 'memecoin',
+        data: JSON.parse(JSON.stringify(data)),
+      } as any;
+
+      let siteId = editingId;
+
       if (editingId) {
-        const { error } = await supabase.from('sites').update({
-          name: data.name,
-          ticker: data.ticker,
-          slug: slugValue,
-          custom_domain: data.customDomain || null,
-          data: JSON.parse(JSON.stringify(data)),
-        } as any).eq('id', editingId);
+        const { error } = await supabase.from('sites').update(sitePayload).eq('id', editingId);
         if (error) throw error;
         setPublishedId(editingId);
         toast.success('Site updated! 🚀');
       } else {
         const { data: inserted, error } = await supabase.from('sites').insert([{
           user_id: user.id,
-          name: data.name,
-          ticker: data.ticker,
-          slug: slugValue,
-          custom_domain: data.customDomain || null,
-          data: JSON.parse(JSON.stringify(data)),
-        } as any]).select('id').single();
+          ...sitePayload,
+        }]).select('id').single();
         if (error) throw error;
-        const newId = inserted.id;
-        setEditingId(newId);
-        setPublishedId(newId);
+        siteId = inserted.id;
+        setEditingId(siteId);
+        setPublishedId(siteId);
         toast.success('Site published! 🚀');
       }
+
+      // Upsert NFT collection data if NFT site type
+      if (data.siteType === 'nft' && siteId) {
+        const nftPayload = {
+          site_id: siteId,
+          user_id: user.id,
+          mint_price: data.mintPrice ? parseFloat(data.mintPrice) : null,
+          total_supply: data.nftTotalSupply ? parseInt(data.nftTotalSupply) : null,
+          mint_status: data.mintStatus || 'upcoming',
+          mint_date: data.mintDate || null,
+          is_whitelist: data.isWhitelist || false,
+          team: data.team || [],
+          faq: data.faq || [],
+          gallery_images: data.galleryImages || [],
+          collection_address: data.contractAddress || null,
+        };
+
+        const { error: nftError } = await supabase.from('nft_collections' as any)
+          .upsert(nftPayload as any, { onConflict: 'site_id' });
+        if (nftError) console.error('NFT collection save error:', nftError);
+      }
+
       setShowPublish(true);
     } catch (error: any) {
       toast.error(error.message || 'Failed to save site');
@@ -327,7 +362,7 @@ const Builder = () => {
             <Button
               size="sm"
               onClick={() => {
-                if (step < 4) {
+                if (step < lastStep) {
                   tryNavigateStep(s => s + 1);
                 } else {
                   const err = validateSlug(slug);
@@ -337,12 +372,12 @@ const Builder = () => {
               }}
               className={cn(
                 'text-xs h-9 px-4 font-semibold',
-                step === 4
+                step === lastStep
                   ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
                   : 'bg-primary text-primary-foreground hover:bg-primary/90'
               )}
             >
-              {step < 4 ? (
+              {step < lastStep ? (
                 <>Next <ChevronRight className="w-4 h-4 ml-1" /></>
               ) : (
                 <>{editingId ? 'Update' : 'Publish'} <Rocket className="w-4 h-4 ml-1" /></>

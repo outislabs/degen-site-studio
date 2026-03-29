@@ -4,13 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Upload, Loader2, Zap } from 'lucide-react';
+import { Copy, Upload, Loader2, Zap, Coins, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import CustomDomainSetup from '@/components/builder/CustomDomainSetup';
+import NftBasicsFields from '@/components/builder/NftBasicsFields';
 
 interface Props {
   data: CoinData;
@@ -156,9 +157,34 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
     }
   };
 
+  const isNft = data.siteType === 'nft';
+
   return (
     <div className="space-y-5 animate-fade-in">
-      {/* PumpFun Import */}
+      {/* Site Type Toggle */}
+      <div className="flex rounded-lg border border-border overflow-hidden">
+        <button
+          onClick={() => onChange({ siteType: 'memecoin' })}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all',
+            !isNft ? 'bg-primary text-primary-foreground' : 'bg-muted/30 text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Coins className="w-4 h-4" /> Meme Coin
+        </button>
+        <button
+          onClick={() => onChange({ siteType: 'nft' })}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all',
+            isNft ? 'bg-primary text-primary-foreground' : 'bg-muted/30 text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Image className="w-4 h-4" /> NFT Project
+        </button>
+      </div>
+
+      {/* Import Section — conditional */}
+      {!isNft && (
       <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
         <Label className="flex items-center gap-2 text-primary">
           <Zap className="w-4 h-4" /> Quick Import Token
@@ -179,16 +205,22 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           </Button>
         </div>
       </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* NFT import + NFT-specific fields */}
+      {isNft && <NftBasicsFields data={data} onChange={onChange} />}
+
+      <div className={cn("grid gap-4", isNft ? "grid-cols-1" : "grid-cols-2")}>
         <div className="space-y-2">
-          <Label>Coin Name</Label>
-          <Input placeholder="e.g. DogeMoon" value={data.name} maxLength={100} onChange={e => onChange({ name: e.target.value })} />
+          <Label>{isNft ? 'Collection Name' : 'Coin Name'}</Label>
+          <Input placeholder={isNft ? "e.g. Bored Apes" : "e.g. DogeMoon"} value={data.name} maxLength={100} onChange={e => onChange({ name: e.target.value })} />
         </div>
-        <div className="space-y-2">
-          <Label>Ticker Symbol</Label>
-          <Input placeholder="e.g. $DMOON" value={data.ticker} maxLength={20} onChange={e => onChange({ ticker: e.target.value })} />
-        </div>
+        {!isNft && (
+          <div className="space-y-2">
+            <Label>Ticker Symbol</Label>
+            <Input placeholder="e.g. $DMOON" value={data.ticker} maxLength={20} onChange={e => onChange({ ticker: e.target.value })} />
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
