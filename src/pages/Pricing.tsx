@@ -298,7 +298,7 @@ const Pricing = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-20">
+        <div id="plans" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-20">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const price = billing === 'annual' && plan.price !== '$0'
@@ -376,14 +376,14 @@ const Pricing = () => {
           })}
         </div>
 
-        <div className="mb-20">
+        <div id="compare-plans" className="mb-20">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">COMPARE PLANS</h2>
           <div className="overflow-x-auto">
             <ComparisonTable />
           </div>
         </div>
 
-        <div className="mb-16">
+        <div id="one-time-purchases" className="mb-16">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">ONE-TIME PURCHASES</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {oneTimePurchases.map((item) => (
@@ -403,7 +403,7 @@ const Pricing = () => {
           </div>
         </div>
 
-        <div>
+        <div id="add-ons">
           <h2 className="font-display text-sm text-primary text-glow text-center mb-6">ADD-ONS</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {addOns.map((item) => (

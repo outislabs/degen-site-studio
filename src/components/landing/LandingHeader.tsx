@@ -30,7 +30,12 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
       navigate(link.href);
     } else {
       const el = document.querySelector(link.href);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // Section not on current page — navigate to landing page with hash
+        navigate('/' + link.href);
+      }
     }
   };
 
