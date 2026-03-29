@@ -12,6 +12,8 @@ interface Subscription {
   meme_downloads_reset_at: string;
   payment_id: string | null;
   created_at: string;
+  token_gated?: boolean;
+  token_gate_wallet?: string;
 }
 
 // Map legacy DB plan names to new PlanId
