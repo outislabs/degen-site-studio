@@ -310,6 +310,30 @@ export type Database = {
         }
         Relationships: []
       }
+      template_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_pro: boolean
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_pro?: boolean
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_pro?: boolean
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
