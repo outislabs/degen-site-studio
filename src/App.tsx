@@ -4,9 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { useCustomDomain } from "@/hooks/useCustomDomain";
+import { usePageTracking, trackBuyClick } from "@/hooks/useSiteAnalytics";
 import LivePreview from "@/components/builder/LivePreview";
 import "@/lib/reown"; // Initialize AppKit
 import Index from "./pages/Index.tsx";
