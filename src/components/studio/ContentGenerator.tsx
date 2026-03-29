@@ -7,6 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Loader2, Sparkles, Wand2, AlertTriangle, Upload, X, ImageIcon } from 'lucide-react';
 
+type ContentMode = 'memecoin' | 'nft';
+
+interface NftMeta {
+  mintPrice?: string;
+  totalSupply?: string;
+  mintStatus?: string;
+  description?: string;
+}
+
 interface Props {
   type: string;
   tokenName: string;
@@ -17,15 +26,35 @@ interface Props {
   remaining?: number | null;
   referenceImageUrl?: string;
   onReferenceImageChange?: (url: string) => void;
+  contentMode?: ContentMode;
+  nftMeta?: NftMeta;
 }
 
-const placeholders: Record<string, string> = {
-  meme: 'e.g. "A Pepe frog holding diamond hands with laser eyes"',
-  sticker: 'e.g. "Happy moon emoji with rocket, kawaii style"',
-  social_post: 'e.g. "Announcement graphic for our new listing on Raydium"',
-  dex_header: 'e.g. "Futuristic neon banner with our token logo and chart vibes"',
-  x_header: 'e.g. "Clean branded header with token name and rocket theme"',
-  marketing_copy: 'e.g. "Write 5 shill tweets for our presale launch"',
+const placeholders: Record<string, Record<ContentMode, string>> = {
+  meme: {
+    memecoin: 'e.g. "A Pepe frog holding diamond hands with laser eyes"',
+    nft: 'e.g. "A bored ape holding a SOLD OUT sign"',
+  },
+  sticker: {
+    memecoin: 'e.g. "Happy moon emoji with rocket, kawaii style"',
+    nft: 'e.g. "Excited collector opening a reveal box, kawaii style"',
+  },
+  social_post: {
+    memecoin: 'e.g. "Announcement graphic for our new listing on Raydium"',
+    nft: 'e.g. "Mint is LIVE announcement with collection art"',
+  },
+  dex_header: {
+    memecoin: 'e.g. "Futuristic neon banner with our token logo and chart vibes"',
+    nft: 'e.g. "Collection banner featuring sample art pieces"',
+  },
+  x_header: {
+    memecoin: 'e.g. "Clean branded header with token name and rocket theme"',
+    nft: 'e.g. "Collection header with art showcase and mint info"',
+  },
+  marketing_copy: {
+    memecoin: 'e.g. "Write 5 shill tweets for our presale launch"',
+    nft: 'e.g. "Write a mint announcement thread for our NFT drop"',
+  },
 };
 
 const titles: Record<string, string> = {
@@ -37,13 +66,31 @@ const titles: Record<string, string> = {
   marketing_copy: '✍️ Marketing Copy',
 };
 
-const quickPrompts: Record<string, string[]> = {
-  meme: ['Diamond hands meme', 'To the moon reaction', 'Rug pull survivor', 'WAGMI energy'],
-  sticker: ['Happy coin mascot', 'Rocket launch', 'Moon landing celebration', 'Hold on tight'],
-  social_post: ['Token launch announcement', 'New partnership graphic', 'Listing celebration', 'Community milestone'],
-  dex_header: ['Neon trading vibes', 'Clean minimal banner', 'Chart & moon theme', 'Cyberpunk style'],
-  x_header: ['Branded token header', 'Community celebration', 'Launch announcement', 'Moon mission theme'],
-  marketing_copy: ['Shill tweets (5x)', 'Telegram welcome message', 'Token description', 'FOMO announcement'],
+const quickPromptsByMode: Record<string, Record<ContentMode, string[]>> = {
+  meme: {
+    memecoin: ['Diamond hands meme', 'To the moon reaction', 'Rug pull survivor', 'WAGMI energy'],
+    nft: ['Mint day hype', 'Floor price reaction', 'Rug pull escape', 'Whitelist celebration', 'Reveal day'],
+  },
+  sticker: {
+    memecoin: ['Happy coin mascot', 'Rocket launch', 'Moon landing celebration', 'Hold on tight'],
+    nft: ['Happy collector', 'Reveal surprise', 'Floor is lava', 'Whitelist secured'],
+  },
+  social_post: {
+    memecoin: ['Token launch announcement', 'New partnership graphic', 'Listing celebration', 'Community milestone'],
+    nft: ['Mint announcement', 'Whitelist giveaway', 'Reveal teaser', 'Floor price milestone'],
+  },
+  dex_header: {
+    memecoin: ['Neon trading vibes', 'Clean minimal banner', 'Chart & moon theme', 'Cyberpunk style'],
+    nft: ['Collection banner with sample art', 'Mint countdown banner', 'Sold out celebration banner', 'Art showcase header'],
+  },
+  x_header: {
+    memecoin: ['Branded token header', 'Community celebration', 'Launch announcement', 'Moon mission theme'],
+    nft: ['Collection banner with sample art', 'Mint countdown banner', 'Sold out celebration banner', 'Art showcase header'],
+  },
+  marketing_copy: {
+    memecoin: ['Shill tweets (5x)', 'Telegram welcome message', 'Token description', 'FOMO announcement'],
+    nft: ['Discord welcome message', 'Mint announcement', 'Whitelist giveaway post', 'Reveal teaser', 'Floor price celebration', 'Collab announcement'],
+  },
 };
 
 const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange }: Props) => {
