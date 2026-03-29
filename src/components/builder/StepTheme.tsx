@@ -2,7 +2,7 @@ import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle, Lock } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle, Lock, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,7 +18,7 @@ interface Props {
   onChange: (data: Partial<CoinData>) => void;
 }
 
-const layoutMeta: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
+const memecoinLayouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
   { id: 'classic', name: 'Classic', desc: 'Centered single-column layout', icon: <LayoutGrid className="w-5 h-5" /> },
   { id: 'split-hero', name: 'Split Hero', desc: 'Side-by-side hero with 2-col sections', icon: <Columns className="w-5 h-5" /> },
   { id: 'bento', name: 'Bento Grid', desc: 'Modern card grid layout', icon: <Grid3X3 className="w-5 h-5" /> },
@@ -36,12 +36,19 @@ const layoutMeta: { id: LayoutStyle; name: string; desc: string; icon: React.Rea
   { id: 'minimalist', name: 'Minimalist', desc: 'Clean Apple-inspired product page with lots of whitespace', icon: <Circle className="w-5 h-5" /> },
 ];
 
+const nftLayouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
+  { id: 'nft-dark', name: 'NFT Dark', desc: 'Premium dark layout with hero art, gallery lightbox, and team cards', icon: <ImageIcon className="w-5 h-5" /> },
+  { id: 'nft-gallery', name: 'Clean Gallery', desc: 'Light, art-focused layout with masonry gallery and serif typography', icon: <LayoutGrid className="w-5 h-5" /> },
+];
+
 const StepTheme = ({ data, onChange }: Props) => {
   const { isTemplatePro, loading: templatesLoading } = useTemplateSettings();
   const { planId } = usePlan();
   const navigate = useNavigate();
 
   const isPaidUser = planId !== 'free';
+  const isNft = data.siteType === 'nft';
+  const layoutMeta = isNft ? nftLayouts : memecoinLayouts;
 
   const handleLayoutClick = (layoutId: LayoutStyle) => {
     const isPro = isTemplatePro(layoutId);
