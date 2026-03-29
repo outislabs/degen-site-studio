@@ -131,32 +131,55 @@ const Builder = () => {
     if (!user) return;
     try {
       const slugValue = slug.trim() || null;
+      const sitePayload = {
+        name: data.name,
+        ticker: data.ticker || '',
+        slug: slugValue,
+        custom_domain: data.customDomain || null,
+        site_type: data.siteType || 'memecoin',
+        data: JSON.parse(JSON.stringify(data)),
+      } as any;
+
+      let siteId = editingId;
+
       if (editingId) {
-        const { error } = await supabase.from('sites').update({
-          name: data.name,
-          ticker: data.ticker,
-          slug: slugValue,
-          custom_domain: data.customDomain || null,
-          data: JSON.parse(JSON.stringify(data)),
-        } as any).eq('id', editingId);
+        const { error } = await supabase.from('sites').update(sitePayload).eq('id', editingId);
         if (error) throw error;
         setPublishedId(editingId);
         toast.success('Site updated! 🚀');
       } else {
         const { data: inserted, error } = await supabase.from('sites').insert([{
           user_id: user.id,
-          name: data.name,
-          ticker: data.ticker,
-          slug: slugValue,
-          custom_domain: data.customDomain || null,
-          data: JSON.parse(JSON.stringify(data)),
-        } as any]).select('id').single();
+          ...sitePayload,
+        }]).select('id').single();
         if (error) throw error;
-        const newId = inserted.id;
-        setEditingId(newId);
-        setPublishedId(newId);
+        siteId = inserted.id;
+        setEditingId(siteId);
+        setPublishedId(siteId);
         toast.success('Site published! 🚀');
       }
+
+      // Upsert NFT collection data if NFT site type
+      if (data.siteType === 'nft' && siteId) {
+        const nftPayload = {
+          site_id: siteId,
+          user_id: user.id,
+          mint_price: data.mintPrice ? parseFloat(data.mintPrice) : null,
+          total_supply: data.nftTotalSupply ? parseInt(data.nftTotalSupply) : null,
+          mint_status: data.mintStatus || 'upcoming',
+          mint_date: data.mintDate || null,
+          is_whitelist: data.isWhitelist || false,
+          team: data.team || [],
+          faq: data.faq || [],
+          gallery_images: data.galleryImages || [],
+          collection_address: data.contractAddress || null,
+        };
+
+        const { error: nftError } = await supabase.from('nft_collections' as any)
+          .upsert(nftPayload as any, { onConflict: 'site_id' });
+        if (nftError) console.error('NFT collection save error:', nftError);
+      }
+
       setShowPublish(true);
     } catch (error: any) {
       toast.error(error.message || 'Failed to save site');
