@@ -56,7 +56,7 @@ const RouteTracker = () => {
 };
 
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
-  const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
+  const { isCustomDomain, siteData, siteId, showWatermark, loading, error } = useCustomDomain();
 
   useEffect(() => {
     if (isCustomDomain && siteData?.name) {
@@ -87,7 +87,7 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
 
     return (
       <div className="min-h-screen">
-        <LivePreview data={siteData} showWatermark={showWatermark} />
+        <LivePreview data={siteData} showWatermark={showWatermark} siteId={siteId} />
       </div>
     );
   }
