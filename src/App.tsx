@@ -59,6 +59,24 @@ const RouteTracker = () => {
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
   const { isCustomDomain, siteData, siteId, showWatermark, loading, error } = useCustomDomain();
 
+  // Track analytics for subdomain/custom domain visits
+  usePageTracking(isCustomDomain ? siteId : undefined);
+
+  const handleContainerClick = useCallback((e: React.MouseEvent) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target || !siteId) return;
+    const text = target.textContent?.toLowerCase() || '';
+    const href = target.getAttribute('href') || '';
+    if (
+      text.includes('buy') ||
+      href.includes('bags.fm') ||
+      href.includes('pump.fun') ||
+      href.includes('dexscreener')
+    ) {
+      trackBuyClick(siteId);
+    }
+  }, [siteId]);
+
   useEffect(() => {
     if (isCustomDomain && siteData?.name) {
       document.title = `${siteData.name} ${siteData.ticker ? `(${siteData.ticker})` : ''} | DegenTools`;
@@ -87,7 +105,7 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen" onClick={handleContainerClick}>
         <LivePreview data={siteData} showWatermark={showWatermark} siteId={siteId} />
       </div>
     );
