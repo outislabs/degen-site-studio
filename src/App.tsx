@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -104,8 +105,28 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
       );
     }
 
+    const ogImageUrl = siteId
+      ? `https://rxrgenpyiydwurvrdyzz.supabase.co/functions/v1/og-image?site_id=${siteId}`
+      : undefined;
+
+    const pageTitle = siteData?.name
+      ? `${siteData.name}${siteData.ticker ? ` ($${siteData.ticker})` : ''}`
+      : 'Token Site';
+
     return (
       <div className="min-h-screen" onClick={handleContainerClick}>
+        {ogImageUrl && (
+          <Helmet>
+            <title>{pageTitle}</title>
+            <meta property="og:title" content={pageTitle} />
+            <meta property="og:image" content={ogImageUrl} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={pageTitle} />
+            <meta name="twitter:image" content={ogImageUrl} />
+          </Helmet>
+        )}
         <LivePreview data={siteData} showWatermark={showWatermark} siteId={siteId} />
       </div>
     );
