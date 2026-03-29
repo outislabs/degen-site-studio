@@ -21,6 +21,8 @@ interface SiteOption {
   data: Record<string, any>;
 }
 
+type ContentMode = 'memecoin' | 'nft';
+
 const NO_TOKEN_ID = '__no_token__';
 
 const ContentStudio = () => {
@@ -32,6 +34,8 @@ const ContentStudio = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string>('');
   const [customProjectName, setCustomProjectName] = useState('');
+  const [contentMode, setContentMode] = useState<ContentMode>('memecoin');
+  const [nftMeta, setNftMeta] = useState<{ mintPrice?: string; totalSupply?: string; mintStatus?: string; description?: string }>({});
   const { plan, canDownloadMeme, remainingDownloads, incrementDownloads, canAccessStickerPacks } = usePlan();
 
   useEffect(() => {
@@ -42,15 +46,44 @@ const ContentStudio = () => {
     fetchSites();
   }, [user]);
 
-  // Auto-load logo when selected site changes
+  // Auto-load logo and detect NFT mode when selected site changes
   useEffect(() => {
     if (!selectedSiteId || selectedSiteId === NO_TOKEN_ID) {
       setReferenceImageUrl('');
+      setNftMeta({});
       return;
     }
     const site = sites.find(s => s.id === selectedSiteId);
     const logoUrl = site?.data?.logoUrl as string | undefined;
     setReferenceImageUrl(logoUrl || '');
+
+    // Auto-detect NFT mode from site_type
+    const fetchSiteType = async () => {
+      const { data: siteRow } = await supabase
+        .from('sites')
+        .select('site_type')
+        .eq('id', selectedSiteId)
+        .single();
+      if (siteRow?.site_type === 'nft') {
+        setContentMode('nft');
+        // Fetch NFT metadata
+        const { data: nftCol } = await supabase
+          .from('nft_collections')
+          .select('mint_price, total_supply, mint_status')
+          .eq('site_id', selectedSiteId)
+          .single();
+        setNftMeta({
+          mintPrice: nftCol?.mint_price?.toString() || '',
+          totalSupply: nftCol?.total_supply?.toString() || '',
+          mintStatus: nftCol?.mint_status || '',
+          description: (site?.data?.description as string) || '',
+        });
+      } else {
+        setContentMode('memecoin');
+        setNftMeta({});
+      }
+    };
+    fetchSiteType();
   }, [selectedSiteId, sites]);
 
   const fetchSites = async () => {
@@ -103,16 +136,35 @@ const ContentStudio = () => {
           </div>
         </div>
 
+        {/* Content mode toggle */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xs text-muted-foreground">Mode:</span>
+          <div className="flex bg-card border border-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setContentMode('memecoin')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${contentMode === 'memecoin' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              🪙 Meme Coin
+            </button>
+            <button
+              onClick={() => setContentMode('nft')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${contentMode === 'nft' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              🖼️ NFT
+            </button>
+          </div>
+        </div>
+
         {/* Site selector */}
         {sites.length > 0 && (
           <div className="mb-6">
-            <label className="text-xs text-muted-foreground block mb-2">Select token</label>
+            <label className="text-xs text-muted-foreground block mb-2">Select {contentMode === 'nft' ? 'collection' : 'token'}</label>
             <select
               value={selectedSiteId}
               onChange={e => setSelectedSiteId(e.target.value)}
               className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs"
             >
-              <option value={NO_TOKEN_ID}>🎨 No token — just generate</option>
+              <option value={NO_TOKEN_ID}>🎨 No {contentMode === 'nft' ? 'collection' : 'token'} — just generate</option>
               {sites.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.name || 'Untitled'} ({s.ticker || '—'})
@@ -184,6 +236,8 @@ const ContentStudio = () => {
                       remaining={remaining}
                       referenceImageUrl={referenceImageUrl}
                       onReferenceImageChange={setReferenceImageUrl}
+                      contentMode={contentMode}
+                      nftMeta={nftMeta}
                     />
                     {t.id === 'sticker' && canAccessStickerPacks() && (
                       <StickerPacks refreshKey={refreshKey} />
