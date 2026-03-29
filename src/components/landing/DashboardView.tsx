@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
@@ -29,6 +34,8 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
   const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
   const [analyticsSiteName, setAnalyticsSiteName] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<SavedSite | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // If analytics panel is open, show it instead
   if (analyticsSiteId) {
@@ -221,7 +228,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" title="Launch on Bags.fm" onClick={() => navigate(`/launch?siteId=${site.id}`)}>
                         <Rocket className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => onDelete(site.id)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteTarget(site)}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
@@ -244,6 +251,37 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
           </motion.div>
         </div>
       )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteConfirmText(''); } }}>
+        <AlertDialogContent className="border-border bg-background">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteTarget?.name || 'Untitled'}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Type <span className="font-bold text-destructive">DELETE</span> below to confirm.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            placeholder="Type DELETE to confirm"
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            className="font-mono"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteConfirmText !== 'DELETE'}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+              onClick={() => {
+                if (deleteTarget) onDelete(deleteTarget.id);
+                setDeleteTarget(null);
+                setDeleteConfirmText('');
+              }}
+            >
+              Delete Site
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
