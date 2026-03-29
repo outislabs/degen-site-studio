@@ -2,62 +2,102 @@ import { CoinData, LayoutStyle } from '@/types/coin';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
-import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle } from 'lucide-react';
+import { CalendarIcon, LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { themeList } from '@/lib/themes';
+import { useTemplateSettings } from '@/hooks/useTemplateSettings';
+import { usePlan } from '@/hooks/usePlan';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   data: CoinData;
   onChange: (data: Partial<CoinData>) => void;
 }
 
-const layouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode; premium?: boolean }[] = [
+const layoutMeta: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
   { id: 'classic', name: 'Classic', desc: 'Centered single-column layout', icon: <LayoutGrid className="w-5 h-5" /> },
   { id: 'split-hero', name: 'Split Hero', desc: 'Side-by-side hero with 2-col sections', icon: <Columns className="w-5 h-5" /> },
   { id: 'bento', name: 'Bento Grid', desc: 'Modern card grid layout', icon: <Grid3X3 className="w-5 h-5" /> },
   { id: 'minimal', name: 'Minimal', desc: 'Clean, spacious one-page scroll', icon: <Minus className="w-5 h-5" /> },
-  { id: 'mascot-hero', name: 'Mascot Hero', desc: 'Giant logo with nav bar & how-to-buy steps', icon: <Crown className="w-5 h-5" />, premium: true },
-  { id: 'cinematic', name: 'Cinematic', desc: 'Dramatic full-screen hero with metallic effects', icon: <Film className="w-5 h-5" />, premium: true },
-  { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" />, premium: true },
-  { id: 'cartoon-sky', name: 'Cartoon Sky', desc: 'Light sky background, clouds, massive bold text', icon: <CloudSun className="w-5 h-5" />, premium: true },
-  { id: 'comic-hero', name: 'Comic Hero', desc: 'High energy comic book style with action mascot', icon: <Zap className="w-5 h-5" />, premium: true },
-  { id: 'terminal', name: 'Terminal', desc: 'Hacker/Matrix aesthetic with green monospace text', icon: <Terminal className="w-5 h-5" />, premium: true },
-  { id: 'neon-cyberpunk', name: 'Neon Cyberpunk', desc: 'Futuristic dark aesthetic with neon glows and glitch effects', icon: <Cpu className="w-5 h-5" />, premium: true },
-  { id: 'luxury', name: 'Luxury', desc: 'Premium black and gold aesthetic inspired by luxury fashion brands', icon: <Gem className="w-5 h-5" />, premium: true },
-  { id: 'retro-8bit', name: 'Retro 8-Bit', desc: 'Classic pixel art arcade game aesthetic with retro vibes', icon: <Gamepad2 className="w-5 h-5" />, premium: true },
-  { id: 'newspaper', name: 'Newspaper', desc: 'Satirical crypto newspaper with editorial black & white design', icon: <Newspaper className="w-5 h-5" />, premium: true },
-  { id: 'minimalist', name: 'Minimalist', desc: 'Clean Apple-inspired product page with lots of whitespace', icon: <Circle className="w-5 h-5" />, premium: true },
+  { id: 'mascot-hero', name: 'Mascot Hero', desc: 'Giant logo with nav bar & how-to-buy steps', icon: <Crown className="w-5 h-5" /> },
+  { id: 'cinematic', name: 'Cinematic', desc: 'Dramatic full-screen hero with metallic effects', icon: <Film className="w-5 h-5" /> },
+  { id: 'cartoon', name: 'Cartoon', desc: 'Playful chunky cards with fun animations', icon: <Palette className="w-5 h-5" /> },
+  { id: 'cartoon-sky', name: 'Cartoon Sky', desc: 'Light sky background, clouds, massive bold text', icon: <CloudSun className="w-5 h-5" /> },
+  { id: 'comic-hero', name: 'Comic Hero', desc: 'High energy comic book style with action mascot', icon: <Zap className="w-5 h-5" /> },
+  { id: 'terminal', name: 'Terminal', desc: 'Hacker/Matrix aesthetic with green monospace text', icon: <Terminal className="w-5 h-5" /> },
+  { id: 'neon-cyberpunk', name: 'Neon Cyberpunk', desc: 'Futuristic dark aesthetic with neon glows and glitch effects', icon: <Cpu className="w-5 h-5" /> },
+  { id: 'luxury', name: 'Luxury', desc: 'Premium black and gold aesthetic inspired by luxury fashion brands', icon: <Gem className="w-5 h-5" /> },
+  { id: 'retro-8bit', name: 'Retro 8-Bit', desc: 'Classic pixel art arcade game aesthetic with retro vibes', icon: <Gamepad2 className="w-5 h-5" /> },
+  { id: 'newspaper', name: 'Newspaper', desc: 'Satirical crypto newspaper with editorial black & white design', icon: <Newspaper className="w-5 h-5" /> },
+  { id: 'minimalist', name: 'Minimalist', desc: 'Clean Apple-inspired product page with lots of whitespace', icon: <Circle className="w-5 h-5" /> },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
+  const { isTemplatePro, loading: templatesLoading } = useTemplateSettings();
+  const { planId } = usePlan();
+  const navigate = useNavigate();
+
+  const isPaidUser = planId !== 'free';
+
+  const handleLayoutClick = (layoutId: LayoutStyle) => {
+    const isPro = isTemplatePro(layoutId);
+    if (isPro && !isPaidUser) {
+      toast.error('Upgrade to Degen or higher to unlock this template', {
+        action: {
+          label: 'View Plans',
+          onClick: () => navigate('/pricing'),
+        },
+      });
+      return;
+    }
+    onChange({ layout: layoutId });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Layout Selector */}
       <div className="space-y-3">
         <Label>Layout Style</Label>
         <div className="grid grid-cols-2 gap-3">
-          {layouts.map(l => (
-            <div
-              key={l.id}
-              onClick={() => onChange({ layout: l.id })}
-              className={cn(
-                'border-2 rounded-xl p-4 cursor-pointer transition-all flex items-start gap-3',
-                (data.layout || 'classic') === l.id ? 'border-primary box-glow' : 'border-border hover:border-muted-foreground'
-              )}
-            >
-              <div className="text-muted-foreground mt-0.5">{l.icon}</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="font-semibold text-foreground text-sm">{l.name}</p>
-                  {l.premium && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">Pro</span>}
+          {layoutMeta.map(l => {
+            const isPro = isTemplatePro(l.id);
+            const locked = isPro && !isPaidUser;
+            return (
+              <div
+                key={l.id}
+                onClick={() => handleLayoutClick(l.id)}
+                className={cn(
+                  'border-2 rounded-xl p-4 cursor-pointer transition-all flex items-start gap-3 relative',
+                  locked && 'opacity-60',
+                  (data.layout || 'classic') === l.id && !locked
+                    ? 'border-primary box-glow'
+                    : 'border-border hover:border-muted-foreground'
+                )}
+              >
+                {locked && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1">
+                    <Lock className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="text-muted-foreground mt-0.5">{l.icon}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-foreground text-sm">{l.name}</p>
+                    {isPro && (
+                      <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase tracking-wider">
+                        Pro
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{l.desc}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">{l.desc}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
