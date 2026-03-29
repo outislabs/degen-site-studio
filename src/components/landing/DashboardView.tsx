@@ -228,7 +228,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" title="Launch on Bags.fm" onClick={() => navigate(`/launch?siteId=${site.id}`)}>
                         <Rocket className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => onDelete(site.id)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteTarget(site)}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
