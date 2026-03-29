@@ -1,4 +1,21 @@
+export type SiteType = 'memecoin' | 'nft';
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  pfpUrl: string;
+  twitter: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface CoinData {
+  // Site type
+  siteType: SiteType;
+
   // Step 1
   name: string;
   ticker: string;
@@ -8,7 +25,7 @@ export interface CoinData {
   blockchain: string;
   contractAddress: string;
   
-  // Step 2
+  // Step 2 — Memecoin tokenomics
   totalSupply: string;
   buyTax: number;
   sellTax: number;
@@ -19,14 +36,27 @@ export interface CoinData {
     burn: number;
   };
   liquidityStatus: 'locked' | 'burned';
-  
+
+  // Step 2 — NFT fields
+  mintPrice: string;
+  nftTotalSupply: string;
+  mintStatus: 'upcoming' | 'live' | 'sold_out';
+  mintDate: string | null;
+  isWhitelist: boolean;
+  galleryImages: string[];
+
   // Step 3
   socials: {
     telegram: string;
     twitter: string;
     discord: string;
     dex: string;
+    magicEden: string;
   };
+
+  // NFT extras
+  team: TeamMember[];
+  faq: FaqItem[];
   
   // Step 4
   roadmap: RoadmapPhase[];
@@ -52,6 +82,7 @@ export interface RoadmapPhase {
 }
 
 export const defaultCoinData: CoinData = {
+  siteType: 'memecoin',
   name: '',
   ticker: '',
   tagline: '',
@@ -64,7 +95,15 @@ export const defaultCoinData: CoinData = {
   sellTax: 0,
   distribution: { lp: 50, team: 10, marketing: 15, burn: 25 },
   liquidityStatus: 'locked',
-  socials: { telegram: '', twitter: '', discord: '', dex: '' },
+  mintPrice: '',
+  nftTotalSupply: '',
+  mintStatus: 'upcoming',
+  mintDate: null,
+  isWhitelist: false,
+  galleryImages: [],
+  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '' },
+  team: [],
+  faq: [],
   roadmap: [
     { id: '1', title: 'Phase 1: Launch', items: ['Token launch', 'Community building', 'Initial marketing push'] },
     { id: '2', title: 'Phase 2: Growth', items: ['CEX listings', 'Partnerships', 'Utility development'] },
