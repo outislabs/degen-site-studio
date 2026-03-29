@@ -198,13 +198,13 @@ export const Footer = ({ style, showWatermark = false }: { style: ThemeConfig; s
     <p className="text-[10px] text-white/15 tracking-wide">Not financial advice • DYOR 🐸</p>
     {showWatermark && (
       <a
-        href="https://degen-site-studio.lovable.app"
+        href="https://degentools.co"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 mt-3 opacity-50 hover:opacity-80 transition-opacity"
+        className="inline-flex items-center gap-2 mt-3 opacity-70 hover:opacity-100 transition-opacity"
       >
         <img src={logo} alt="Degen Tools" className="h-5 w-auto" />
-        <span className="text-[9px] text-white/40 tracking-wider font-medium">Built with Degen Tools</span>
+        <span className="text-[10px] text-white/70 tracking-wider font-medium">Built with Degen Tools</span>
       </a>
     )}
   </div>
