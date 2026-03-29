@@ -362,7 +362,7 @@ const Builder = () => {
             <Button
               size="sm"
               onClick={() => {
-                if (step < 4) {
+                if (step < lastStep) {
                   tryNavigateStep(s => s + 1);
                 } else {
                   const err = validateSlug(slug);
@@ -372,12 +372,12 @@ const Builder = () => {
               }}
               className={cn(
                 'text-xs h-9 px-4 font-semibold',
-                step === 4
+                step === lastStep
                   ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_12px_hsl(var(--primary)/0.3)]'
                   : 'bg-primary text-primary-foreground hover:bg-primary/90'
               )}
             >
-              {step < 4 ? (
+              {step < lastStep ? (
                 <>Next <ChevronRight className="w-4 h-4 ml-1" /></>
               ) : (
                 <>{editingId ? 'Update' : 'Publish'} <Rocket className="w-4 h-4 ml-1" /></>
