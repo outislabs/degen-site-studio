@@ -38,8 +38,8 @@ const SiteView = () => {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     const query = isUUID
-      ? supabase.from('sites').select('id, data, user_id').eq('id', id).single()
-      : supabase.from('sites').select('id, data, user_id').eq('slug', id).single();
+      ? supabase.from('sites').select('id, data, user_id, site_type').eq('id', id).single()
+      : supabase.from('sites').select('id, data, user_id, site_type').eq('slug', id).single();
 
     query.then(async ({ data: site, error: err }) => {
       if (err || !site) {
@@ -49,7 +49,34 @@ const SiteView = () => {
       }
 
       setSiteUuid(site.id);
-      setData({ ...defaultCoinData, ...(site.data as unknown as CoinData) });
+      let coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
+
+      // If NFT site, load NFT collection data and merge
+      if ((site as any).site_type === 'nft') {
+        const { data: nftCol } = await supabase
+          .from('nft_collections' as any)
+          .select('*')
+          .eq('site_id', site.id)
+          .single();
+
+        if (nftCol) {
+          const col = nftCol as any;
+          coinData = {
+            ...coinData,
+            siteType: 'nft',
+            mintPrice: col.mint_price ? String(col.mint_price) : coinData.mintPrice,
+            nftTotalSupply: col.total_supply ? String(col.total_supply) : coinData.nftTotalSupply,
+            mintStatus: col.mint_status || coinData.mintStatus,
+            mintDate: col.mint_date || coinData.mintDate,
+            isWhitelist: col.is_whitelist ?? coinData.isWhitelist,
+            team: col.team || coinData.team,
+            faq: col.faq || coinData.faq,
+            galleryImages: col.gallery_images || coinData.galleryImages,
+          };
+        }
+      }
+
+      setData(coinData);
 
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
       setShowWatermark(!plan || plan === 'free');

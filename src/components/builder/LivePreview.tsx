@@ -17,6 +17,8 @@ import LuxuryLayout from './layouts/LuxuryLayout';
 import Retro8BitLayout from './layouts/Retro8BitLayout';
 import NewspaperLayout from './layouts/NewspaperLayout';
 import MinimalistLayout from './layouts/MinimalistLayout';
+import NftDarkLayout from './layouts/NftDarkLayout';
+import NftGalleryLayout from './layouts/NftGalleryLayout';
 
 interface Props {
   data: CoinData;
@@ -71,6 +73,8 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
       {layout === 'retro-8bit' && <Retro8BitLayout {...layoutProps} />}
       {layout === 'newspaper' && <NewspaperLayout {...layoutProps} />}
       {layout === 'minimalist' && <MinimalistLayout {...layoutProps} />}
+      {layout === 'nft-dark' && <NftDarkLayout {...layoutProps} />}
+      {layout === 'nft-gallery' && <NftGalleryLayout {...layoutProps} />}
     </div>
   );
 };
