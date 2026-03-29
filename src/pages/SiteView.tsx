@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
 import { CoinData, defaultCoinData } from '@/types/coin';
-import { usePageTracking } from '@/hooks/useSiteAnalytics';
+import { usePageTracking, trackBuyClick } from '@/hooks/useSiteAnalytics';
 
 const SiteView = () => {
   const { id } = useParams();
@@ -62,8 +62,23 @@ const SiteView = () => {
     );
   }
 
+  const handleContainerClick = useCallback((e: React.MouseEvent) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target || !siteUuid) return;
+    const text = target.textContent?.toLowerCase() || '';
+    const href = target.getAttribute('href') || '';
+    if (
+      text.includes('buy') ||
+      href.includes('bags.fm') ||
+      href.includes('pump.fun') ||
+      href.includes('dexscreener')
+    ) {
+      trackBuyClick(siteUuid);
+    }
+  }, [siteUuid]);
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" onClick={handleContainerClick}>
       <LivePreview data={data} showWatermark={showWatermark} siteId={siteUuid} />
     </div>
   );
