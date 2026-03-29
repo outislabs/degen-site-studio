@@ -21,9 +21,10 @@ import MinimalistLayout from './layouts/MinimalistLayout';
 interface Props {
   data: CoinData;
   showWatermark?: boolean;
+  siteId?: string;
 }
 
-const LivePreview = ({ data, showWatermark = false }: Props) => {
+const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
   const style = themes[data.theme];
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 

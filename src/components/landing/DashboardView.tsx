@@ -27,7 +27,19 @@ interface Props {
 
 const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
+  const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
+  const [analyticsSiteName, setAnalyticsSiteName] = useState('');
 
+  // If analytics panel is open, show it instead
+  if (analyticsSiteId) {
+    return (
+      <SiteAnalyticsPanel
+        siteId={analyticsSiteId}
+        siteName={analyticsSiteName}
+        onClose={() => setAnalyticsSiteId(null)}
+      />
+    );
+  }
 
   const getThemeColor = (data: Record<string, any>): string => {
     const themeId = data?.theme as ThemeId;
