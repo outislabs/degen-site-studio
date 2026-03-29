@@ -83,7 +83,7 @@ const Index = () => {
   if (user) {
     return (
       <DashboardLayout onNewSite={handleNewSite}>
-        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} planId={planId} plan={plan} />
+        <DashboardView sites={sites} onDelete={deleteSite} onNewSite={handleNewSite} planId={planId} plan={plan} hasWallet={!!user?.user_metadata?.wallet_address} />
       </DashboardLayout>
     );
   }

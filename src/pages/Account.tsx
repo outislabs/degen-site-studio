@@ -28,6 +28,7 @@ import {
   TrendingUp,
   Gift,
   Loader2,
+  Coins,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -36,6 +37,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { useUserIdentity } from '@/hooks/useUserIdentity';
+import TokenGateSection from '@/components/account/TokenGateSection';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -176,6 +178,12 @@ const Account = () => {
                 <Crown className="w-3 h-3 mr-1" />
                 {plan.name}
               </Badge>
+              {(subscription as any)?.token_gated && (
+                <Badge variant="outline" className="text-[10px] px-2.5 py-0.5 text-primary border-primary/30 bg-primary/5">
+                  <Coins className="w-3 h-3 mr-1" />
+                  Token Holder
+                </Badge>
+              )}
               <Badge variant="outline" className="text-[10px] px-2.5 py-0.5 text-muted-foreground border-border bg-muted/30">
                 <CalendarDays className="w-3 h-3 mr-1" />
                 Joined {joinDate}
@@ -308,7 +316,7 @@ const Account = () => {
                     );
                   })}
                 </div>
-                {planId !== 'whale' && (
+              {planId !== 'whale' && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -320,6 +328,11 @@ const Account = () => {
                   </Button>
                 )}
               </div>
+
+              {/* Token Gate Section */}
+              {planId === 'free' && (
+                <TokenGateSection onUpgraded={() => window.location.reload()} />
+              )}
             </>
           )}
 

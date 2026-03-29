@@ -468,6 +468,9 @@ export type Database = {
           payment_id: string | null
           plan: string
           status: string
+          token_gate_last_check: string | null
+          token_gate_wallet: string | null
+          token_gated: boolean
           updated_at: string
           user_id: string
         }
@@ -480,6 +483,9 @@ export type Database = {
           payment_id?: string | null
           plan?: string
           status?: string
+          token_gate_last_check?: string | null
+          token_gate_wallet?: string | null
+          token_gated?: boolean
           updated_at?: string
           user_id: string
         }
@@ -492,6 +498,9 @@ export type Database = {
           payment_id?: string | null
           plan?: string
           status?: string
+          token_gate_last_check?: string | null
+          token_gate_wallet?: string | null
+          token_gated?: boolean
           updated_at?: string
           user_id?: string
         }
