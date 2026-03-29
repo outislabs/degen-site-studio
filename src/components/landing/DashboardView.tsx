@@ -201,6 +201,9 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                       </span>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Analytics" onClick={() => { setAnalyticsSiteId(site.id); setAnalyticsSiteName(site.name || 'Untitled'); }}>
+                        <ChartLine className="w-3.5 h-3.5" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => navigate(`/site/${site.id}`)}>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
