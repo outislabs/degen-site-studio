@@ -251,6 +251,37 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
           </motion.div>
         </div>
       )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteConfirmText(''); } }}>
+        <AlertDialogContent className="border-border bg-background">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteTarget?.name || 'Untitled'}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Type <span className="font-bold text-destructive">DELETE</span> below to confirm.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Input
+            placeholder="Type DELETE to confirm"
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            className="font-mono"
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteConfirmText !== 'DELETE'}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+              onClick={() => {
+                if (deleteTarget) onDelete(deleteTarget.id);
+                setDeleteTarget(null);
+                setDeleteConfirmText('');
+              }}
+            >
+              Delete Site
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
