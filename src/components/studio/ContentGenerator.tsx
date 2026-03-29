@@ -93,7 +93,8 @@ const quickPromptsByMode: Record<string, Record<ContentMode, string[]>> = {
   },
 };
 
-const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange }: Props) => {
+const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, canGenerate = true, remaining, referenceImageUrl, onReferenceImageChange, contentMode = 'memecoin', nftMeta }: Props) => {
+  const mode = contentMode;
   const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -163,8 +164,21 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
 
     setLoading(true);
     try {
+      // Build NFT-aware prompt context
+      let enrichedPrompt = finalPrompt;
+      if (mode === 'nft') {
+        const ctx = [
+          `NFT Collection: ${tokenName}`,
+          nftMeta?.mintPrice ? `Mint Price: ${nftMeta.mintPrice} SOL` : '',
+          nftMeta?.totalSupply ? `Total Supply: ${nftMeta.totalSupply}` : '',
+          nftMeta?.mintStatus ? `Mint Status: ${nftMeta.mintStatus}` : '',
+          nftMeta?.description ? `Description: ${nftMeta.description}` : '',
+        ].filter(Boolean).join('. ');
+        enrichedPrompt = `[NFT Context: ${ctx}] ${finalPrompt}`;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-content', {
-        body: { type, prompt: finalPrompt, tokenName, tokenTicker, siteId, referenceImageUrl },
+        body: { type, prompt: enrichedPrompt, tokenName, tokenTicker: mode === 'nft' ? '' : tokenTicker, siteId, referenceImageUrl },
       });
 
       if (error) {
@@ -297,7 +311,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
       <Textarea
         value={prompt}
         onChange={e => setPrompt(e.target.value)}
-        placeholder={placeholders[type]}
+        placeholder={placeholders[type]?.[mode] || placeholders[type]?.memecoin || ''}
         className="bg-background border-border text-sm min-h-[100px] mb-3 resize-none"
         disabled={loading || !canGenerate}
       />
@@ -317,7 +331,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
       <div>
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Quick prompts</p>
         <div className="flex flex-wrap gap-1.5">
-          {quickPrompts[type]?.map((qp, i) => (
+          {(quickPromptsByMode[type]?.[mode] || []).map((qp, i) => (
             <button
               key={i}
               onClick={() => { setPrompt(qp); generate(qp); }}
