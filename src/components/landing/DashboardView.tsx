@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
 import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
+import SiteAnalyticsPanel from '@/components/analytics/SiteAnalyticsPanel';
 interface SavedSite {
   id: string;
   name: string;

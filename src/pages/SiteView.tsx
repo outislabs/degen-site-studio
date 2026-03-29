@@ -3,13 +3,18 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
 import { CoinData, defaultCoinData } from '@/types/coin';
+import { usePageTracking } from '@/hooks/useSiteAnalytics';
 
 const SiteView = () => {
   const { id } = useParams();
   const [data, setData] = useState<CoinData | null>(null);
+  const [siteUuid, setSiteUuid] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showWatermark, setShowWatermark] = useState(true);
+
+  // Track page view once we know the site UUID
+  usePageTracking(siteUuid);
 
   useEffect(() => {
     if (!id) return;
@@ -17,8 +22,8 @@ const SiteView = () => {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     const query = isUUID
-      ? supabase.from('sites').select('data, user_id').eq('id', id).single()
-      : supabase.from('sites').select('data, user_id').eq('slug', id).single();
+      ? supabase.from('sites').select('id, data, user_id').eq('id', id).single()
+      : supabase.from('sites').select('id, data, user_id').eq('slug', id).single();
 
     query.then(async ({ data: site, error: err }) => {
       if (err || !site) {
@@ -27,9 +32,9 @@ const SiteView = () => {
         return;
       }
 
+      setSiteUuid(site.id);
       setData({ ...defaultCoinData, ...(site.data as unknown as CoinData) });
 
-      // Check if site owner has a paid plan (no watermark)
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
       setShowWatermark(!plan || plan === 'free');
       setShowWatermark(plan === 'free');
@@ -59,7 +64,7 @@ const SiteView = () => {
 
   return (
     <div className="min-h-screen">
-      <LivePreview data={data} showWatermark={showWatermark} />
+      <LivePreview data={data} showWatermark={showWatermark} siteId={siteUuid} />
     </div>
   );
 };
