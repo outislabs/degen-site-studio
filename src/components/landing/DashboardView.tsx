@@ -34,6 +34,8 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
   const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
   const [analyticsSiteName, setAnalyticsSiteName] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<SavedSite | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // If analytics panel is open, show it instead
   if (analyticsSiteId) {
