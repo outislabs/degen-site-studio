@@ -18,9 +18,10 @@ import {
   Shield, Users, Globe, CreditCard, Image, BarChart3,
   Trash2, Search, Crown, RefreshCw, AlertTriangle, Eye,
   ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff, Wallet,
-  Tag, Plus, ToggleLeft, ToggleRight, Loader2,
+  Tag, Plus, ToggleLeft, ToggleRight, Loader2, LayoutTemplate,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import TemplatesTab from '@/components/admin/TemplatesTab';
 
 interface AdminUser {
   id: string;
@@ -301,6 +302,7 @@ const Admin = () => {
             <TabsTrigger value="subscriptions" className="gap-1.5 text-xs"><CreditCard className="w-3.5 h-3.5" />Plans</TabsTrigger>
             <TabsTrigger value="content" className="gap-1.5 text-xs"><Image className="w-3.5 h-3.5" />Content</TabsTrigger>
             <TabsTrigger value="promos" className="gap-1.5 text-xs"><Tag className="w-3.5 h-3.5" />Promos</TabsTrigger>
+            <TabsTrigger value="templates" className="gap-1.5 text-xs"><LayoutTemplate className="w-3.5 h-3.5" />Templates</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
