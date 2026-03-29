@@ -6,8 +6,6 @@ import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
 import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 interface SavedSite {
   id: string;
   name: string;
