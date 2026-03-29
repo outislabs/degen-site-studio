@@ -210,15 +210,17 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       {/* NFT import + NFT-specific fields */}
       {isNft && <NftBasicsFields data={data} onChange={onChange} />}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className={cn("grid gap-4", isNft ? "grid-cols-1" : "grid-cols-2")}>
         <div className="space-y-2">
           <Label>{isNft ? 'Collection Name' : 'Coin Name'}</Label>
-          <Input placeholder="e.g. DogeMoon" value={data.name} maxLength={100} onChange={e => onChange({ name: e.target.value })} />
+          <Input placeholder={isNft ? "e.g. Bored Apes" : "e.g. DogeMoon"} value={data.name} maxLength={100} onChange={e => onChange({ name: e.target.value })} />
         </div>
-        <div className="space-y-2">
-          <Label>Ticker Symbol</Label>
-          <Input placeholder="e.g. $DMOON" value={data.ticker} maxLength={20} onChange={e => onChange({ ticker: e.target.value })} />
-        </div>
+        {!isNft && (
+          <div className="space-y-2">
+            <Label>Ticker Symbol</Label>
+            <Input placeholder="e.g. $DMOON" value={data.ticker} maxLength={20} onChange={e => onChange({ ticker: e.target.value })} />
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
