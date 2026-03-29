@@ -136,16 +136,35 @@ const ContentStudio = () => {
           </div>
         </div>
 
+        {/* Content mode toggle */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xs text-muted-foreground">Mode:</span>
+          <div className="flex bg-card border border-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setContentMode('memecoin')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${contentMode === 'memecoin' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              🪙 Meme Coin
+            </button>
+            <button
+              onClick={() => setContentMode('nft')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${contentMode === 'nft' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              🖼️ NFT
+            </button>
+          </div>
+        </div>
+
         {/* Site selector */}
         {sites.length > 0 && (
           <div className="mb-6">
-            <label className="text-xs text-muted-foreground block mb-2">Select token</label>
+            <label className="text-xs text-muted-foreground block mb-2">Select {contentMode === 'nft' ? 'collection' : 'token'}</label>
             <select
               value={selectedSiteId}
               onChange={e => setSelectedSiteId(e.target.value)}
               className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground w-full max-w-xs"
             >
-              <option value={NO_TOKEN_ID}>🎨 No token — just generate</option>
+              <option value={NO_TOKEN_ID}>🎨 No {contentMode === 'nft' ? 'collection' : 'token'} — just generate</option>
               {sites.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.name || 'Untitled'} ({s.ticker || '—'})
@@ -217,6 +236,8 @@ const ContentStudio = () => {
                       remaining={remaining}
                       referenceImageUrl={referenceImageUrl}
                       onReferenceImageChange={setReferenceImageUrl}
+                      contentMode={contentMode}
+                      nftMeta={nftMeta}
                     />
                     {t.id === 'sticker' && canAccessStickerPacks() && (
                       <StickerPacks refreshKey={refreshKey} />
