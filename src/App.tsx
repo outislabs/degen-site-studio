@@ -4,9 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { useCustomDomain } from "@/hooks/useCustomDomain";
+import { usePageTracking, trackBuyClick } from "@/hooks/useSiteAnalytics";
 import LivePreview from "@/components/builder/LivePreview";
 import "@/lib/reown"; // Initialize AppKit
 import Index from "./pages/Index.tsx";
@@ -56,7 +57,25 @@ const RouteTracker = () => {
 };
 
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
-  const { isCustomDomain, siteData, showWatermark, loading, error } = useCustomDomain();
+  const { isCustomDomain, siteData, siteId, showWatermark, loading, error } = useCustomDomain();
+
+  // Track analytics for subdomain/custom domain visits
+  usePageTracking(isCustomDomain ? siteId : undefined);
+
+  const handleContainerClick = useCallback((e: React.MouseEvent) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target || !siteId) return;
+    const text = target.textContent?.toLowerCase() || '';
+    const href = target.getAttribute('href') || '';
+    if (
+      text.includes('buy') ||
+      href.includes('bags.fm') ||
+      href.includes('pump.fun') ||
+      href.includes('dexscreener')
+    ) {
+      trackBuyClick(siteId);
+    }
+  }, [siteId]);
 
   useEffect(() => {
     if (isCustomDomain && siteData?.name) {
@@ -86,8 +105,8 @@ const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-      <div className="min-h-screen">
-        <LivePreview data={siteData} showWatermark={showWatermark} />
+      <div className="min-h-screen" onClick={handleContainerClick}>
+        <LivePreview data={siteData} showWatermark={showWatermark} siteId={siteId} />
       </div>
     );
   }
