@@ -204,7 +204,15 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Analytics" onClick={() => { setAnalyticsSiteId(site.id); setAnalyticsSiteName(site.name || 'Untitled'); }}>
                         <ChartLine className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => navigate(`/site/${site.id}`)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => {
+                        const customDomain = (site.data as any)?.customDomain;
+                        const url = customDomain
+                          ? `https://${customDomain}`
+                          : site.slug
+                            ? `https://${site.slug}.degentools.co`
+                            : `https://degentools.co/site/${site.id}`;
+                        window.open(url, '_blank');
+                      }}>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => navigate(`/builder?id=${site.id}`)}>
