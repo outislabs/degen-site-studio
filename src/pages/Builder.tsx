@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { CoinData, defaultCoinData } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
+import StepNftGallery from '@/components/builder/StepNftGallery';
 import StepSocials from '@/components/builder/StepSocials';
 import StepRoadmap from '@/components/builder/StepRoadmap';
 import StepTheme from '@/components/builder/StepTheme';
 import LivePreview from '@/components/builder/LivePreview';
 import PublishModal from '@/components/builder/PublishModal';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check, PanelLeft, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Rocket, Eye, Coins, PieChart, Share2, Map, Palette, Check, PanelLeft, Sparkles, ImageIcon } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { cn } from '@/lib/utils';
 import MobileBottomNav from '@/components/MobileBottomNav';
@@ -18,9 +19,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const steps = [
+const memecoinSteps = [
   { label: 'Basics', icon: Coins },
   { label: 'Tokenomics', icon: PieChart },
+  { label: 'Socials', icon: Share2 },
+  { label: 'Roadmap', icon: Map },
+  { label: 'Theme', icon: Palette },
+];
+
+const nftSteps = [
+  { label: 'Basics', icon: Coins },
+  { label: 'Gallery', icon: ImageIcon },
   { label: 'Socials', icon: Share2 },
   { label: 'Roadmap', icon: Map },
   { label: 'Theme', icon: Palette },
@@ -48,6 +57,9 @@ const Builder = () => {
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
 
+  const isNft = data.siteType === 'nft';
+  const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
+  const lastStep = steps.length - 1;
   const tryNavigateStep = (target: number | ((prev: number) => number)) => {
     const nextStep = typeof target === 'function' ? target(step) : target;
     if (step === 0 && nextStep > 0) {
