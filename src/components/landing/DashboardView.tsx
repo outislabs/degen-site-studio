@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine, X, Coins } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -28,14 +28,16 @@ interface Props {
   onNewSite: () => void;
   planId: PlanId;
   plan: PlanConfig;
+  hasWallet?: boolean;
 }
 
-const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
+const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: Props) => {
   const navigate = useNavigate();
   const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
   const [analyticsSiteName, setAnalyticsSiteName] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<SavedSite | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [tokenBannerDismissed, setTokenBannerDismissed] = useState(false);
 
   // If analytics panel is open, show it instead
   if (analyticsSiteId) {
@@ -79,6 +81,28 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
           </Button>
         )}
       </div>
+
+      {/* Token Gate Banner */}
+      {planId === 'free' && hasWallet && !tokenBannerDismissed && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 gradient-card border border-primary/20 rounded-xl px-5 py-3 flex items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <Coins className="w-4 h-4 text-primary shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Hold <span className="text-primary font-bold">$DEGENTOOLS</span> tokens? Check if you qualify for a{' '}
+              <button onClick={() => navigate('/account')} className="text-primary font-semibold hover:underline">
+                free upgrade
+              </button>
+            </p>
+          </div>
+          <button onClick={() => setTokenBannerDismissed(true)} className="text-muted-foreground hover:text-foreground shrink-0">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </motion.div>
+      )}
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

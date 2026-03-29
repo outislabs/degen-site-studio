@@ -353,7 +353,7 @@ const Pricing = () => {
                   </ul>
                 </CardContent>
 
-                <CardFooter>
+                <CardFooter className="flex-col gap-2">
                   <Button
                     className="w-full text-xs"
                     variant={isCurrent ? 'secondary' : plan.popular ? 'default' : 'outline'}
@@ -370,6 +370,14 @@ const Pricing = () => {
                       plan.cta
                     )}
                   </Button>
+                  {plan.name === 'Degen' && !isCurrent && (
+                    <button
+                      onClick={() => navigate('/account')}
+                      className="text-[10px] text-primary hover:underline"
+                    >
+                      Or hold 15M+ $DEGENTOOLS to get this free →
+                    </button>
+                  )}
                 </CardFooter>
               </Card>
             );
