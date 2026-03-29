@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket } from 'lucide-react';
+import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
 import { PlanId, PlanConfig, PLANS } from '@/lib/plans';
+import SiteAnalyticsPanel from '@/components/analytics/SiteAnalyticsPanel';
 interface SavedSite {
   id: string;
   name: string;
@@ -25,7 +27,19 @@ interface Props {
 
 const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
   const navigate = useNavigate();
+  const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
+  const [analyticsSiteName, setAnalyticsSiteName] = useState('');
 
+  // If analytics panel is open, show it instead
+  if (analyticsSiteId) {
+    return (
+      <SiteAnalyticsPanel
+        siteId={analyticsSiteId}
+        siteName={analyticsSiteName}
+        onClose={() => setAnalyticsSiteId(null)}
+      />
+    );
+  }
 
   const getThemeColor = (data: Record<string, any>): string => {
     const themeId = data?.theme as ThemeId;
@@ -187,6 +201,9 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan }: Props) => {
                       </span>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Analytics" onClick={() => { setAnalyticsSiteId(site.id); setAnalyticsSiteName(site.name || 'Untitled'); }}>
+                        <ChartLine className="w-3.5 h-3.5" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="View" onClick={() => navigate(`/site/${site.id}`)}>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
