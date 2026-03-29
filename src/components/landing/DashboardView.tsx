@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { themes } from '@/lib/themes';
