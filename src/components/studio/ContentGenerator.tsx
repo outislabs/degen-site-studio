@@ -217,7 +217,7 @@ const ContentGenerator = ({ type, tokenName, tokenTicker, siteId, onGenerated, c
         )}
       </div>
       <p className="text-xs text-muted-foreground mb-4">
-        For <span className="text-primary">{tokenName}</span>{tokenTicker ? ` ($${tokenTicker})` : ''}
+        For <span className="text-primary">{tokenName}</span>{mode === 'memecoin' && tokenTicker ? ` ($${tokenTicker})` : ''}{mode === 'nft' && nftMeta?.mintStatus ? ` • ${nftMeta.mintStatus}` : ''}
       </p>
 
       {/* Reference Image Section */}
