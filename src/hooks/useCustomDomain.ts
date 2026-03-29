@@ -72,7 +72,7 @@ export const useCustomDomain = (): CustomDomainResult => {
     const fetchSite = async () => {
       const { data: site, error } = await supabase
         .from('sites')
-        .select('data, user_id')
+        .select('id, data, user_id')
         .eq('custom_domain', hostname)
         .single();
 
@@ -80,24 +80,24 @@ export const useCustomDomain = (): CustomDomainResult => {
         const altHost = hostname.startsWith('www.') ? hostname.slice(4) : `www.${hostname}`;
         const { data: altSite, error: altErr } = await supabase
           .from('sites')
-          .select('data, user_id')
+          .select('id, data, user_id')
           .eq('custom_domain', altHost)
           .single();
 
         if (altErr || !altSite) {
-          setState({ isCustomDomain: true, siteData: null, showWatermark: true, loading: false, error: true });
+          setState({ isCustomDomain: true, siteData: null, siteId: undefined, showWatermark: true, loading: false, error: true });
           return;
         }
 
         const coinData = { ...defaultCoinData, ...(altSite.data as unknown as CoinData) };
         const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: altSite.user_id });
-        setState({ isCustomDomain: true, siteData: coinData, showWatermark: !plan || plan === 'free', loading: false, error: false });
+        setState({ isCustomDomain: true, siteData: coinData, siteId: altSite.id, showWatermark: !plan || plan === 'free', loading: false, error: false });
         return;
       }
 
       const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
-      setState({ isCustomDomain: true, siteData: coinData, showWatermark: !plan || plan === 'free', loading: false, error: false });
+      setState({ isCustomDomain: true, siteData: coinData, siteId: site.id, showWatermark: !plan || plan === 'free', loading: false, error: false });
     };
 
     fetchSite();
