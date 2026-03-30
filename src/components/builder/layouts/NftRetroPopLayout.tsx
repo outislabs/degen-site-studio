@@ -2,6 +2,7 @@ import { CoinData, TeamMember, FaqItem } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { ExternalLink, MessageCircle, ChevronDown, Twitter } from 'lucide-react';
 import { ensureUrl, CountdownBlock } from './shared';
+import { getNftCtaConfig, getNftCtaUrl, PaginatedGallery } from './NftShared';
 import logo from '@/assets/logo.png';
 import { useState } from 'react';
 
@@ -23,25 +24,24 @@ const mintStatusBadge = (status: string) => {
 const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const mintUrl = data.socials?.magicEden ? ensureUrl(data.socials.magicEden) : '#';
+  const ctaUrl = getNftCtaUrl(data);
+  const cta = getNftCtaConfig(data.mintStatus);
   const badge = mintStatusBadge(data.mintStatus || 'upcoming');
   const gallery = data.galleryImages || [];
   const team: TeamMember[] = data.team || [];
   const faq: FaqItem[] = data.faq || [];
   const name = data.name || 'COLLECTION';
 
-  const marqueeItems = Array(12).fill(null);
-
   return (
     <div className="min-h-full" style={{ background: '#FFF8F0', color: '#1a1a4e' }}>
       {/* Hero */}
-      <div className="relative overflow-hidden py-16 px-6 text-center" style={{ background: '#FFD700' }}>
+      <div className="relative overflow-hidden py-14 sm:py-16 px-6 text-center" style={{ background: '#FFD700' }}>
         <div className="relative z-10 max-w-3xl mx-auto">
           {data.logoUrl && (
-            <img src={data.logoUrl} alt="" className="w-28 h-28 rounded-2xl mx-auto object-cover mb-4 relative z-10"
+            <img src={data.logoUrl} alt="" className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl mx-auto object-cover mb-4 relative z-10"
               style={{ border: '4px solid #1a1a4e', boxShadow: '6px 6px 0 #1a1a4e' }} />
           )}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-none"
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tight leading-none"
             style={{ fontFamily: "'Arial Black', sans-serif", textShadow: '4px 4px 0 rgba(26,26,78,0.15)' }}>
             {name}
           </h1>
@@ -63,10 +63,10 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
             )}
           </div>
 
-          <a href={mintUrl} target="_blank" rel="noopener noreferrer"
+          <a href={ctaUrl} target="_blank" rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 px-10 py-4 rounded-full font-black text-sm uppercase transition-transform hover:scale-105"
             style={{ background: '#FF69B4', color: '#fff', boxShadow: '4px 4px 0 #1a1a4e' }}>
-            MINT NOW <ExternalLink className="w-4 h-4" />
+            {cta.label.toUpperCase()} <cta.icon className="w-4 h-4" />
           </a>
         </div>
 
@@ -81,7 +81,7 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
           <div className="animate-ticker whitespace-nowrap flex">
             {[...gallery, ...gallery, ...gallery].map((img, i) => (
               <div key={i} className="inline-block mx-2 flex-shrink-0">
-                <img src={img} alt="" className="w-24 h-24 rounded-xl object-cover" style={{ border: '3px solid #1a1a4e' }} />
+                <img src={img} alt="" className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover" style={{ border: '3px solid #1a1a4e' }} />
               </div>
             ))}
           </div>
@@ -97,7 +97,7 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
               <p className="text-sm leading-relaxed" style={{ fontFamily: 'monospace' }}>{data.description}</p>
             </div>
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-2xl font-black uppercase leading-snug text-center" style={{ color: '#FF69B4' }}>
+              <p className="text-xl sm:text-2xl font-black uppercase leading-snug text-center" style={{ color: '#FF69B4' }}>
                 {data.tagline || 'THE NEXT BIG COLLECTION'}
               </p>
             </div>
@@ -109,14 +109,15 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
       {gallery.length > 0 && (
         <div className="px-6 sm:px-10 py-14" style={{ background: '#FFD700' }}>
           <h2 className="text-2xl font-black uppercase text-center mb-8">GALLERY</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {gallery.map((img, i) => (
-              <div key={i} className="rounded-xl overflow-hidden transition-transform hover:scale-[1.03]"
+          <PaginatedGallery
+            images={gallery}
+            renderItem={(img, i) => (
+              <div className="rounded-xl overflow-hidden transition-transform hover:scale-[1.03] w-full"
                 style={{ border: '3px solid #1a1a4e', boxShadow: '4px 4px 0 rgba(26,26,78,0.2)' }}>
                 <img src={img} alt={`NFT ${i + 1}`} className="w-full aspect-square object-cover" />
               </div>
-            ))}
-          </div>
+            )}
+          />
         </div>
       )}
 
@@ -151,9 +152,9 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
       {team.length > 0 && (
         <div className="px-6 sm:px-10 py-14" style={{ background: '#FFF8F0' }}>
           <h2 className="text-2xl font-black uppercase text-center mb-8">TEAM</h2>
-          <div className="flex flex-wrap justify-center gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 justify-items-center">
             {team.map((member, i) => (
-              <div key={i} className="w-[160px] rounded-xl p-5 text-center" style={{ background: '#FFD700', border: '3px solid #1a1a4e', boxShadow: '4px 4px 0 #1a1a4e' }}>
+              <div key={i} className="w-full max-w-[160px] rounded-xl p-5 text-center" style={{ background: '#FFD700', border: '3px solid #1a1a4e', boxShadow: '4px 4px 0 #1a1a4e' }}>
                 {member.pfpUrl ? (
                   <img src={member.pfpUrl} alt={member.name} className="w-16 h-16 rounded-full mx-auto object-cover" style={{ border: '3px solid #1a1a4e' }} />
                 ) : (
@@ -184,7 +185,7 @@ const NftRetroPopLayout = ({ data, style, countdown, showWatermark }: Props) => 
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full text-left px-5 py-4 font-black text-sm uppercase flex items-center justify-between">
                   {item.question}
-                  <ChevronDown className={`w-5 h-5 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
                   <div className="px-5 pb-4 text-sm" style={{ fontFamily: 'monospace' }}>{item.answer}</div>

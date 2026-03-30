@@ -3,6 +3,7 @@ import { ThemeConfig } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { ExternalLink, MessageCircle, ChevronDown, Twitter } from 'lucide-react';
 import { ensureUrl, CountdownBlock } from './shared';
+import { getNftCtaConfig, getNftCtaUrl, PaginatedGallery, Lightbox } from './NftShared';
 import logo from '@/assets/logo.png';
 import { useState } from 'react';
 
@@ -25,7 +26,8 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
-  const mintUrl = data.socials?.magicEden ? ensureUrl(data.socials.magicEden) : '#';
+  const ctaUrl = getNftCtaUrl(data);
+  const cta = getNftCtaConfig(data.mintStatus);
   const badge = mintStatusBadge(data.mintStatus || 'upcoming');
   const gallery = data.galleryImages || [];
   const team: TeamMember[] = data.team || [];
@@ -42,16 +44,16 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight" style={{ color: '#111', fontFamily: "'Georgia', 'Playfair Display', serif" }}>
           {data.name || 'Collection Name'}
         </h1>
-        <p className="text-lg max-w-md mx-auto" style={{ color: '#666' }}>{data.tagline || 'Your NFT collection'}</p>
+        <p className="text-base sm:text-lg max-w-md mx-auto" style={{ color: '#666' }}>{data.tagline || 'Your NFT collection'}</p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           {data.mintPrice && (
-            <div className="border rounded-xl px-5 py-3" style={{ borderColor: '#e5e5e5', background: '#fff' }}>
+            <div className="border rounded-xl px-4 sm:px-5 py-3" style={{ borderColor: '#e5e5e5', background: '#fff' }}>
               <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: '#999' }}>Mint Price</p>
-              <p className="text-xl font-bold" style={{ color: accentColor }}>{data.mintPrice} SOL</p>
+              <p className="text-lg sm:text-xl font-bold" style={{ color: accentColor }}>{data.mintPrice} SOL</p>
             </div>
           )}
-          <span className={cn('px-4 py-2 rounded-full text-xs font-semibold border', badge.bg, badge.text, badge.border)}>
+          <span className={cn('px-3 sm:px-4 py-2 rounded-full text-xs font-semibold border', badge.bg, badge.text, badge.border)}>
             {badge.label}
           </span>
           {data.nftTotalSupply && (
@@ -61,10 +63,10 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
           )}
         </div>
 
-        <a href={mintUrl} target="_blank" rel="noopener noreferrer"
+        <a href={ctaUrl} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-sm text-white transition-all hover:scale-[1.03] shadow-lg"
           style={{ background: accentColor }}>
-          Mint Now <ExternalLink className="w-4 h-4" />
+          {cta.label} <cta.icon className="w-4 h-4" />
         </a>
 
         {data.showCountdown && data.launchDate && data.mintStatus === 'upcoming' && (
@@ -72,27 +74,23 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
         )}
       </div>
 
-      {/* Gallery — masonry-style hero section */}
+      {/* Gallery */}
       {gallery.length > 0 && (
         <div className="px-6 sm:px-10 py-16" style={{ borderTop: '1px solid #eee' }}>
           <h2 className="text-sm uppercase tracking-[0.2em] mb-8 font-medium text-center" style={{ color: accentColor }}>Gallery</h2>
-          <div className="columns-2 md:columns-3 gap-3 space-y-3">
-            {gallery.map((img, i) => (
-              <button key={i} onClick={() => setLightboxImg(img)} className="block w-full rounded-xl overflow-hidden group hover:shadow-xl transition-shadow break-inside-avoid">
-                <img src={img} alt={`NFT ${i + 1}`} className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" />
+          <PaginatedGallery
+            images={gallery}
+            onImageClick={setLightboxImg}
+            renderItem={(img, i) => (
+              <button onClick={() => setLightboxImg(img)} className="block w-full aspect-square rounded-xl overflow-hidden group hover:shadow-xl transition-shadow">
+                <img src={img} alt={`NFT ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               </button>
-            ))}
-          </div>
+            )}
+          />
         </div>
       )}
 
-      {/* Lightbox */}
-      {lightboxImg && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6" onClick={() => setLightboxImg(null)}>
-          <img src={lightboxImg} alt="" className="max-w-full max-h-[85vh] rounded-2xl object-contain" />
-          <button className="absolute top-6 right-6 text-white/80 hover:text-white text-2xl">✕</button>
-        </div>
-      )}
+      <Lightbox src={lightboxImg} onClose={() => setLightboxImg(null)} />
 
       {/* About */}
       {data.description && (
@@ -102,7 +100,7 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
         </div>
       )}
 
-      {/* Roadmap — timeline style */}
+      {/* Roadmap */}
       {data.roadmap?.length > 0 && (
         <div className="px-6 sm:px-10 py-16 max-w-2xl mx-auto" style={{ borderTop: '1px solid #eee' }}>
           <h2 className="text-sm uppercase tracking-[0.2em] mb-8 font-medium text-center" style={{ color: accentColor }}>Roadmap</h2>
@@ -136,7 +134,7 @@ const NftGalleryLayout = ({ data, style, countdown, showWatermark }: Props) => {
       {team.length > 0 && (
         <div className="px-6 sm:px-10 py-16" style={{ borderTop: '1px solid #eee' }}>
           <h2 className="text-sm uppercase tracking-[0.2em] mb-8 font-medium text-center" style={{ color: accentColor }}>Team</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-xl mx-auto">
             {team.map((member, i) => (
               <div key={i} className="flex flex-col items-center gap-2">
                 {member.pfpUrl ? (

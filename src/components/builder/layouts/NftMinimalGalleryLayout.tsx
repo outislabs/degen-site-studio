@@ -2,6 +2,7 @@ import { CoinData, TeamMember, FaqItem } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { ExternalLink, MessageCircle, ChevronDown, Twitter } from 'lucide-react';
 import { ensureUrl, CountdownBlock } from './shared';
+import { getNftCtaConfig, getNftCtaUrl, PaginatedGallery, Lightbox } from './NftShared';
 import logo from '@/assets/logo.png';
 import { useState } from 'react';
 
@@ -24,7 +25,8 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const mintUrl = data.socials?.magicEden ? ensureUrl(data.socials.magicEden) : '#';
+  const ctaUrl = getNftCtaUrl(data);
+  const cta = getNftCtaConfig(data.mintStatus);
   const badge = mintStatusPill(data.mintStatus || 'upcoming', style.accentHex);
   const gallery = data.galleryImages || [];
   const team: TeamMember[] = data.team || [];
@@ -34,11 +36,11 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
   return (
     <div className="min-h-full" style={{ background: '#ffffff', color: '#222222', fontFamily: "Georgia, 'Times New Roman', serif" }}>
       {/* Hero */}
-      <div className="pt-24 pb-16 px-6 text-center max-w-3xl mx-auto">
+      <div className="pt-20 sm:pt-24 pb-14 sm:pb-16 px-6 text-center max-w-3xl mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight leading-tight" style={{ color: '#222' }}>
           {data.name || 'Collection Name'}
         </h1>
-        {data.tagline && <p className="mt-4 text-base opacity-50" style={{ fontFamily: 'sans-serif' }}>{data.tagline}</p>}
+        {data.tagline && <p className="mt-4 text-sm sm:text-base opacity-50" style={{ fontFamily: 'sans-serif' }}>{data.tagline}</p>}
 
         {data.logoUrl && (
           <div className="mt-10 mx-auto max-w-md">
@@ -63,10 +65,10 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
           )}
         </div>
 
-        <a href={mintUrl} target="_blank" rel="noopener noreferrer"
+        <a href={ctaUrl} target="_blank" rel="noopener noreferrer"
           className="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium transition-all hover:opacity-80"
           style={{ background: accent, color: '#fff' }}>
-          Mint Now <ExternalLink className="w-3.5 h-3.5" />
+          {cta.label} <cta.icon className="w-3.5 h-3.5" />
         </a>
 
         {data.showCountdown && data.launchDate && data.mintStatus === 'upcoming' && (
@@ -74,26 +76,22 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
         )}
       </div>
 
-      {/* Gallery — Masonry-like */}
+      {/* Gallery */}
       {gallery.length > 0 && (
         <div className="px-6 sm:px-10 py-16 max-w-5xl mx-auto">
-          <div className="columns-2 md:columns-3 gap-4 space-y-4">
-            {gallery.map((img, i) => (
-              <button key={i} onClick={() => setLightboxImg(img)} className="block w-full rounded-xl overflow-hidden transition-all hover:shadow-lg group break-inside-avoid">
-                <img src={img} alt={`NFT ${i + 1}`} className="w-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
+          <PaginatedGallery
+            images={gallery}
+            onImageClick={setLightboxImg}
+            renderItem={(img, i) => (
+              <button onClick={() => setLightboxImg(img)} className="block w-full rounded-xl overflow-hidden transition-all hover:shadow-lg group aspect-square">
+                <img src={img} alt={`NFT ${i + 1}`} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" />
               </button>
-            ))}
-          </div>
+            )}
+          />
         </div>
       )}
 
-      {/* Lightbox */}
-      {lightboxImg && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6" onClick={() => setLightboxImg(null)}>
-          <img src={lightboxImg} alt="" className="max-w-full max-h-[85vh] rounded-2xl object-contain" />
-          <button className="absolute top-6 right-6 text-white/60 hover:text-white text-2xl">✕</button>
-        </div>
-      )}
+      <Lightbox src={lightboxImg} onClose={() => setLightboxImg(null)} />
 
       {/* About */}
       {data.description && (
@@ -102,32 +100,13 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
         </div>
       )}
 
-      {/* Details Bar */}
-      <div className="px-6 py-6">
-        <div className="max-w-3xl mx-auto flex flex-wrap justify-center gap-3">
-          {data.nftTotalSupply && (
-            <span className="px-5 py-2 rounded-full text-xs" style={{ background: '#f5f5f5', color: '#555' }}>
-              Supply: {data.nftTotalSupply}
-            </span>
-          )}
-          {data.mintPrice && (
-            <span className="px-5 py-2 rounded-full text-xs" style={{ background: '#f5f5f5', color: '#555' }}>
-              Price: {data.mintPrice} SOL
-            </span>
-          )}
-          <span className="px-5 py-2 rounded-full text-xs" style={{ background: badge.bg, color: badge.color }}>
-            {badge.label}
-          </span>
-        </div>
-      </div>
-
       {/* Team */}
       {team.length > 0 && (
         <div className="px-6 py-16 max-w-4xl mx-auto">
           <h2 className="text-center text-xs uppercase tracking-[0.3em] opacity-40 mb-10" style={{ fontFamily: 'sans-serif' }}>Team</h2>
-          <div className="flex justify-center gap-10 flex-wrap overflow-x-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 justify-items-center">
             {team.map((member, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 w-[100px]">
+              <div key={i} className="flex flex-col items-center gap-2 w-full max-w-[100px]">
                 {member.pfpUrl ? (
                   <img src={member.pfpUrl} alt={member.name} className="w-16 h-16 rounded-full object-cover" />
                 ) : (
@@ -148,7 +127,7 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
         </div>
       )}
 
-      {/* Roadmap — Horizontal Timeline */}
+      {/* Roadmap */}
       {data.roadmap?.length > 0 && (
         <div className="px-6 py-16 max-w-4xl mx-auto">
           <h2 className="text-center text-xs uppercase tracking-[0.3em] opacity-40 mb-10" style={{ fontFamily: 'sans-serif' }}>Roadmap</h2>
@@ -179,7 +158,7 @@ const NftMinimalGalleryLayout = ({ data, style, countdown, showWatermark }: Prop
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full text-left px-0 py-5 text-sm font-medium flex items-center justify-between" style={{ fontFamily: 'sans-serif', color: '#333' }}>
                   {item.question}
-                  <ChevronDown className={`w-4 h-4 opacity-30 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 opacity-30 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
                   <div className="pb-5 text-sm opacity-50 leading-relaxed" style={{ fontFamily: 'sans-serif' }}>{item.answer}</div>

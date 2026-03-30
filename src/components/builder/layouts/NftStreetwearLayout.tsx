@@ -2,6 +2,7 @@ import { CoinData, TeamMember, FaqItem } from '@/types/coin';
 import { ThemeConfig } from '@/lib/themes';
 import { ExternalLink, MessageCircle, ChevronDown, Twitter, AlertTriangle } from 'lucide-react';
 import { ensureUrl, CountdownBlock } from './shared';
+import { getNftCtaConfig, getNftCtaUrl, PaginatedGallery, Lightbox } from './NftShared';
 import logo from '@/assets/logo.png';
 import { useState } from 'react';
 
@@ -24,7 +25,8 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const mintUrl = data.socials?.magicEden ? ensureUrl(data.socials.magicEden) : '#';
+  const ctaUrl = getNftCtaUrl(data);
+  const cta = getNftCtaConfig(data.mintStatus);
   const status = mintStatusLabel(data.mintStatus || 'upcoming');
   const gallery = data.galleryImages || [];
   const team: TeamMember[] = data.team || [];
@@ -36,24 +38,24 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
 
   return (
     <div className="min-h-full" style={{ background: '#0a0a0a', color: '#ffffff', fontFamily: "'Arial Narrow', 'Impact', sans-serif" }}>
-      {/* Hero — Full Screen Dark */}
-      <div className="relative min-h-[80vh] flex flex-col items-center justify-center px-6 text-center overflow-hidden">
+      {/* Hero */}
+      <div className="relative min-h-[70vh] sm:min-h-[80vh] flex flex-col items-center justify-center px-6 text-center overflow-hidden">
         {/* Grain overlay */}
         <div className="absolute inset-0 opacity-20 pointer-events-none"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'0.4\'/%3E%3C/svg%3E")', backgroundSize: '128px' }} />
 
         <div className="relative z-10">
           {data.logoUrl && (
-            <img src={data.logoUrl} alt="" className="w-24 h-24 rounded-xl mx-auto mb-6 object-cover"
+            <img src={data.logoUrl} alt="" className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl mx-auto mb-6 object-cover"
               style={{ border: `2px solid ${accent}30`, boxShadow: `0 0 40px ${accent}20` }} />
           )}
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none"
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none"
             style={{ fontFamily: "'Impact', 'Arial Black', sans-serif", letterSpacing: '-0.03em' }}>
             {name}
           </h1>
 
-          {data.tagline && <p className="mt-3 text-sm uppercase tracking-widest opacity-40 font-mono">{data.tagline}</p>}
+          {data.tagline && <p className="mt-3 text-xs sm:text-sm uppercase tracking-widest opacity-40 font-mono">{data.tagline}</p>}
 
           <div className="mt-6">
             <span className={`inline-flex items-center gap-2 px-5 py-2 rounded text-xs font-black uppercase tracking-widest ${status.pulse ? 'animate-pulse' : ''}`}
@@ -67,10 +69,10 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
             <div className="mt-8"><CountdownBlock countdown={countdown} style={style} /></div>
           )}
 
-          <a href={mintUrl} target="_blank" rel="noopener noreferrer"
+          <a href={ctaUrl} target="_blank" rel="noopener noreferrer"
             className="mt-8 inline-flex items-center gap-2 px-10 py-4 rounded font-black text-sm uppercase tracking-wider transition-all hover:scale-105"
             style={{ background: accent, color: '#0a0a0a', boxShadow: `0 0 30px ${accent}40` }}>
-            MINT NOW <ExternalLink className="w-4 h-4" />
+            {cta.label.toUpperCase()} <cta.icon className="w-4 h-4" />
           </a>
         </div>
       </div>
@@ -86,13 +88,15 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
         </div>
       </div>
 
-      {/* Gallery — Dark Grid */}
+      {/* Gallery */}
       {gallery.length > 0 && (
         <div className="px-4 sm:px-8 py-14">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {gallery.map((img, i) => (
-              <button key={i} onClick={() => setLightboxImg(img)}
-                className="aspect-square rounded overflow-hidden relative group">
+          <PaginatedGallery
+            images={gallery}
+            onImageClick={setLightboxImg}
+            renderItem={(img, i) => (
+              <button onClick={() => setLightboxImg(img)}
+                className="aspect-square rounded overflow-hidden relative group w-full">
                 <img src={img} alt={`#${String(i + 1).padStart(3, '0')}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   style={{ filter: 'contrast(1.05)' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
@@ -101,18 +105,12 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
                   </span>
                 </div>
               </button>
-            ))}
-          </div>
+            )}
+          />
         </div>
       )}
 
-      {/* Lightbox */}
-      {lightboxImg && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" onClick={() => setLightboxImg(null)}>
-          <img src={lightboxImg} alt="" className="max-w-full max-h-[85vh] rounded object-contain" />
-          <button className="absolute top-6 right-6 text-white/60 hover:text-white text-2xl">✕</button>
-        </div>
-      )}
+      <Lightbox src={lightboxImg} onClose={() => setLightboxImg(null)} />
 
       {/* About */}
       {data.description && (
@@ -127,20 +125,20 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
         <div className="flex justify-center gap-8 flex-wrap">
           {data.nftTotalSupply && (
             <div className="text-center">
-              <p className="text-2xl font-black font-mono" style={{ color: accent }}>{data.nftTotalSupply}</p>
+              <p className="text-xl sm:text-2xl font-black font-mono" style={{ color: accent }}>{data.nftTotalSupply}</p>
               <p className="text-[10px] uppercase tracking-widest opacity-30 mt-1 font-mono">Supply</p>
             </div>
           )}
           {data.mintPrice && (
             <div className="text-center">
-              <p className="text-2xl font-black font-mono" style={{ color: accent }}>{data.mintPrice} SOL</p>
+              <p className="text-xl sm:text-2xl font-black font-mono" style={{ color: accent }}>{data.mintPrice} SOL</p>
               <p className="text-[10px] uppercase tracking-widest opacity-30 mt-1 font-mono">Mint Price</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Roadmap — Glowing Vertical */}
+      {/* Roadmap */}
       {data.roadmap?.length > 0 && (
         <div className="px-6 sm:px-10 py-14">
           <h2 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 opacity-30 font-mono">Roadmap</h2>
@@ -170,9 +168,9 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
       {team.length > 0 && (
         <div className="px-6 sm:px-10 py-14">
           <h2 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 opacity-30 font-mono">Team</h2>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 justify-items-center">
             {team.map((member, i) => (
-              <div key={i} className="w-[140px] rounded p-4 text-center transition-all hover:bg-white/5"
+              <div key={i} className="w-full max-w-[140px] rounded p-4 text-center transition-all hover:bg-white/5"
                 style={{ border: `1px solid ${accent}15` }}>
                 {member.pfpUrl ? (
                   <img src={member.pfpUrl} alt={member.name} className="w-14 h-14 rounded mx-auto object-cover" style={{ border: `1px solid ${accent}30` }} />
@@ -204,7 +202,7 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full text-left py-4 text-sm font-bold uppercase tracking-wider flex items-center justify-between">
                   {item.question}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} style={{ color: accent }} />
+                  <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${openFaq === i ? 'rotate-180' : ''}`} style={{ color: accent }} />
                 </button>
                 {openFaq === i && (
                   <div className="pb-4 text-sm font-mono opacity-50 leading-relaxed">{item.answer}</div>
@@ -219,7 +217,7 @@ const NftStreetwearLayout = ({ data, style, countdown, showWatermark }: Props) =
       <div className="px-6 py-8 text-center relative" style={{ borderTop: `1px solid ${accent}10` }}>
         {data.mintStatus === 'sold_out' && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
-            <span className="text-7xl font-black uppercase tracking-widest rotate-[-15deg]">SOLD OUT</span>
+            <span className="text-5xl sm:text-7xl font-black uppercase tracking-widest rotate-[-15deg]">SOLD OUT</span>
           </div>
         )}
         <div className="flex justify-center gap-3 flex-wrap mb-4 relative z-10">
