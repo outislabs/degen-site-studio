@@ -164,7 +164,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
       {/* Site Type Toggle */}
       <div className="flex rounded-lg border border-border overflow-hidden">
         <button
-          onClick={() => onChange({ siteType: 'memecoin' })}
+          onClick={() => onChange({ siteType: 'memecoin', layout: 'classic' })}
           className={cn(
             'flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all',
             !isNft ? 'bg-primary text-primary-foreground' : 'bg-muted/30 text-muted-foreground hover:text-foreground'
