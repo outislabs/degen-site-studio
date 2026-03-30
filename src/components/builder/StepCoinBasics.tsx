@@ -173,7 +173,7 @@ const StepCoinBasics = ({ data, onChange, slug, onSlugChange, siteId, domainPaym
           <Coins className="w-4 h-4" /> Meme Coin
         </button>
         <button
-          onClick={() => onChange({ siteType: 'nft' })}
+          onClick={() => onChange({ siteType: 'nft', layout: 'nft-dark' })}
           className={cn(
             'flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-all',
             isNft ? 'bg-primary text-primary-foreground' : 'bg-muted/30 text-muted-foreground hover:text-foreground'
