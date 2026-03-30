@@ -27,6 +27,7 @@ const StepSocials = ({ data, onChange }: Props) => {
     { key: 'twitter' as const, label: 'X (Twitter)', icon: Twitter, placeholder: 'https://x.com/yourproject' },
     { key: 'discord' as const, label: 'Discord', icon: Gamepad2, placeholder: 'https://discord.gg/invite' },
     { key: 'magicEden' as const, label: 'Magic Eden', icon: Gem, placeholder: 'https://magiceden.io/marketplace/...' },
+    { key: 'launchnft' as const, label: 'LaunchNFT', icon: Rocket, placeholder: 'https://launchnft.io/collection/your-project' },
     { key: 'telegram' as const, label: 'Telegram', icon: MessageCircle, placeholder: 'https://t.me/yourproject' },
   ];
 

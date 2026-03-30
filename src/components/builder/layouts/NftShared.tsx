@@ -15,10 +15,16 @@ export const getNftCtaConfig = (mintStatus: string | undefined) => {
   }
 };
 
-/** Returns the marketplace URL — uses Magic Eden link if available */
+/** Returns the marketplace URL — uses mintLink first, then Magic Eden fallback */
 export const getNftCtaUrl = (data: CoinData) => {
+  if (data.mintLink) return ensureUrl(data.mintLink);
   if (data.socials?.magicEden) return ensureUrl(data.socials.magicEden);
-  return '#';
+  return '';
+};
+
+/** Whether the CTA button should be shown (has a valid URL) */
+export const hasNftCtaUrl = (data: CoinData) => {
+  return !!(data.mintLink || data.socials?.magicEden);
 };
 
 /** Paginated gallery grid — max 2 rows (6 items on md, 4 on mobile), with prev/next controls */
