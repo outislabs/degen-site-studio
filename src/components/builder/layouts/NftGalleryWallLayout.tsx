@@ -42,7 +42,7 @@ const NftGalleryWallLayout = ({ data, style, countdown, showWatermark }: Props) 
       {/* Hero */}
       <div className="relative px-6 sm:px-12 pt-24 pb-20 text-center">
         <p className="text-[10px] uppercase tracking-[0.4em] mb-4 font-sans" style={{ color: GOLD }}>Now Exhibiting</p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-light uppercase tracking-[0.15em] leading-tight" style={{ color: OFFWHITE }}>
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-light uppercase tracking-[0.08em] sm:tracking-[0.15em] leading-tight break-words" style={{ color: OFFWHITE }}>
           {name}
         </h1>
         {data.tagline && (
