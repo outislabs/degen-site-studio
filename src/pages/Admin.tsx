@@ -65,6 +65,9 @@ const Admin = () => {
   const [stats, setStats] = useState<Stats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingData, setLoadingData] = useState(false);
+  const [userPage, setUserPage] = useState(1);
+  const [userTotal, setUserTotal] = useState(0);
+  const usersPerPage = 100;
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: string; id: string; label: string }>({ open: false, type: '', id: '', label: '' });
 
   // Promo codes state
@@ -122,8 +125,23 @@ const Admin = () => {
   const fetchUsers = async (page = 1) => {
     setLoadingData(true);
     try {
-      const data = await invokeAdmin('list');
+      const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-users`);
+      url.searchParams.set('action', 'list');
+      url.searchParams.set('page', String(page));
+      url.searchParams.set('per_page', String(usersPerPage));
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(url.toString(), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+      });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Request failed'); }
+      const data = await res.json();
       setUsers(data.users || []);
+      setUserTotal(data.total ?? data.users?.length ?? 0);
+      setUserPage(page);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -465,6 +483,35 @@ const Admin = () => {
                 </Table>
               </div>
             </Card>
+
+            {/* Pagination */}
+            {userTotal > usersPerPage && (
+              <div className="flex items-center justify-between pt-2">
+                <p className="text-xs text-muted-foreground">
+                  Page {userPage} of {Math.ceil(userTotal / usersPerPage)} ({userTotal} users)
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={userPage <= 1 || loadingData}
+                    onClick={() => fetchUsers(userPage - 1)}
+                    className="gap-1"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" /> Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={userPage >= Math.ceil(userTotal / usersPerPage) || loadingData}
+                    onClick={() => fetchUsers(userPage + 1)}
+                    className="gap-1"
+                  >
+                    Next <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           {/* SITES TAB */}
