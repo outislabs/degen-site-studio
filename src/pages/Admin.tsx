@@ -119,7 +119,7 @@ const Admin = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     setLoadingData(true);
     try {
       const data = await invokeAdmin('list');
