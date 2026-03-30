@@ -23,6 +23,10 @@ import NftComicLayout from './layouts/NftComicLayout';
 import NftRetroPopLayout from './layouts/NftRetroPopLayout';
 import NftMinimalGalleryLayout from './layouts/NftMinimalGalleryLayout';
 import NftStreetwearLayout from './layouts/NftStreetwearLayout';
+import NftGalleryWallLayout from './layouts/NftGalleryWallLayout';
+import NftAnimeLayout from './layouts/NftAnimeLayout';
+import NftBlueprintLayout from './layouts/NftBlueprintLayout';
+import NftLuxuryEditorialLayout from './layouts/NftLuxuryEditorialLayout';
 
 interface Props {
   data: CoinData;
