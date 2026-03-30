@@ -38,6 +38,7 @@ export interface CoinData {
   liquidityStatus: 'locked' | 'burned';
 
   // Step 2 — NFT fields
+  mintLink: string;
   mintPrice: string;
   nftTotalSupply: string;
   mintStatus: 'upcoming' | 'live' | 'sold_out';
@@ -52,6 +53,7 @@ export interface CoinData {
     discord: string;
     dex: string;
     magicEden: string;
+    launchnft: string;
   };
 
   // NFT extras
@@ -95,13 +97,14 @@ export const defaultCoinData: CoinData = {
   sellTax: 0,
   distribution: { lp: 50, team: 10, marketing: 15, burn: 25 },
   liquidityStatus: 'locked',
+  mintLink: '',
   mintPrice: '',
   nftTotalSupply: '',
   mintStatus: 'upcoming',
   mintDate: null,
   isWhitelist: false,
   galleryImages: [],
-  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '' },
+  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '', launchnft: '' },
   team: [],
   faq: [],
   roadmap: [

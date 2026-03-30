@@ -79,6 +79,17 @@ const NftBasicsFields = ({ data, onChange }: Props) => {
         </div>
       </div>
 
+      {/* Mint Link */}
+      <div className="space-y-2">
+        <Label>Mint Link (where users go to mint)</Label>
+        <Input
+          placeholder="https://launchnft.io/collection/your-project"
+          value={data.mintLink || ''}
+          onChange={e => onChange({ mintLink: e.target.value })}
+        />
+        <p className="text-xs text-muted-foreground">Paste your LaunchNFT, Magic Eden, or custom mint page URL</p>
+      </div>
+
       {/* NFT-specific fields */}
       <div className="space-y-2">
         <Label>Mint Price</Label>

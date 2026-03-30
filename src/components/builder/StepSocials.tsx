@@ -1,7 +1,7 @@
 import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MessageCircle, Twitter, Gamepad2, BarChart3, Gem } from 'lucide-react';
+import { MessageCircle, Twitter, Gamepad2, BarChart3, Gem, Rocket } from 'lucide-react';
 import NftTeamFaq from '@/components/builder/NftTeamFaq';
 
 interface Props {
@@ -27,6 +27,7 @@ const StepSocials = ({ data, onChange }: Props) => {
     { key: 'twitter' as const, label: 'X (Twitter)', icon: Twitter, placeholder: 'https://x.com/yourproject' },
     { key: 'discord' as const, label: 'Discord', icon: Gamepad2, placeholder: 'https://discord.gg/invite' },
     { key: 'magicEden' as const, label: 'Magic Eden', icon: Gem, placeholder: 'https://magiceden.io/marketplace/...' },
+    { key: 'launchnft' as const, label: 'LaunchNFT', icon: Rocket, placeholder: 'https://launchnft.io/collection/your-project' },
     { key: 'telegram' as const, label: 'Telegram', icon: MessageCircle, placeholder: 'https://t.me/yourproject' },
   ];
 
