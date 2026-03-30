@@ -122,7 +122,11 @@ Deno.serve(async (req) => {
         roles: roleMap[u.id] || [],
       }))
 
-      return new Response(JSON.stringify({ users: enrichedUsers }), {
+      // Get total user count for pagination
+      const { data: allUsersData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1 })
+      const total = (allUsersData as any)?.total ?? enrichedUsers.length
+
+      return new Response(JSON.stringify({ users: enrichedUsers, total }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
