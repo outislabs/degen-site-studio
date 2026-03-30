@@ -3,9 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle, Loader2 } from 'lucide-react';
+import { LayoutGrid, Columns, Grid3X3, Minus, Crown, Film, Palette, CloudSun, Zap, Terminal, Cpu, Gem, Gamepad2, Newspaper, Circle, Loader2, Image, Sparkles, PenTool, BookOpen, Frame, Swords, Ruler, GalleryVerticalEnd } from 'lucide-react';
 
 const ALL_TEMPLATES = [
+  // Memecoin
   { id: 'classic', name: 'Classic', icon: LayoutGrid },
   { id: 'split-hero', name: 'Split Hero', icon: Columns },
   { id: 'bento', name: 'Bento Grid', icon: Grid3X3 },
@@ -21,6 +22,17 @@ const ALL_TEMPLATES = [
   { id: 'retro-8bit', name: 'Retro 8-Bit', icon: Gamepad2 },
   { id: 'newspaper', name: 'Newspaper', icon: Newspaper },
   { id: 'minimalist', name: 'Minimalist', icon: Circle },
+  // NFT
+  { id: 'nft-dark', name: 'NFT Dark', icon: Image },
+  { id: 'nft-gallery', name: 'NFT Gallery', icon: GalleryVerticalEnd },
+  { id: 'nft-comic', name: 'NFT Comic', icon: Sparkles },
+  { id: 'nft-retro-pop', name: 'NFT Retro Pop', icon: PenTool },
+  { id: 'nft-minimal-gallery', name: 'NFT Minimal Gallery', icon: Circle },
+  { id: 'nft-streetwear', name: 'NFT Streetwear', icon: BookOpen },
+  { id: 'nft-gallery-wall', name: 'NFT Gallery Wall', icon: Frame },
+  { id: 'nft-anime', name: 'NFT Anime', icon: Swords },
+  { id: 'nft-blueprint', name: 'NFT Blueprint', icon: Ruler },
+  { id: 'nft-luxury', name: 'NFT Luxury Editorial', icon: Gem },
 ];
 
 const TemplatesTab = () => {
