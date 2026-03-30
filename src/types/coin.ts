@@ -38,6 +38,7 @@ export interface CoinData {
   liquidityStatus: 'locked' | 'burned';
 
   // Step 2 — NFT fields
+  mintLink: string;
   mintPrice: string;
   nftTotalSupply: string;
   mintStatus: 'upcoming' | 'live' | 'sold_out';
