@@ -143,9 +143,9 @@ const NftGalleryWallLayout = ({ data, style, countdown, showWatermark }: Props) 
       {data.roadmap?.length > 0 && (
         <div className="py-16" style={{ borderTop: `1px solid ${GOLD}15` }}>
           <h2 className="text-center text-[10px] uppercase tracking-[0.4em] mb-10 font-sans px-6" style={{ color: GOLD }}>Exhibition Milestones</h2>
-          <div className="flex overflow-x-auto gap-4 px-6 sm:px-12 pb-4 snap-x snap-mandatory">
+          <div className="flex overflow-x-auto gap-3 sm:gap-4 px-4 sm:px-12 pb-4 snap-x snap-mandatory">
             {data.roadmap.map((phase, i) => (
-              <div key={phase.id} className="flex-shrink-0 w-64 snap-start rounded-lg p-6" style={{ background: `${WHITE}04`, border: `1px solid ${GOLD}15` }}>
+              <div key={phase.id} className="flex-shrink-0 w-56 sm:w-64 snap-start rounded-lg p-4 sm:p-6" style={{ background: `${WHITE}04`, border: `1px solid ${GOLD}15` }}>
                 <p className="text-[10px] uppercase tracking-[0.3em] font-sans mb-3" style={{ color: GOLD }}>Room {i + 1}</p>
                 <h3 className="font-medium text-sm mb-3" style={{ color: OFFWHITE }}>{phase.title.replace(/Phase \d+:\s*/, '')}</h3>
                 <ul className="space-y-1.5">

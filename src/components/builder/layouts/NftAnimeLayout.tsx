@@ -176,7 +176,7 @@ const NftAnimeLayout = ({ data, style, countdown, showWatermark }: Props) => {
       {team.length > 0 && (
         <div className="px-6 sm:px-10 py-14">
           <h2 className="text-center text-xs uppercase tracking-[0.3em] font-mono mb-8" style={{ color: CYAN }}>◆ Select Character ◆</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl mx-auto">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 max-w-xl mx-auto">
             {team.map((member, i) => {
               const borderColor = getRoleColor(member.role);
               return (
