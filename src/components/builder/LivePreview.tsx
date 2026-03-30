@@ -87,6 +87,10 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
       {layout === 'nft-retro-pop' && <NftRetroPopLayout {...layoutProps} />}
       {layout === 'nft-minimal-gallery' && <NftMinimalGalleryLayout {...layoutProps} />}
       {layout === 'nft-streetwear' && <NftStreetwearLayout {...layoutProps} />}
+      {layout === 'nft-gallery-wall' && <NftGalleryWallLayout {...layoutProps} />}
+      {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
+      {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
+      {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
     </div>
   );
 };

@@ -43,6 +43,10 @@ const nftLayouts: { id: LayoutStyle; name: string; desc: string; icon: React.Rea
   { id: 'nft-retro-pop', name: 'Retro Pop', desc: 'Bold colorful maximalist with retro illustration energy', icon: <Palette className="w-5 h-5" /> },
   { id: 'nft-minimal-gallery', name: 'Minimal Gallery', desc: 'Gallery-focused editorial layout with elegant serif typography', icon: <Circle className="w-5 h-5" /> },
   { id: 'nft-streetwear', name: 'Streetwear Drop', desc: 'Dark hype-beast drop energy with grain texture and glow effects', icon: <Crown className="w-5 h-5" /> },
+  { id: 'nft-gallery-wall', name: 'Gallery Wall', desc: 'Museum exhibition feel with framed artwork and gold accents', icon: <Gem className="w-5 h-5" /> },
+  { id: 'nft-anime', name: 'Anime Drop', desc: 'Manga-inspired high energy with speed lines and character cards', icon: <Zap className="w-5 h-5" /> },
+  { id: 'nft-blueprint', name: 'Blueprint', desc: 'Technical engineering aesthetic with grid lines and stencil type', icon: <Cpu className="w-5 h-5" /> },
+  { id: 'nft-luxury', name: 'Luxury Editorial', desc: 'High-fashion magazine spread with ultra-thin serif and cream palette', icon: <Film className="w-5 h-5" /> },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {
