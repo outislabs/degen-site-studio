@@ -119,7 +119,7 @@ const Admin = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     setLoadingData(true);
     try {
       const data = await invokeAdmin('list');
@@ -362,7 +362,7 @@ const Admin = () => {
                   className="pl-9 bg-card border-border"
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={fetchUsers} className="gap-1.5">
+              <Button variant="outline" size="sm" onClick={() => fetchUsers()} className="gap-1.5">
                 <RefreshCw className="w-3.5 h-3.5" /> Refresh
               </Button>
             </div>
