@@ -97,6 +97,7 @@ export const defaultCoinData: CoinData = {
   sellTax: 0,
   distribution: { lp: 50, team: 10, marketing: 15, burn: 25 },
   liquidityStatus: 'locked',
+  mintLink: '',
   mintPrice: '',
   nftTotalSupply: '',
   mintStatus: 'upcoming',
