@@ -53,6 +53,7 @@ export interface CoinData {
     discord: string;
     dex: string;
     magicEden: string;
+    launchnft: string;
   };
 
   // NFT extras
