@@ -104,7 +104,7 @@ export const defaultCoinData: CoinData = {
   mintDate: null,
   isWhitelist: false,
   galleryImages: [],
-  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '' },
+  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '', launchnft: '' },
   team: [],
   faq: [],
   roadmap: [
