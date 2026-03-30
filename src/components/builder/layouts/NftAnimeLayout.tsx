@@ -55,11 +55,11 @@ const NftAnimeLayout = ({ data, style, countdown, showWatermark }: Props) => {
         <div className="relative z-10 w-full px-6 sm:px-10 flex flex-col sm:flex-row items-center gap-6">
           <div className="flex-1 text-center sm:text-left">
             <p className="text-[10px] uppercase tracking-[0.3em] font-mono mb-2" style={{ color: CYAN }}>★ New Drop ★</p>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black italic uppercase leading-[0.9] tracking-tight"
+            <h1 className="text-2xl sm:text-5xl md:text-7xl font-black italic uppercase leading-[0.9] tracking-tight break-words"
               style={{ WebkitTextStroke: `1px ${PINK}`, color: 'transparent', paintOrder: 'stroke fill' }}>
               {name}
             </h1>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black italic uppercase leading-[0.9] tracking-tight -mt-1"
+            <h1 className="text-2xl sm:text-5xl md:text-7xl font-black italic uppercase leading-[0.9] tracking-tight -mt-1 break-words"
               style={{ color: '#fff' }}>
               {name}
             </h1>
