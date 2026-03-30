@@ -1,7 +1,7 @@
 import { CoinData } from '@/types/coin';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MessageCircle, Twitter, Gamepad2, BarChart3, Gem } from 'lucide-react';
+import { MessageCircle, Twitter, Gamepad2, BarChart3, Gem, Rocket } from 'lucide-react';
 import NftTeamFaq from '@/components/builder/NftTeamFaq';
 
 interface Props {
