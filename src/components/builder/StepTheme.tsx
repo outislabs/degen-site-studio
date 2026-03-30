@@ -39,6 +39,10 @@ const memecoinLayouts: { id: LayoutStyle; name: string; desc: string; icon: Reac
 const nftLayouts: { id: LayoutStyle; name: string; desc: string; icon: React.ReactNode }[] = [
   { id: 'nft-dark', name: 'NFT Dark', desc: 'Premium dark layout with hero art, gallery lightbox, and team cards', icon: <ImageIcon className="w-5 h-5" /> },
   { id: 'nft-gallery', name: 'Clean Gallery', desc: 'Light, art-focused layout with masonry gallery and serif typography', icon: <LayoutGrid className="w-5 h-5" /> },
+  { id: 'nft-comic', name: 'Bold Comic', desc: 'Comic book panels with thick borders, speech bubbles, and bold fonts', icon: <Zap className="w-5 h-5" /> },
+  { id: 'nft-retro-pop', name: 'Retro Pop', desc: 'Bold colorful maximalist with retro illustration energy', icon: <Palette className="w-5 h-5" /> },
+  { id: 'nft-minimal-gallery', name: 'Minimal Gallery', desc: 'Gallery-focused editorial layout with elegant serif typography', icon: <Circle className="w-5 h-5" /> },
+  { id: 'nft-streetwear', name: 'Streetwear Drop', desc: 'Dark hype-beast drop energy with grain texture and glow effects', icon: <Crown className="w-5 h-5" /> },
 ];
 
 const StepTheme = ({ data, onChange }: Props) => {

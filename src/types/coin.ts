@@ -73,7 +73,7 @@ export interface CoinData {
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance' | 'lavender-pop' | 'sky-toon' | 'sponge-pop' | 'ocean-bolt' | 'rose-garden' | 'midnight-chrome' | 'cartoon-sky';
 
-export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal' | 'mascot-hero' | 'cinematic' | 'cartoon' | 'cartoon-sky' | 'comic-hero' | 'terminal' | 'neon-cyberpunk' | 'luxury' | 'retro-8bit' | 'newspaper' | 'minimalist' | 'nft-dark' | 'nft-gallery';
+export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal' | 'mascot-hero' | 'cinematic' | 'cartoon' | 'cartoon-sky' | 'comic-hero' | 'terminal' | 'neon-cyberpunk' | 'luxury' | 'retro-8bit' | 'newspaper' | 'minimalist' | 'nft-dark' | 'nft-gallery' | 'nft-comic' | 'nft-retro-pop' | 'nft-minimal-gallery' | 'nft-streetwear';
 
 export interface RoadmapPhase {
   id: string;
