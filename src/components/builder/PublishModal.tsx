@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Copy, ExternalLink, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 interface Props {
   open: boolean;
@@ -13,8 +14,7 @@ interface Props {
 }
 
 const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
-  const baseUrl = 'https://degentools.co';
-  const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
+  const siteUrl = slug ? getSiteUrl(slug) : '';
 
   const copyLink = () => {
     if (siteUrl) {
@@ -41,7 +41,7 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Your meme coin site <strong className="text-foreground">{data.name || 'Untitled'}</strong> is live and ready to share.
+            Your site <strong className="text-foreground">{data.name || 'Untitled'}</strong> is live and ready to share.
           </p>
 
           {siteUrl && (
@@ -53,17 +53,6 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
             </div>
           )}
 
-          {slug && (
-            <div className="rounded-lg border border-border bg-muted/30 p-3 flex items-center justify-between gap-2">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">🌐 Subdomain</p>
-                <a href={`https://${slug}.degentools.co`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-mono hover:underline">{slug}.degentools.co</a>
-              </div>
-              <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => { navigator.clipboard.writeText(`https://${slug}.degentools.co`); toast.success('Subdomain link copied!'); }}>
-                <Copy className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
 
           {data.customDomain && (
             <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3 flex items-center justify-between gap-2">
