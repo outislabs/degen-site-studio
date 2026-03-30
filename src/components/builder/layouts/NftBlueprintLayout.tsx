@@ -42,7 +42,7 @@ const NftBlueprintLayout = ({ data, style, countdown, showWatermark }: Props) =>
       {/* Hero */}
       <div className="px-6 sm:px-10 pt-20 pb-16 text-center">
         <p className="text-[10px] uppercase tracking-[0.4em] mb-4" style={{ color: LIGHT_BLUE }}>// TECHNICAL SPECIFICATION</p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-[0.2em] leading-tight">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] leading-tight break-words">
           {name}
         </h1>
         {data.tagline && <p className="mt-3 text-sm tracking-wider" style={{ color: `${WHITE}70` }}>{data.tagline}</p>}
