@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Copy, ExternalLink, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { getSiteUrl } from '@/lib/siteUrl';
 
 interface Props {
   open: boolean;
@@ -13,8 +14,7 @@ interface Props {
 }
 
 const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
-  const baseUrl = 'https://degentools.co';
-  const siteUrl = siteId ? `${baseUrl}/site/${slug || siteId}` : '';
+  const siteUrl = slug ? getSiteUrl(slug) : '';
 
   const copyLink = () => {
     if (siteUrl) {
@@ -41,7 +41,7 @@ const PublishModal = ({ open, onClose, data, siteId, slug }: Props) => {
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Your meme coin site <strong className="text-foreground">{data.name || 'Untitled'}</strong> is live and ready to share.
+            Your site <strong className="text-foreground">{data.name || 'Untitled'}</strong> is live and ready to share.
           </p>
 
           {siteUrl && (
