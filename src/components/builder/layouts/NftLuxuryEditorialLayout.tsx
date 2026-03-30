@@ -41,7 +41,7 @@ const NftLuxuryEditorialLayout = ({ data, style, countdown, showWatermark }: Pro
           </div>
         )}
         <div className="relative z-10 text-center px-6">
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-thin uppercase tracking-[0.3em] leading-tight" style={{ color: NEAR_BLACK, fontWeight: 100 }}>
+          <h1 className="text-2xl sm:text-5xl md:text-7xl font-thin uppercase tracking-[0.1em] sm:tracking-[0.3em] leading-tight break-words" style={{ color: NEAR_BLACK, fontWeight: 100 }}>
             {name}
           </h1>
           <p className="mt-4 text-[11px] uppercase tracking-[0.5em] font-sans" style={{ color: `${NEAR_BLACK}60` }}>

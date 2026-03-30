@@ -42,7 +42,7 @@ const NftBlueprintLayout = ({ data, style, countdown, showWatermark }: Props) =>
       {/* Hero */}
       <div className="px-6 sm:px-10 pt-20 pb-16 text-center">
         <p className="text-[10px] uppercase tracking-[0.4em] mb-4" style={{ color: LIGHT_BLUE }}>// TECHNICAL SPECIFICATION</p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-[0.2em] leading-tight">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] leading-tight break-words">
           {name}
         </h1>
         {data.tagline && <p className="mt-3 text-sm tracking-wider" style={{ color: `${WHITE}70` }}>{data.tagline}</p>}
@@ -182,17 +182,17 @@ const NftBlueprintLayout = ({ data, style, countdown, showWatermark }: Props) =>
               const pct = i === 0 ? 100 : i === 1 ? 50 : 15;
               return (
                 <div key={phase.id}>
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-[9px] uppercase tracking-wider w-16 flex-shrink-0" style={{ color: LIGHT_BLUE }}>
+                  <div className="flex items-center gap-2 sm:gap-3 mb-1">
+                    <span className="text-[9px] uppercase tracking-wider w-8 sm:w-16 flex-shrink-0" style={{ color: LIGHT_BLUE }}>
                       P{i + 1}
                     </span>
-                    <span className="text-xs font-bold flex-1">{phase.title.replace(/Phase \d+:\s*/, '')}</span>
+                    <span className="text-xs font-bold flex-1 truncate">{phase.title.replace(/Phase \d+:\s*/, '')}</span>
                     <span className="text-[9px]" style={{ color: LIGHT_BLUE }}>{pct}%</span>
                   </div>
-                  <div className="ml-16 h-4 rounded-sm overflow-hidden" style={{ background: `${WHITE}08`, border: `1px solid ${WHITE}15` }}>
+                  <div className="ml-8 sm:ml-16 h-4 rounded-sm overflow-hidden" style={{ background: `${WHITE}08`, border: `1px solid ${WHITE}15` }}>
                     <div className="h-full transition-all rounded-sm" style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${LIGHT_BLUE}, ${LIGHT_BLUE}60)` }} />
                   </div>
-                  <div className="ml-16 mt-1 space-y-0.5">
+                  <div className="ml-8 sm:ml-16 mt-1 space-y-0.5">
                     {phase.items.filter(Boolean).map((item, j) => (
                       <p key={j} className="text-[10px]" style={{ color: `${WHITE}45` }}>// {item}</p>
                     ))}
