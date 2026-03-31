@@ -228,7 +228,7 @@ const LaunchToken = () => {
       const errMsg = err?.message || 'Launch failed. Please try again or DM @degentoolshq for help';
       toast.error(errMsg, {
         id: 'launch',
-        action: { label: 'Get help', onClick: () => window.open('https://twitter.com/degentoolshq', '_blank') },
+        action: { label: 'Get help', onClick: () => window.open('https://x.com/degentoolshq', '_blank') },
       });
       // Start 30s cooldown on error
       setCooldownSeconds(30);

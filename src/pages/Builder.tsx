@@ -183,7 +183,7 @@ const Builder = () => {
       setShowPublish(true);
     } catch (error: any) {
       const msg = error?.message?.toLowerCase() || '';
-      const supportLink = 'https://twitter.com/degentoolshq';
+      const supportLink = 'https://x.com/degentoolshq';
       if (msg.includes('unique') || msg.includes('duplicate') || msg.includes('already exists') || msg.includes('slug')) {
         toast.error('This URL is already in use, try a different one', {
           description: 'Change your site slug and try again.',

@@ -8,7 +8,7 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled rejection:', event.reason);
   event.preventDefault();
   toast.error('Something went wrong. Please try again or DM @degentoolshq for help', {
-    action: { label: 'Get help', onClick: () => window.open('https://twitter.com/degentoolshq', '_blank') },
+    action: { label: 'Get help', onClick: () => window.open('https://x.com/degentoolshq', '_blank') },
   });
 });
 
