@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 220 15% 4%;
+    --background: 220 20% 4%;
     --foreground: 0 0% 96%;
     --card: 220 15% 7%;
     --card-foreground: 0 0% 96%;
@@ -44,7 +44,8 @@
     --sidebar-ring: 142 76% 46%;
 
     --font-display: 'Press Start 2P', cursive;
-    --font-body: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', 'Space Grotesk', sans-serif;
+    --font-heading: 'Inter', sans-serif;
   }
 }
 
@@ -67,6 +68,9 @@
   .font-body {
     font-family: var(--font-body);
   }
+  .font-heading {
+    font-family: var(--font-heading);
+  }
   .text-glow {
     text-shadow: 0 0 10px hsl(var(--primary) / 0.7), 0 0 30px hsl(var(--primary) / 0.4);
   }
@@ -82,12 +86,59 @@
   .box-glow-pink {
     box-shadow: 0 0 15px hsl(var(--neon-pink) / 0.3), 0 0 45px hsl(var(--neon-pink) / 0.1);
   }
+
+  /* Gradient mesh background for landing page */
+  .gradient-mesh {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, hsla(160, 40%, 8%, 0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 50%, hsla(180, 30%, 6%, 0.6) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, hsla(142, 40%, 6%, 0.5) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(220 25% 4%), hsl(220 20% 3%) 50%, hsl(220 20% 4%));
+  }
+
   .gradient-degen {
     background: linear-gradient(180deg, hsl(var(--degen-dark)), hsl(var(--background)) 40%, hsl(var(--background)));
   }
+
   .gradient-card {
     background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.5));
   }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: hsla(0, 0%, 100%, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+  }
+  .glass-card-hover:hover {
+    background: hsla(0, 0%, 100%, 0.07);
+    border-color: hsla(0, 0%, 100%, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -12px hsla(0, 0%, 0%, 0.4);
+  }
+
+  /* Green gradient border for highlighted cards */
+  .gradient-border-green {
+    position: relative;
+  }
+  .gradient-border-green::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
   .section-padding {
     @apply px-4 sm:px-6 lg:px-8;
   }
@@ -106,13 +157,18 @@ input:focus, textarea:focus, select:focus {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.6; box-shadow: 0 0 4px hsl(var(--primary) / 0.3); }
+  50% { opacity: 1; box-shadow: 0 0 12px hsl(var(--primary) / 0.6); }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .animate-ticker {
@@ -125,4 +181,17 @@ input:focus, textarea:focus, select:focus {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Hide scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

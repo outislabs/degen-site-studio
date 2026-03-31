@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '@/assets/logo.png';
 
 interface Props {
@@ -23,6 +23,13 @@ const navLinks = [
 const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
@@ -33,14 +40,13 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
       } else {
-        // Section not on current page — navigate to landing page with hash
         navigate('/' + link.href);
       }
     }
   };
 
   return (
-    <header className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+    <header className={`px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/70 backdrop-blur-xl border-b border-border/30 shadow-lg shadow-black/10' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-8">
           <img
@@ -49,7 +55,6 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
             className="h-10 sm:h-12 w-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
-          
 
           <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (

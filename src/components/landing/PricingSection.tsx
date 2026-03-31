@@ -25,7 +25,7 @@ const plans = [
     description: 'For serious degens',
     features: ['3 coin websites', 'Custom domain', 'No watermark', 'All templates', '50 meme downloads/mo'],
     cta: 'Go Degen',
-    popular: false,
+    popular: true,
   },
   {
     name: 'Creator',
@@ -34,7 +34,7 @@ const plans = [
     description: 'Full creative suite',
     features: ['10 coin websites', 'Full content studio', 'Unlimited downloads', 'Sticker pack builder', 'Priority support'],
     cta: 'Start Creating',
-    popular: true,
+    popular: false,
   },
   {
     name: 'Whale',
@@ -49,9 +49,9 @@ const plans = [
 
 const PricingSection = ({ onGetStarted }: Props) => {
   return (
-    <section id="pricing" className="section-padding py-10 sm:py-24 relative">
+    <section id="pricing" className="section-padding py-16 sm:py-28 relative">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[800px] h-[300px] bg-primary/3 blur-[150px] sm:blur-[200px] rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[800px] h-[300px] bg-primary/3 blur-[200px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -59,13 +59,13 @@ const PricingSection = ({ onGetStarted }: Props) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <span className="inline-block font-display text-[9px] sm:text-[10px] text-primary tracking-[0.3em] mb-4 bg-primary/5 border border-primary/10 rounded-full px-4 sm:px-5 py-2">PRICING</span>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mt-4 mb-3 sm:mb-4">
+          <span className="inline-block text-[10px] sm:text-xs text-primary tracking-[0.2em] font-semibold uppercase mb-4 bg-primary/5 border border-primary/10 rounded-full px-5 py-2">PRICING</span>
+          <h2 className="font-heading font-bold text-2xl sm:text-3xl md:text-4xl text-foreground mt-4 mb-3 sm:mb-4 tracking-tight">
             Choose your <span className="text-primary text-glow">degen energy</span>
           </h2>
-          <p className="text-muted-foreground text-xs sm:text-sm md:text-base max-w-md mx-auto px-2">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto px-2">
             Start free. Upgrade when you're ready to go full send.
           </p>
         </motion.div>
@@ -81,39 +81,39 @@ const PricingSection = ({ onGetStarted }: Props) => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07 }}
                 className={cn(
-                  'relative gradient-card border rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300 hover:scale-[1.02]',
+                  'relative rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300 hover:translate-y-[-2px]',
                   plan.popular
-                    ? 'border-primary/40 shadow-[0_0_50px_hsl(var(--primary)/0.1)] ring-1 ring-primary/30'
-                    : 'border-border hover:border-primary/20'
+                    ? 'glass-card gradient-border-green shadow-[0_0_60px_hsla(142,76%,46%,0.08)]'
+                    : 'glass-card hover:bg-[hsla(0,0%,100%,0.06)]'
                 )}
               >
                 {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[8px] sm:text-[9px] font-display tracking-wider px-3 sm:px-4 py-1">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[9px] font-bold tracking-wider px-4 py-1">
                     MOST POPULAR
                   </Badge>
                 )}
 
                 <div className="flex items-center gap-2 mb-2">
                   <div className={cn(
-                    'w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center',
-                    plan.popular ? 'bg-primary/15' : 'bg-secondary'
+                    'w-9 h-9 rounded-lg flex items-center justify-center',
+                    plan.popular ? 'bg-primary/15' : 'bg-secondary/60'
                   )}>
-                    <Icon className={cn('w-3.5 h-3.5 sm:w-4 sm:h-4', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
+                    <Icon className={cn('w-4 h-4', plan.popular ? 'text-primary' : 'text-muted-foreground')} />
                   </div>
-                  <span className="font-bold text-sm sm:text-base text-foreground">{plan.name}</span>
+                  <span className="font-heading font-bold text-sm sm:text-base text-foreground">{plan.name}</span>
                 </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mb-3 sm:mb-4">{plan.description}</p>
+                <p className="text-xs text-muted-foreground mb-4">{plan.description}</p>
 
-                <div className="mb-4 sm:mb-5">
-                  <span className="text-2xl sm:text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-xs sm:text-sm text-muted-foreground">/mo</span>
+                <div className="mb-5">
+                  <span className="text-3xl font-heading font-bold text-foreground">{plan.price}</span>
+                  <span className="text-sm text-muted-foreground">/mo</span>
                 </div>
 
-                <ul className="space-y-2 flex-1 mb-5 sm:mb-6">
+                <ul className="space-y-2.5 flex-1 mb-6">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                    <li key={f} className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground">
                       <Check className={cn(
-                        'w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 shrink-0',
+                        'w-3.5 h-3.5 mt-0.5 shrink-0',
                         plan.popular ? 'text-primary' : 'text-muted-foreground/50'
                       )} />
                       <span>{f}</span>
@@ -125,7 +125,7 @@ const PricingSection = ({ onGetStarted }: Props) => {
                   size="sm"
                   variant={plan.popular ? 'default' : 'outline'}
                   className={cn(
-                    'w-full text-[10px] sm:text-xs rounded-xl py-4 sm:py-5',
+                    'w-full text-xs rounded-xl py-5',
                     plan.popular && 'box-glow'
                   )}
                   onClick={onGetStarted}
@@ -137,9 +137,14 @@ const PricingSection = ({ onGetStarted }: Props) => {
           })}
         </div>
 
-        <p className="text-center text-[10px] sm:text-xs text-muted-foreground/60 mt-6 sm:mt-8">
-          All plans billed monthly. Pay with crypto via NOWPayments.
-        </p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center text-xs text-muted-foreground/50 mt-8"
+        >
+          Or hold 15M+ $DEGENTOOLS for free Degen access • All plans billed monthly • Pay with crypto via NOWPayments
+        </motion.p>
       </div>
     </section>
   );

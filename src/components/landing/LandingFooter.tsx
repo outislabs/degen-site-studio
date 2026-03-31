@@ -16,7 +16,7 @@ const footerLinks = [
     links: [
       { label: 'How It Works', href: '#how-it-works' },
       { label: 'Showcase', href: '#showcase' },
-      { label: 'FAQ', href: '#pricing' },
+      { label: 'FAQ', href: '#faq' },
     ],
   },
 ];
@@ -28,13 +28,11 @@ const LandingFooter = () => {
   };
 
   return (
-    <footer className="border-t border-border/30 relative overflow-hidden">
-      {/* Subtle glow */}
+    <footer className="border-t border-border/20 relative overflow-hidden">
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-primary/3 blur-[150px] rounded-full pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative z-10">
-        {/* Top row */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 sm:gap-6 mb-8 sm:mb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 sm:gap-6 mb-10 sm:mb-14">
           {/* Brand */}
           <div className="sm:col-span-5">
             <img src={logo} alt="Degen Tools" className="h-10 sm:h-12 w-auto mb-4" />
@@ -43,15 +41,15 @@ const LandingFooter = () => {
             </p>
             <div className="flex items-center gap-2">
               <a href="https://t.me/degentoolshq" target="_blank" rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all">
+                className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all">
                 <Send className="w-3.5 h-3.5" />
               </a>
               <a href="https://x.com/degentoolshq" target="_blank" rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all text-xs font-bold">
+                className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all text-xs font-bold">
                 𝕏
               </a>
               <a href="mailto:partners@degentools.co"
-                className="w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all">
+                className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all">
                 <Mail className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -60,10 +58,10 @@ const LandingFooter = () => {
           {/* Links */}
           {footerLinks.map((group) => (
             <div key={group.title} className="sm:col-span-2">
-              <h4 className="text-[10px] sm:text-xs font-bold text-foreground/80 uppercase tracking-[0.2em] mb-3 sm:mb-4">
+              <h4 className="text-xs font-bold text-foreground/80 uppercase tracking-[0.15em] mb-3 sm:mb-4">
                 {group.title}
               </h4>
-              <ul className="space-y-2 sm:space-y-2.5">
+              <ul className="space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.label}>
                     <button
@@ -80,23 +78,27 @@ const LandingFooter = () => {
 
           {/* CTA */}
           <div className="sm:col-span-3">
-            <h4 className="text-[10px] sm:text-xs font-bold text-foreground/80 uppercase tracking-[0.2em] mb-3 sm:mb-4">
+            <h4 className="text-xs font-bold text-foreground/80 uppercase tracking-[0.15em] mb-3 sm:mb-4">
               Get Started
             </h4>
             <p className="text-xs text-muted-foreground/50 leading-relaxed mb-4">
               Create your meme coin website in minutes. No coding required.
             </p>
             <a href="/auth"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-primary/90 transition-all box-glow">
               Start Free Trial →
             </a>
+
+            {/* Built on Solana badge */}
+            <div className="mt-5 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/40 bg-secondary/30 border border-border/20 rounded-full px-3 py-1">
+              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#9945FF] to-[#14F195]" />
+              Built on Solana
+            </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-border/50 mb-6" />
+        <div className="h-px bg-border/30 mb-6" />
 
-        {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[10px] sm:text-xs text-muted-foreground/40 text-center sm:text-left">
             © {new Date().getFullYear()} Degen Tools • Not financial advice • DYOR 🐸
