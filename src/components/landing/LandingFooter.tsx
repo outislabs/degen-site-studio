@@ -89,11 +89,6 @@ const LandingFooter = () => {
               Start Free Trial →
             </a>
 
-            {/* Built on Solana badge */}
-            <div className="mt-5 inline-flex items-center gap-1.5 text-[10px] text-muted-foreground/40 bg-secondary/30 border border-border/20 rounded-full px-3 py-1">
-              <div className="w-3 h-3 rounded-full bg-gradient-to-br from-[#9945FF] to-[#14F195]" />
-              Built on Solana
-            </div>
           </div>
         </div>
 
