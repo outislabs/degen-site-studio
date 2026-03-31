@@ -225,7 +225,11 @@ const LaunchToken = () => {
       setLaunched(true);
     } catch (err: any) {
       console.error('Launch error:', err);
-      toast.error(err.message || 'Launch failed', { id: 'launch' });
+      const errMsg = err?.message || 'Launch failed. Please try again or DM @degentoolshq for help';
+      toast.error(errMsg, {
+        id: 'launch',
+        action: { label: 'Get help', onClick: () => window.open('https://twitter.com/degentoolshq', '_blank') },
+      });
       // Start 30s cooldown on error
       setCooldownSeconds(30);
       cooldownRef.current = setInterval(() => {
