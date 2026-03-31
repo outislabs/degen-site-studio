@@ -40,6 +40,42 @@ const LaunchToken = () => {
   const [launched, setLaunched] = useState(false);
   const [tokenMintResult, setTokenMintResult] = useState('');
   const [siteIdForUpdate, setSiteIdForUpdate] = useState(siteId || '');
+  const [checkingExisting, setCheckingExisting] = useState(!!siteId);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Check if site already has a launched token
+  useEffect(() => {
+    if (!siteId || !user) { setCheckingExisting(false); return; }
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke('launch-on-bags', {
+          body: { action: 'get_user_tokens', wallet: '' }
+        });
+        if (data?.success && data.tokens?.length > 0) {
+          // Check site's contractAddress too
+          const { data: siteData } = await supabase.from('sites').select('data').eq('id', siteId).single();
+          const contractAddress = (siteData?.data as Record<string, any>)?.contractAddress;
+          if (contractAddress) {
+            const existing = data.tokens.find((t: any) => t.tokenMint === contractAddress);
+            if (existing) {
+              setTokenMintResult(contractAddress);
+              setLaunched(true);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking existing token:', e);
+      } finally {
+        setCheckingExisting(false);
+      }
+    })();
+  }, [siteId, user]);
+
+  // Cleanup cooldown interval
+  useEffect(() => {
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, []);
 
   // Step 0 fields
   const [name, setName] = useState('');
