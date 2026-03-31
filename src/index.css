@@ -90,10 +90,10 @@
   /* Gradient mesh background for landing page */
   .gradient-mesh {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, hsla(160, 40%, 8%, 0.8) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 50%, hsla(180, 30%, 6%, 0.6) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 50% at 20% 80%, hsla(142, 40%, 6%, 0.5) 0%, transparent 50%),
-      linear-gradient(180deg, hsl(220 25% 4%), hsl(220 20% 3%) 50%, hsl(220 20% 4%));
+      radial-gradient(ellipse 80% 60% at 50% 0%, hsla(152, 30%, 5%, 0.6) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 50%, hsla(0, 0%, 4%, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, hsla(152, 20%, 4%, 0.4) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 2%) 50%, hsl(0 0% 3%));
   }
 
   .gradient-degen {
