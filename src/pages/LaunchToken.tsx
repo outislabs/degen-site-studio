@@ -226,6 +226,14 @@ const LaunchToken = () => {
     } catch (err: any) {
       console.error('Launch error:', err);
       toast.error(err.message || 'Launch failed', { id: 'launch' });
+      // Start 30s cooldown on error
+      setCooldownSeconds(30);
+      cooldownRef.current = setInterval(() => {
+        setCooldownSeconds(prev => {
+          if (prev <= 1) { if (cooldownRef.current) clearInterval(cooldownRef.current); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
     } finally {
       setLaunching(false);
     }
