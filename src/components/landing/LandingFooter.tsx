@@ -46,7 +46,7 @@ const LandingFooter = () => {
                 className="w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all">
                 <Send className="w-3.5 h-3.5" />
               </a>
-              <a href="https://twitter.com/degentoolshq" target="_blank" rel="noopener noreferrer"
+              <a href="https://x.com/degentoolshq" target="_blank" rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all text-xs font-bold">
                 𝕏
               </a>
