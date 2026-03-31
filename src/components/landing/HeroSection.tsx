@@ -30,53 +30,45 @@ interface Props {
 
 const HeroSection = ({ onGetStarted }: Props) => {
   return (
-    <section className="relative section-padding pt-20 sm:pt-32 md:pt-40 pb-8 sm:pb-16 overflow-hidden">
-      {/* Gradient mesh background with spotlight */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] sm:w-[1200px] h-[600px] sm:h-[800px] rounded-full bg-[radial-gradient(ellipse,_hsla(160,50%,20%,0.15)_0%,_hsla(142,76%,46%,0.06)_40%,_transparent_70%)]" />
-        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] rounded-full bg-[radial-gradient(ellipse,_hsla(180,40%,15%,0.1)_0%,_transparent_60%)]" />
-        <div className="absolute bottom-0 left-[15%] w-[500px] h-[400px] rounded-full bg-[radial-gradient(ellipse,_hsla(270,40%,15%,0.06)_0%,_transparent_60%)]" />
+    <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 overflow-hidden">
+      {/* Single subtle radial for depth — no mesh */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[radial-gradient(ellipse,_hsla(0,0%,100%,0.03)_0%,_transparent_70%)]" />
       </div>
 
-      {/* Subtle grid */}
-      <div className="absolute inset-0 opacity-[0.015]" style={{
-        backgroundImage: 'linear-gradient(hsla(0,0%,100%,0.5) 1px, transparent 1px), linear-gradient(90deg, hsla(0,0%,100%,0.5) 1px, transparent 1px)',
-        backgroundSize: '80px 80px'
-      }} />
-
-      <div className="max-w-5xl mx-auto text-center relative z-10">
+      <div className="max-w-4xl mx-auto text-center relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Badge with pulse */}
+          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-6 sm:mb-10"
+            transition={{ delay: 0.15 }}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[hsla(0,0%,100%,0.08)] bg-[hsla(0,0%,100%,0.03)] mb-6 sm:mb-8"
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse-glow" />
-            <span className="text-[10px] sm:text-xs text-primary font-medium tracking-wide">Now with multi-chain import</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium tracking-wide">Now with multi-chain import</span>
           </motion.div>
 
-          {/* Heading — modern sans-serif */}
-          <h1 className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-[1.1] sm:leading-[1.05] mb-5 sm:mb-8 tracking-tight">
+          {/* Heading — 56px max desktop, 32px mobile */}
+          <h1 className="font-heading font-extrabold text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.1] mb-4 sm:mb-6 tracking-tight">
             The Ultimate<br />
-            <span className="text-primary text-glow">Meme Coin Toolkit</span>
+            <span className="text-primary">Meme Coin Toolkit</span>
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-8 sm:mb-12 px-2">
-            Everything your meme coin needs in less than 5 minutes — website, memes, shills, and more. Built for devs who move fast and ship faster.
+          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
+            Everything your meme coin needs in less than 5 minutes — website, memes, shills, and more. Built for devs who move fast.
           </p>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button
               size="lg"
               onClick={onGetStarted}
-              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-heading font-bold text-xs sm:text-sm px-8 sm:px-12 py-6 sm:py-7 box-glow group rounded-xl"
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm px-8 py-6 box-glow group rounded-xl"
             >
               <Zap className="w-4 h-4 mr-2" />
               Start Building for Free
@@ -86,7 +78,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
               size="lg"
               variant="outline"
               onClick={onGetStarted}
-              className="w-full sm:w-auto border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30 font-heading font-medium text-xs sm:text-sm px-8 sm:px-12 py-6 sm:py-7 rounded-xl backdrop-blur-sm"
+              className="w-full sm:w-auto border-[hsla(0,0%,100%,0.1)] text-muted-foreground hover:text-foreground hover:border-[hsla(0,0%,100%,0.2)] font-medium text-sm px-8 py-6 rounded-xl"
             >
               View Live Demo
             </Button>
@@ -96,8 +88,8 @@ const HeroSection = ({ onGetStarted }: Props) => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-5 sm:mt-8 text-[10px] sm:text-xs text-muted-foreground/50"
+            transition={{ delay: 0.4 }}
+            className="mt-4 sm:mt-6 text-[10px] sm:text-xs text-muted-foreground/40"
           >
             Join 500+ devs launching on Solana, Base, and Ethereum.
           </motion.p>
@@ -105,56 +97,51 @@ const HeroSection = ({ onGetStarted }: Props) => {
 
         {/* Product screenshot mockup */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 sm:mt-16 relative mx-auto max-w-4xl"
+          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-10 sm:mt-14 relative mx-auto max-w-3xl"
         >
-          {/* Glow behind the screenshot */}
-          <div className="absolute -inset-8 sm:-inset-12 bg-[radial-gradient(ellipse,_hsla(142,76%,46%,0.08)_0%,_transparent_60%)] rounded-3xl pointer-events-none" />
-
           {/* Browser chrome frame */}
-          <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-border/40 shadow-2xl shadow-black/50 bg-card/80 backdrop-blur-sm" style={{ transform: 'perspective(1200px) rotateX(2deg)' }}>
+          <div className="relative rounded-xl overflow-hidden border border-[hsla(0,0%,100%,0.06)] shadow-2xl shadow-black/60 bg-[hsl(0,0%,5%)]" style={{ transform: 'perspective(1200px) rotateX(2deg)' }}>
             {/* Title bar */}
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-secondary/80 border-b border-border/40">
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[hsl(0,0%,7%)] border-b border-[hsla(0,0%,100%,0.05)]">
               <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-destructive/70" />
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/70" />
-                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-primary/70" />
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[hsl(0,60%,45%)]" />
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[hsl(45,60%,45%)]" />
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[hsl(142,60%,40%)]" />
               </div>
               <div className="flex-1 mx-3 sm:mx-6">
-                <div className="h-5 sm:h-6 rounded-md bg-background/60 border border-border/30 flex items-center justify-center">
-                  <span className="text-[8px] sm:text-[10px] text-muted-foreground/50">degentools.co/builder</span>
+                <div className="h-5 rounded-md bg-[hsla(0,0%,100%,0.04)] border border-[hsla(0,0%,100%,0.05)] flex items-center justify-center">
+                  <span className="text-[8px] sm:text-[10px] text-muted-foreground/40">degentools.co/builder</span>
                 </div>
               </div>
             </div>
 
             {/* Mock builder content */}
-            <div className="p-3 sm:p-6 bg-background/90">
-              <div className="grid grid-cols-12 gap-3 sm:gap-4">
+            <div className="p-3 sm:p-5 bg-background">
+              <div className="grid grid-cols-12 gap-3">
                 {/* Sidebar */}
-                <div className="col-span-3 space-y-2 sm:space-y-3">
-                  <div className="h-6 sm:h-8 rounded-md bg-primary/10 border border-primary/20" />
+                <div className="col-span-3 space-y-2">
+                  <div className="h-6 sm:h-7 rounded-md bg-[hsla(0,0%,100%,0.04)] border border-[hsla(0,0%,100%,0.06)]" />
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className={`h-5 sm:h-7 rounded-md ${i === 1 ? 'bg-primary/15 border border-primary/25' : 'bg-secondary/60'}`} />
+                    <div key={i} className={`h-5 sm:h-6 rounded-md ${i === 1 ? 'bg-[hsla(0,0%,100%,0.06)] border border-[hsla(0,0%,100%,0.08)]' : 'bg-[hsla(0,0%,100%,0.02)]'}`} />
                   ))}
                 </div>
-                {/* Main preview area */}
-                <div className="col-span-9 rounded-lg sm:rounded-xl border border-border/30 bg-card/50 overflow-hidden">
-                  {/* Mock hero */}
-                  <div className="p-4 sm:p-8 space-y-2 sm:space-y-3 text-center bg-gradient-to-b from-primary/5 to-transparent">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-primary/20 mx-auto" />
-                    <div className="h-3 sm:h-4 w-24 sm:w-32 rounded bg-foreground/20 mx-auto" />
-                    <div className="h-2 sm:h-3 w-32 sm:w-48 rounded bg-muted-foreground/10 mx-auto" />
-                    <div className="flex gap-2 justify-center pt-1 sm:pt-2">
-                      <div className="h-5 sm:h-7 w-14 sm:w-20 rounded-md bg-primary/30" />
-                      <div className="h-5 sm:h-7 w-14 sm:w-20 rounded-md border border-border/40" />
+                {/* Main preview */}
+                <div className="col-span-9 rounded-lg border border-[hsla(0,0%,100%,0.05)] bg-[hsla(0,0%,100%,0.02)] overflow-hidden">
+                  <div className="p-4 sm:p-6 space-y-2 text-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[hsla(0,0%,100%,0.04)] mx-auto" />
+                    <div className="h-3 w-24 sm:w-32 rounded bg-[hsla(0,0%,100%,0.08)] mx-auto" />
+                    <div className="h-2 w-32 sm:w-40 rounded bg-[hsla(0,0%,100%,0.04)] mx-auto" />
+                    <div className="flex gap-2 justify-center pt-1">
+                      <div className="h-5 sm:h-6 w-14 sm:w-20 rounded-md bg-primary/20" />
+                      <div className="h-5 sm:h-6 w-14 sm:w-20 rounded-md border border-[hsla(0,0%,100%,0.08)]" />
                     </div>
                   </div>
-                  {/* Mock stats bar */}
-                  <div className="flex gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 border-t border-border/20">
+                  <div className="flex gap-2 px-3 sm:px-5 py-2 border-t border-[hsla(0,0%,100%,0.04)]">
                     {[...Array(4)].map((_, i) => (
-                      <div key={i} className="flex-1 h-6 sm:h-8 rounded bg-secondary/40" />
+                      <div key={i} className="flex-1 h-5 sm:h-6 rounded bg-[hsla(0,0%,100%,0.03)]" />
                     ))}
                   </div>
                 </div>
@@ -163,14 +150,14 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </div>
         </motion.div>
 
-        {/* Logo bar — infinite marquee with borders */}
+        {/* Logo bar — infinite marquee */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-12 sm:mt-20 py-6 sm:py-8 border-y border-border/20"
+          transition={{ delay: 0.6 }}
+          className="mt-10 sm:mt-16 py-5 sm:py-6 border-y border-[hsla(0,0%,100%,0.05)]"
         >
-          <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.25em] font-heading font-medium mb-5 sm:mb-6">
+          <p className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.25em] font-medium mb-4 sm:mb-5">
             Works with
           </p>
           <div className="overflow-hidden relative">
@@ -180,10 +167,10 @@ const HeroSection = ({ onGetStarted }: Props) => {
               {[...integrations, ...integrations, ...integrations].map((item, i) => (
                 <div
                   key={`${item.name}-${i}`}
-                  className="flex flex-col items-center gap-1.5 opacity-40 hover:opacity-80 transition-opacity duration-300 shrink-0"
+                  className="flex flex-col items-center gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300 shrink-0"
                 >
-                  <img src={item.logo} alt={item.name} className="h-7 w-7 sm:h-9 sm:w-9 object-contain" />
-                  <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium">{item.name}</span>
+                  <img src={item.logo} alt={item.name} className="h-6 w-6 sm:h-7 sm:w-7 object-contain grayscale" />
+                  <span className="text-[8px] sm:text-[9px] text-muted-foreground/50 font-medium">{item.name}</span>
                 </div>
               ))}
             </div>
