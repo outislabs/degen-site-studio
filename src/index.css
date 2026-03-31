@@ -6,28 +6,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 94%;
-    --card: 0 0% 5%;
-    --card-foreground: 0 0% 94%;
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 94%;
-    --primary: 152 60% 42%;
-    --primary-foreground: 0 0% 3%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 85%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 142 72% 55%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 9%;
+    --secondary-foreground: 0 0% 70%;
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 94%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 92%;
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 12%;
     --input: 0 0% 12%;
-    --ring: 152 60% 42%;
+    --ring: 142 72% 55%;
     --radius: 0.75rem;
 
-    --neon-green: 152 60% 42%;
+    --neon-green: 142 72% 55%;
     --neon-pink: 330 70% 55%;
     --neon-purple: 270 60% 55%;
     --neon-blue: 210 80% 55%;
@@ -36,12 +36,12 @@
 
     --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 152 60% 42%;
-    --sidebar-primary-foreground: 0 0% 3%;
+    --sidebar-primary: 142 72% 55%;
+    --sidebar-primary-foreground: 0 0% 4%;
     --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 152 60% 42%;
+    --sidebar-ring: 142 72% 55%;
 
     --font-display: 'Press Start 2P', cursive;
     --font-body: 'Inter', 'Space Grotesk', sans-serif;
@@ -72,71 +72,19 @@
     font-family: var(--font-heading);
   }
   .text-glow {
-    text-shadow: 0 0 10px hsl(var(--primary) / 0.7), 0 0 30px hsl(var(--primary) / 0.4);
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
   .text-glow-pink {
-    text-shadow: 0 0 10px hsl(var(--neon-pink) / 0.7), 0 0 30px hsl(var(--neon-pink) / 0.4);
+    text-shadow: 0 0 20px hsl(var(--neon-pink) / 0.3);
   }
   .text-glow-purple {
-    text-shadow: 0 0 10px hsl(var(--neon-purple) / 0.7), 0 0 30px hsl(var(--neon-purple) / 0.4);
+    text-shadow: 0 0 20px hsl(var(--neon-purple) / 0.3);
   }
   .box-glow {
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.3), 0 0 45px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2), 0 0 60px hsl(var(--primary) / 0.05);
   }
   .box-glow-pink {
     box-shadow: 0 0 15px hsl(var(--neon-pink) / 0.3), 0 0 45px hsl(var(--neon-pink) / 0.1);
-  }
-
-  /* Gradient mesh background for landing page */
-  .gradient-mesh {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, hsla(152, 30%, 5%, 0.6) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 50%, hsla(0, 0%, 4%, 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 50% at 20% 80%, hsla(152, 20%, 4%, 0.4) 0%, transparent 50%),
-      linear-gradient(180deg, hsl(0 0% 3%), hsl(0 0% 2%) 50%, hsl(0 0% 3%));
-  }
-
-  .gradient-degen {
-    background: linear-gradient(180deg, hsl(var(--degen-dark)), hsl(var(--background)) 40%, hsl(var(--background)));
-  }
-
-  .gradient-card {
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.5));
-  }
-
-  /* Glassmorphism card */
-  .glass-card {
-    background: hsla(0, 0%, 100%, 0.04);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsla(0, 0%, 100%, 0.08);
-  }
-
-  .glass-card-hover {
-    @apply glass-card transition-all duration-300;
-  }
-  .glass-card-hover:hover {
-    background: hsla(0, 0%, 100%, 0.07);
-    border-color: hsla(0, 0%, 100%, 0.12);
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px -12px hsla(0, 0%, 0%, 0.4);
-  }
-
-  /* Green gradient border for highlighted cards */
-  .gradient-border-green {
-    position: relative;
-  }
-  .gradient-border-green::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.3));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
   }
 
   .section-padding {
