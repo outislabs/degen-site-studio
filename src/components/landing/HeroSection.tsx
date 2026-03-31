@@ -54,7 +54,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </motion.div>
 
           {/* Heading — 56px max desktop, 32px mobile */}
-          <h1 className="font-heading font-extrabold text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.1] mb-4 sm:mb-6 tracking-tight">
+          <h1 className="font-body font-extrabold text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.1] mb-4 sm:mb-6 tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             The Ultimate<br />
             <span className="text-primary">Meme Coin Toolkit</span>
           </h1>
