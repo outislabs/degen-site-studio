@@ -89,7 +89,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-degen overflow-x-hidden">
+    <div className="min-h-screen gradient-mesh overflow-x-hidden">
       <LandingHeader
         isLoggedIn={false}
         onSignIn={() => navigate('/auth')}
