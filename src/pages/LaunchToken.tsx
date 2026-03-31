@@ -643,11 +643,13 @@ const LaunchToken = () => {
           ) : (
             <Button
               onClick={handleLaunch}
-              disabled={launching}
-              className={`bg-primary text-primary-foreground rounded-xl flex-1 h-12 text-sm font-semibold ${!launching ? 'animate-pulse-glow' : ''}`}
+              disabled={launching || cooldownSeconds > 0}
+              className={`bg-primary text-primary-foreground rounded-xl flex-1 h-12 text-sm font-semibold ${!launching && cooldownSeconds === 0 ? 'animate-pulse-glow' : ''}`}
             >
               {launching ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
+              ) : cooldownSeconds > 0 ? (
+                <>Retry in {cooldownSeconds}s</>
               ) : (
                 <><Rocket className="w-4 h-4 mr-2" /> Launch Token 🚀</>
               )}
