@@ -64,6 +64,12 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   const { isAdmin } = useAdmin();
   const identity = useUserIdentity(user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { settings } = useAppSettings();
+
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.path === '/trade' && !settings.trade_terminal_enabled) return false;
+    return true;
+  });
 
   const allNavItems = isAdmin
     ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
