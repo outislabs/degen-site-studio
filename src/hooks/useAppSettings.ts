@@ -35,8 +35,8 @@ export function useAppSettings() {
   const updateSetting = async (key: keyof AppSettings, value: any) => {
     const { error } = await supabase
       .from('app_settings')
-      .update({ value } as any)
-      .eq('key', key);
+      .update({ value, updated_at: new Date().toISOString() } as any)
+      .eq('key', key as string);
     if (!error) {
       setSettings((prev) => ({ ...prev, [key]: value }));
     }
