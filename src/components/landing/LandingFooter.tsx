@@ -62,13 +62,22 @@ const LandingFooter = () => {
               </h4>
               <ul className="space-y-2">
                 {group.links.map((link) => (
-                  <li key={link.label}>
-                    <button
-                      onClick={() => scrollTo(link.href)}
-                      className="text-xs text-muted-foreground/40 hover:text-foreground transition-colors"
-                    >
-                      {link.label}
-                    </button>
+                    <li key={link.label}>
+                      {link.href.startsWith('#') ? (
+                        <button
+                          onClick={() => scrollTo(link.href)}
+                          className="text-xs text-muted-foreground/40 hover:text-foreground transition-colors"
+                        >
+                          {link.label}
+                        </button>
+                      ) : (
+                        <a
+                          href={link.href}
+                          className="text-xs text-muted-foreground/40 hover:text-foreground transition-colors"
+                        >
+                          {link.label}
+                        </a>
+                      )}
                   </li>
                 ))}
               </ul>
