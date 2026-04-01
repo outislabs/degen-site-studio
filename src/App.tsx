@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,6 +32,7 @@ import Docs from "./pages/Docs.tsx";
 import Affiliate from "./pages/Affiliate.tsx";
 import MemeShare from "./pages/MemeShare.tsx";
 import Help from "./pages/Help.tsx";
+import { AppSettingsProvider, useAppSettings } from "@/hooks/useAppSettings";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,14 @@ const RouteTracker = () => {
     }
   }, [location]);
   return null;
+};
+
+const TradeRouteGuard = () => {
+  const { settings, loading } = useAppSettings();
+
+  if (loading) return null;
+
+  return settings.trade_terminal_enabled ? <Trade /> : <Navigate to="/dashboard" replace />;
 };
 
 const CustomDomainHandler = ({ children }: { children: React.ReactNode }) => {
@@ -143,6 +152,7 @@ const App = () => {
       <HelmetProvider>
       <ReferralCapture />
       <AuthProvider>
+        <AppSettingsProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -151,6 +161,7 @@ const App = () => {
               <RouteTracker />
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Index />} />
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/site/:id" element={<SiteRedirect />} />
@@ -161,7 +172,7 @@ const App = () => {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/launch" element={<LaunchToken />} />
                 <Route path="/bags" element={<BagsWallet />} />
-                <Route path="/trade" element={<Trade />} />
+                <Route path="/trade" element={<TradeRouteGuard />} />
                 <Route path="/api-dashboard" element={<ApiDashboard />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
@@ -175,6 +186,7 @@ const App = () => {
             </BrowserRouter>
           </CustomDomainHandler>
         </TooltipProvider>
+        </AppSettingsProvider>
       </AuthProvider>
       </HelmetProvider>
     </QueryClientProvider>

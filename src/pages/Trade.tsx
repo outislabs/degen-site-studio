@@ -25,7 +25,7 @@ const Trade = () => {
   useEffect(() => {
     if (settingsLoading) return;
     if (!settings.trade_terminal_enabled) {
-      navigate('/');
+      navigate('/dashboard');
       return;
     }
   }, [settingsLoading, settings.trade_terminal_enabled, navigate]);
