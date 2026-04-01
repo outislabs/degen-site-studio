@@ -96,7 +96,7 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      <ProblemSolution />
+      
       <HowItWorks />
       <FeaturesGrid />
       <BagsFmSection />
