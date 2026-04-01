@@ -27,34 +27,26 @@ const defaults: AppSettings = {
 
 const APP_SETTINGS_TABLE = 'app_settings';
 const TRADE_TERMINAL_KEY = 'trade_terminal_enabled';
+type StoredBooleanString = 'true' | 'false';
 
 const AppSettingsContext = createContext<AppSettingsContextValue | undefined>(undefined);
 
-const toStoredBooleanString = (value: boolean): 'true' | 'false' => (value ? 'true' : 'false');
+const toStoredBooleanString = (value: boolean): StoredBooleanString => (value ? 'true' : 'false');
 
-const parseBooleanValue = (value: unknown, fallback: boolean): boolean => {
-  if (value === true || value === 'true') return true;
-  if (value === false || value === 'false') return false;
+const normalizeStoredBooleanString = (value: unknown, fallback: boolean): StoredBooleanString => {
+  if (value === true || value === 'true') return 'true';
+  if (value === false || value === 'false') return 'false';
 
   if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase();
-    if (normalized === 'true') return true;
-    if (normalized === 'false') return false;
+    const normalized = value.trim().toLowerCase().replace(/^"|"$/g, '');
+    if (normalized === 'true' || normalized === 'false') return normalized;
   }
 
-  return fallback;
+  return fallback ? 'true' : 'false';
 };
 
-const mapRowsToSettings = (rows: Array<{ key: string; value: unknown }> | null): AppSettings => {
-  const merged = { ...defaults };
-
-  rows?.forEach((row) => {
-    if (row.key === TRADE_TERMINAL_KEY) {
-      merged.trade_terminal_enabled = parseBooleanValue(row.value, defaults.trade_terminal_enabled);
-    }
-  });
-
-  return merged;
+const parseBooleanValue = (value: unknown, fallback: boolean): boolean => {
+  return normalizeStoredBooleanString(value, fallback) === 'true';
 };
 
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
@@ -62,13 +54,23 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refreshSettings = useCallback(async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from(APP_SETTINGS_TABLE)
-      .select('key, value')
-      .eq('key', TRADE_TERMINAL_KEY);
+      .select('value')
+      .eq('key', TRADE_TERMINAL_KEY)
+      .maybeSingle();
 
     if (!error) {
-      setSettings(mapRowsToSettings(data as Array<{ key: string; value: unknown }> | null));
+      const storedValue = normalizeStoredBooleanString(
+        (data as { value: unknown } | null)?.value,
+        defaults.trade_terminal_enabled
+      );
+
+      setSettings((prev) => ({
+        ...prev,
+        trade_terminal_enabled: storedValue === 'true',
+      }));
     }
 
     setLoading(false);
@@ -92,29 +94,19 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     const storedValue = toStoredBooleanString(value);
     const updatedAt = new Date().toISOString();
 
-    const { data: updatedRows, error: updateError } = await supabase
+    const { error } = await supabase
       .from(APP_SETTINGS_TABLE)
-      .update({ value: storedValue as any, updated_at: updatedAt } as any)
-      .eq('key', key as string)
-      .select('id')
-      .limit(1);
-
-    if (updateError) {
-      return { error: updateError };
-    }
-
-    if (!updatedRows || updatedRows.length === 0) {
-      const { error: insertError } = await supabase
-        .from(APP_SETTINGS_TABLE)
-        .insert({
+      .upsert(
+        {
           key: key as string,
           value: storedValue as any,
           updated_at: updatedAt,
-        } as any);
+        } as any,
+        { onConflict: 'key' }
+      );
 
-      if (insertError) {
-        return { error: insertError };
-      }
+    if (error) {
+      return { error };
     }
 
     setSettings((prev) => ({
