@@ -30,6 +30,7 @@ import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 import Docs from "./pages/Docs.tsx";
 import Affiliate from "./pages/Affiliate.tsx";
 import MemeShare from "./pages/MemeShare.tsx";
+import Help from "./pages/Help.tsx";
 
 const queryClient = new QueryClient();
 
