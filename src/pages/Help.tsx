@@ -202,9 +202,10 @@ const categories: Category[] = [
         steps: [
           { title: 'Requirements', content: 'You need a paid plan (or a domain add-on) and a domain registered with any registrar (GoDaddy, Namecheap, Cloudflare, etc.).' },
           { title: 'Open domain setup', content: 'In the builder or site settings, click "Custom Domain" to launch the 3-step domain wizard.' },
-          { title: 'Configure DNS records', content: 'At your registrar, add a CNAME record pointing your domain to cname.vercel-dns.com. The wizard will guide you through exactly what to add.' },
-          { title: 'Verify & activate', content: 'Click "Verify" in the wizard. DNS propagation can take up to 72 hours, but usually completes in minutes. SSL is provisioned automatically.' },
-          { title: 'Troubleshooting', content: 'If verification fails, check for conflicting DNS records, ensure there\'s no www-only record, and try again after waiting. Use tools like DNSChecker.org to verify your settings.' },
+          { title: 'Add DNS Record 1 — www subdomain', content: 'At your registrar, add a CNAME record with Name set to "www" and Value set to "cname.vercel-dns.com". This handles traffic to www.yourdomain.com.' },
+          { title: 'Add DNS Record 2 — root domain', content: 'Add an A record with Name set to "@" and Value set to "216.198.79.1". This handles traffic to yourdomain.com (without www). Most registrars require an A record for the root domain since CNAME is not supported on @.' },
+          { title: 'Verify & activate', content: 'Click "Verify" in the wizard. DNS changes can take up to 24 hours to propagate, but usually work within a few minutes. SSL is provisioned automatically.' },
+          { title: 'Troubleshooting', content: 'If verification fails, make sure both records are added (CNAME for www and A record for @). Check for conflicting DNS records and try again after waiting. Use tools like DNSChecker.org to verify your settings.' },
         ],
       },
     ],
