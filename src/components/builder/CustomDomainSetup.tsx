@@ -308,7 +308,7 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
                   <div className="flex-1">
                     <p className="text-xs text-yellow-600 font-medium">{verifyMessage}</p>
                     <p className="text-[11px] text-muted-foreground mt-0.5">
-                      Make sure your CNAME record points to <span className="font-mono text-foreground">cname.vercel-dns.com</span>
+                      Make sure your CNAME for <span className="font-mono text-foreground">www</span> points to <span className="font-mono text-foreground">cname.vercel-dns.com</span> and your A record for <span className="font-mono text-foreground">@</span> points to <span className="font-mono text-foreground">216.198.79.1</span>
                     </p>
                   </div>
                 </>
