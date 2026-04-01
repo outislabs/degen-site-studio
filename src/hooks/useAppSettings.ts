@@ -1,4 +1,5 @@
 import {
+  createElement,
   createContext,
   useCallback,
   useContext,
@@ -116,7 +117,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     [settings, loading, updateSetting, refreshSettings]
   );
 
-  return <AppSettingsContext.Provider value={contextValue}>{children}</AppSettingsContext.Provider>;
+  return createElement(AppSettingsContext.Provider, { value: contextValue }, children);
 }
 
 export function useAppSettings() {
