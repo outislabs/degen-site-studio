@@ -475,11 +475,24 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
               </div>
 
               <DnsRecord
-                label="Point your domain"
+                label="Record 1 — www subdomain"
                 type="CNAME"
-                name="@"
+                name="www"
                 value="cname.vercel-dns.com"
               />
+
+              <DnsRecord
+                label="Record 2 — root domain"
+                type="A"
+                name="@"
+                value="216.198.79.1"
+              />
+
+              <div className="rounded-md bg-muted/50 border border-border p-3 space-y-1.5">
+                <p className="text-[11px] text-muted-foreground">
+                  Add both records so your site works with and without www. Most registrars (GoDaddy, Namecheap, etc) require an A record for the root domain since CNAME is not supported on @.
+                </p>
+              </div>
 
               <div className="flex items-center gap-3 pt-1">
                 <Button size="sm" onClick={handleVerifyDns} disabled={verifyStatus === 'checking'} className="gap-1.5">
