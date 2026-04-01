@@ -24,7 +24,7 @@ function checkRateLimit(key: string): boolean {
 }
 
 // --- Input Validation ---
-const VALID_PLANS = ["degen", "creator", "pro", "whale"];
+const VALID_PLANS = ["degen", "creator", "whale"];
 const VALID_BILLING_PERIODS = ["monthly", "annual"];
 
 const PLAN_PRICES: Record<string, number> = {

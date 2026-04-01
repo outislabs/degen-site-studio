@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "create_fee_config") {
-      const { tokenMint, wallet, feeSharers } = body;
+      const { tokenMint, wallet, feeSharers, bagsConfigType = "fa29606e-5e48-4c37-827f-4b03d58ee23d" } = body;
       if (!tokenMint || !wallet) return new Response(JSON.stringify({ error: "Missing required fields: tokenMint, wallet" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       console.log("Creating fee share config for:", tokenMint, "payer:", wallet);
       let claimersArray: string[] = [];
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
         claimersArray = [wallet];
         basisPointsArray = [10000];
       }
-      const configBody: any = { payer: wallet, baseMint: tokenMint, claimersArray, basisPointsArray };
+      const configBody: any = { payer: wallet, baseMint: tokenMint, claimersArray, basisPointsArray, bagsConfigType };
       if (BAGS_PARTNER_WALLET && BAGS_PARTNER_CONFIG) { configBody.partner = BAGS_PARTNER_WALLET; configBody.partnerConfig = BAGS_PARTNER_CONFIG; }
       const res = await fetch("https://public-api-v2.bags.fm/api/v1/fee-share/config", { method: "POST", headers: { "x-api-key": BAGS_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify(configBody) });
       const resText = await res.text();
@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
       if (!res.ok || !resData.success) return new Response(JSON.stringify({ error: resData.error || "Failed to create fee config" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const txs = (resData.response?.transactions || []).map((t: any) => typeof t === 'string' ? t : t.transaction);
       const bundles = (resData.response?.bundles || []).map((bundle: any[]) => bundle.map((t: any) => typeof t === 'string' ? t : t.transaction));
-      return new Response(JSON.stringify({ success: true, configKey: resData.response?.meteoraConfigKey, needsCreation: resData.response?.needsCreation, transactions: txs, bundles }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ success: true, configKey: resData.response?.meteoraConfigKey, feeShareAuthority: resData.response?.feeShareAuthority, needsCreation: resData.response?.needsCreation, transactions: txs, bundles }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (action === "create_launch_transaction") {

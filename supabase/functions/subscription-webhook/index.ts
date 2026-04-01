@@ -25,7 +25,7 @@ function checkRateLimit(key: string): boolean {
 
 // --- Input Validation ---
 const VALID_STATUSES = ["waiting", "confirming", "confirmed", "sending", "partially_paid", "finished", "failed", "refunded", "expired"];
-const VALID_PLANS = ["starter", "degen", "creator", "pro", "whale"];
+const VALID_PLANS = ["free", "degen", "creator", "whale"];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { payment_status, order_id, payment_id } = body;
+    const { payment_status, order_id, payment_id, price_amount } = body;
 
     // Validate order_id format
     if (!order_id || typeof order_id !== "string" || !(order_id as string).startsWith("sub_")) {
@@ -119,6 +119,28 @@ Deno.serve(async (req) => {
         }, { onConflict: 'user_id' });
 
       console.log(`Subscription activated: ${userId} -> ${plan}`);
+
+      // Track referral conversion if this user was referred
+      const paymentAmount = typeof price_amount === "number" ? price_amount : 0;
+      if (paymentAmount > 0) {
+        const { data: referral } = await supabase
+          .from("referrals")
+          .select("id, referrer_id")
+          .eq("referred_user_id", userId)
+          .eq("status", "pending")
+          .single();
+
+        if (referral) {
+          await supabase
+            .from("referrals")
+            .update({ status: "converted" })
+            .eq("id", referral.id);
+
+          await supabase
+            .from("affiliate_earnings")
+            .insert({ referrer_id: referral.referrer_id, referral_id: referral.id, amount: paymentAmount * 0.20, status: "pending" });
+        }
+      }
     } else if (payment_status === "failed" || payment_status === "expired") {
       // Only revert if this payment_id matches
       const { data: sub } = await supabase
@@ -130,7 +152,7 @@ Deno.serve(async (req) => {
       if (sub && sub.payment_id === payment_id?.toString() && sub.status === "pending") {
         await supabase
           .from("user_subscriptions")
-          .update({ plan: "starter", status: "active", payment_id: null })
+          .update({ plan: "free", status: "active", payment_id: null })
           .eq("user_id", userId);
       }
     }
