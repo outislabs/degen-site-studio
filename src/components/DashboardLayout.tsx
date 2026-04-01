@@ -72,8 +72,8 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   });
 
   const allNavItems = isAdmin
-    ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
-    : navItems;
+    ? [...filteredNavItems, { label: 'Admin', icon: Crown, path: '/admin' }]
+    : filteredNavItems;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
