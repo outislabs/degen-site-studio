@@ -852,6 +852,34 @@ const Admin = () => {
           <TabsContent value="templates" className="space-y-4 mt-4">
             <TemplatesTab />
           </TabsContent>
+
+          {/* SETTINGS TAB */}
+          <TabsContent value="settings" className="space-y-4 mt-4">
+            <Card className="bg-card/50 border-border">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <ArrowLeftRight className="w-4 h-4 text-primary" />
+                  Trading Terminal
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Show/hide the Trade tab and all trade entry points across the app
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-foreground">Enable Trading Terminal</span>
+                  <Switch
+                    checked={!!settings.trade_terminal_enabled}
+                    onCheckedChange={async (checked) => {
+                      const { error } = await updateSetting('trade_terminal_enabled', checked);
+                      if (error) toast.error('Failed to update setting');
+                      else toast.success(checked ? 'Trading Terminal enabled' : 'Trading Terminal disabled');
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
