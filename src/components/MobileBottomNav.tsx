@@ -1,11 +1,13 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Globe, Image, UserCog, Plus, Rocket, X, Wallet } from 'lucide-react';
+import { Globe, Image, UserCog, Plus, Rocket, X, Wallet, ArrowLeftRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { useAppSettings } from '@/hooks/useAppSettings';
 
-const navItems = [
+const baseNavItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
+  { label: 'Trade', icon: ArrowLeftRight, path: '/trade' },
   { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'Account', icon: UserCog, path: '/account' },
 ];
@@ -17,6 +19,11 @@ interface Props {
 const MobileBottomNav = ({ onNewSite }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { settings } = useAppSettings();
+  const navItems = baseNavItems.filter((item) => {
+    if (item.path === '/trade' && !settings.trade_terminal_enabled) return false;
+    return true;
+  });
   const [showMenu, setShowMenu] = useState(false);
 
   const isActive = (path: string) => {
