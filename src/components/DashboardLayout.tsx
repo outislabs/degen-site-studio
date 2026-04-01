@@ -32,7 +32,9 @@ import {
   Code2,
   Book,
   Gift,
+  ArrowLeftRight,
 } from 'lucide-react';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useUserIdentity } from '@/hooks/useUserIdentity';
