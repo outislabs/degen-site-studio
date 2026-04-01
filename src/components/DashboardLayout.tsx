@@ -32,9 +32,7 @@ import {
   Code2,
   Book,
   Gift,
-  ArrowLeftRight,
 } from 'lucide-react';
-import { useAppSettings } from '@/hooks/useAppSettings';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useUserIdentity } from '@/hooks/useUserIdentity';
@@ -48,7 +46,6 @@ interface Props {
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
-  { label: 'Trade', icon: ArrowLeftRight, path: '/trade' },
   { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'API', icon: Code2, path: '/api-dashboard' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
@@ -64,16 +61,10 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   const { isAdmin } = useAdmin();
   const identity = useUserIdentity(user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { settings } = useAppSettings();
-
-  const filteredNavItems = navItems.filter((item) => {
-    if (item.path === '/trade' && !settings.trade_terminal_enabled) return false;
-    return true;
-  });
 
   const allNavItems = isAdmin
-    ? [...filteredNavItems, { label: 'Admin', icon: Crown, path: '/admin' }]
-    : filteredNavItems;
+    ? [...navItems, { label: 'Admin', icon: Crown, path: '/admin' }]
+    : navItems;
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
