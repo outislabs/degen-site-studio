@@ -48,6 +48,7 @@ interface Props {
 const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
+  { label: 'Trade', icon: ArrowLeftRight, path: '/trade' },
   { label: 'Studio', icon: Image, path: '/studio' },
   { label: 'API', icon: Code2, path: '/api-dashboard' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
