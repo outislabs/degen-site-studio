@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logo from '@/assets/logo.png';
 
 interface Props {
@@ -18,11 +18,19 @@ const navLinks = [
   { label: 'Themes', href: '#themes' },
   { label: 'Pricing', href: '#pricing' },
   { label: 'Docs', href: '/docs', isRoute: true },
+  { label: 'Help', href: '/help', isRoute: true },
 ];
 
 const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleNav = (link: typeof navLinks[0]) => {
     setMobileOpen(false);
@@ -33,14 +41,13 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
       } else {
-        // Section not on current page — navigate to landing page with hash
         navigate('/' + link.href);
       }
     }
   };
 
   return (
-    <header className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+    <header className={`px-4 sm:px-6 lg:px-8 py-3 sm:py-4 sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-background/80 backdrop-blur-xl border-b border-[hsla(0,0%,100%,0.06)]' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-8">
           <img
@@ -49,14 +56,13 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
             className="h-10 sm:h-12 w-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
-          
 
           <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleNav(link)}
-                className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-2.5 sm:px-3 py-2 rounded-lg hover:bg-primary/5"
+                className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors font-medium px-2.5 sm:px-3 py-2 rounded-lg hover:bg-[hsla(0,0%,100%,0.04)]"
               >
                 {link.label}
               </button>
@@ -73,7 +79,7 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
               </Button>
             </>
           ) : (
-            <Button size="sm" onClick={onSignIn} className="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 text-[10px] sm:text-xs rounded-lg h-8 sm:h-9 px-3 sm:px-4">
+            <Button size="sm" onClick={onSignIn} className="border border-[hsla(0,0%,100%,0.1)] bg-transparent text-muted-foreground hover:text-foreground hover:bg-[hsla(0,0%,100%,0.05)] text-[10px] sm:text-xs rounded-lg h-8 sm:h-9 px-3 sm:px-4">
               <LogIn className="w-3.5 h-3.5 mr-1.5" /> Sign In
             </Button>
           )}
@@ -88,12 +94,12 @@ const LandingHeader = ({ isLoggedIn, email, onSignIn, onSignOut }: Props) => {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden mt-3 pt-3 border-t border-border/50 flex flex-col gap-0.5 pb-2">
+        <nav className="md:hidden mt-3 pt-3 border-t border-[hsla(0,0%,100%,0.06)] flex flex-col gap-0.5 pb-2">
           {navLinks.map((link) => (
             <button
               key={link.href}
               onClick={() => handleNav(link)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2.5 rounded-lg hover:bg-primary/5 text-left"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium px-3 py-2.5 rounded-lg hover:bg-[hsla(0,0%,100%,0.04)] text-left"
             >
               {link.label}
             </button>

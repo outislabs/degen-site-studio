@@ -182,7 +182,26 @@ const Builder = () => {
 
       setShowPublish(true);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save site');
+      const msg = error?.message?.toLowerCase() || '';
+      const supportLink = 'https://x.com/degentoolshq';
+      if (msg.includes('unique') || msg.includes('duplicate') || msg.includes('already exists') || msg.includes('slug')) {
+        toast.error('This URL is already in use, try a different one', {
+          description: 'Change your site slug and try again.',
+          action: { label: 'Contact support', onClick: () => window.open(supportLink, '_blank') },
+        });
+      } else if (msg.includes('permission') || msg.includes('rls') || msg.includes('policy') || msg.includes('row-level')) {
+        toast.error('Something went wrong saving your site. Please try again or contact support', {
+          action: { label: 'Contact support', onClick: () => window.open(supportLink, '_blank') },
+        });
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed to fetch') || error?.name === 'TypeError') {
+        toast.error('Connection issue. Check your internet and try again', {
+          action: { label: 'Contact support', onClick: () => window.open(supportLink, '_blank') },
+        });
+      } else {
+        toast.error(error.message || 'Failed to save site', {
+          action: { label: 'Contact support', onClick: () => window.open(supportLink, '_blank') },
+        });
+      }
     }
   };
 

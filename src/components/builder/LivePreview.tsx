@@ -19,6 +19,14 @@ import NewspaperLayout from './layouts/NewspaperLayout';
 import MinimalistLayout from './layouts/MinimalistLayout';
 import NftDarkLayout from './layouts/NftDarkLayout';
 import NftGalleryLayout from './layouts/NftGalleryLayout';
+import NftComicLayout from './layouts/NftComicLayout';
+import NftRetroPopLayout from './layouts/NftRetroPopLayout';
+import NftMinimalGalleryLayout from './layouts/NftMinimalGalleryLayout';
+import NftStreetwearLayout from './layouts/NftStreetwearLayout';
+import NftGalleryWallLayout from './layouts/NftGalleryWallLayout';
+import NftAnimeLayout from './layouts/NftAnimeLayout';
+import NftBlueprintLayout from './layouts/NftBlueprintLayout';
+import NftLuxuryEditorialLayout from './layouts/NftLuxuryEditorialLayout';
 
 interface Props {
   data: CoinData;
@@ -75,6 +83,14 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
       {layout === 'minimalist' && <MinimalistLayout {...layoutProps} />}
       {layout === 'nft-dark' && <NftDarkLayout {...layoutProps} />}
       {layout === 'nft-gallery' && <NftGalleryLayout {...layoutProps} />}
+      {layout === 'nft-comic' && <NftComicLayout {...layoutProps} />}
+      {layout === 'nft-retro-pop' && <NftRetroPopLayout {...layoutProps} />}
+      {layout === 'nft-minimal-gallery' && <NftMinimalGalleryLayout {...layoutProps} />}
+      {layout === 'nft-streetwear' && <NftStreetwearLayout {...layoutProps} />}
+      {layout === 'nft-gallery-wall' && <NftGalleryWallLayout {...layoutProps} />}
+      {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
+      {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
+      {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
     </div>
   );
 };

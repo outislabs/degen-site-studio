@@ -14,7 +14,7 @@ import "@/lib/reown"; // Initialize AppKit
 import Index from "./pages/Index.tsx";
 import Builder from "./pages/Builder.tsx";
 import Auth from "./pages/Auth.tsx";
-import SiteView from "./pages/SiteView.tsx";
+import SiteRedirect from "./pages/SiteRedirect.tsx";
 import ContentStudio from "./pages/ContentStudio.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import Account from "./pages/Account.tsx";
@@ -30,6 +30,7 @@ import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 import Docs from "./pages/Docs.tsx";
 import Affiliate from "./pages/Affiliate.tsx";
 import MemeShare from "./pages/MemeShare.tsx";
+import Help from "./pages/Help.tsx";
 
 const queryClient = new QueryClient();
 
@@ -151,7 +152,7 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/builder" element={<Builder />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/site/:id" element={<SiteView />} />
+                <Route path="/site/:id" element={<SiteRedirect />} />
                 <Route path="/studio" element={<ContentStudio />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/account" element={<Account />} />
@@ -166,6 +167,7 @@ const App = () => {
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="/meme/:id" element={<MemeShare />} />
+                <Route path="/help" element={<Help />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

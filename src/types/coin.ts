@@ -38,6 +38,7 @@ export interface CoinData {
   liquidityStatus: 'locked' | 'burned';
 
   // Step 2 — NFT fields
+  mintLink: string;
   mintPrice: string;
   nftTotalSupply: string;
   mintStatus: 'upcoming' | 'live' | 'sold_out';
@@ -52,6 +53,7 @@ export interface CoinData {
     discord: string;
     dex: string;
     magicEden: string;
+    launchnft: string;
   };
 
   // NFT extras
@@ -73,7 +75,7 @@ export interface CoinData {
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance' | 'lavender-pop' | 'sky-toon' | 'sponge-pop' | 'ocean-bolt' | 'rose-garden' | 'midnight-chrome' | 'cartoon-sky';
 
-export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal' | 'mascot-hero' | 'cinematic' | 'cartoon' | 'cartoon-sky' | 'comic-hero' | 'terminal' | 'neon-cyberpunk' | 'luxury' | 'retro-8bit' | 'newspaper' | 'minimalist' | 'nft-dark' | 'nft-gallery';
+export type LayoutStyle = 'classic' | 'split-hero' | 'bento' | 'minimal' | 'mascot-hero' | 'cinematic' | 'cartoon' | 'cartoon-sky' | 'comic-hero' | 'terminal' | 'neon-cyberpunk' | 'luxury' | 'retro-8bit' | 'newspaper' | 'minimalist' | 'nft-dark' | 'nft-gallery' | 'nft-comic' | 'nft-retro-pop' | 'nft-minimal-gallery' | 'nft-streetwear' | 'nft-gallery-wall' | 'nft-anime' | 'nft-blueprint' | 'nft-luxury';
 
 export interface RoadmapPhase {
   id: string;
@@ -95,13 +97,14 @@ export const defaultCoinData: CoinData = {
   sellTax: 0,
   distribution: { lp: 50, team: 10, marketing: 15, burn: 25 },
   liquidityStatus: 'locked',
+  mintLink: '',
   mintPrice: '',
   nftTotalSupply: '',
   mintStatus: 'upcoming',
   mintDate: null,
   isWhitelist: false,
   galleryImages: [],
-  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '' },
+  socials: { telegram: '', twitter: '', discord: '', dex: '', magicEden: '', launchnft: '' },
   team: [],
   faq: [],
   roadmap: [

@@ -40,6 +40,42 @@ const LaunchToken = () => {
   const [launched, setLaunched] = useState(false);
   const [tokenMintResult, setTokenMintResult] = useState('');
   const [siteIdForUpdate, setSiteIdForUpdate] = useState(siteId || '');
+  const [checkingExisting, setCheckingExisting] = useState(!!siteId);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Check if site already has a launched token
+  useEffect(() => {
+    if (!siteId || !user) { setCheckingExisting(false); return; }
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke('launch-on-bags', {
+          body: { action: 'get_user_tokens', wallet: '' }
+        });
+        if (data?.success && data.tokens?.length > 0) {
+          // Check site's contractAddress too
+          const { data: siteData } = await supabase.from('sites').select('data').eq('id', siteId).single();
+          const contractAddress = (siteData?.data as Record<string, any>)?.contractAddress;
+          if (contractAddress) {
+            const existing = data.tokens.find((t: any) => t.tokenMint === contractAddress);
+            if (existing) {
+              setTokenMintResult(contractAddress);
+              setLaunched(true);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking existing token:', e);
+      } finally {
+        setCheckingExisting(false);
+      }
+    })();
+  }, [siteId, user]);
+
+  // Cleanup cooldown interval
+  useEffect(() => {
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, []);
 
   // Step 0 fields
   const [name, setName] = useState('');
@@ -189,7 +225,19 @@ const LaunchToken = () => {
       setLaunched(true);
     } catch (err: any) {
       console.error('Launch error:', err);
-      toast.error(err.message || 'Launch failed', { id: 'launch' });
+      const errMsg = err?.message || 'Launch failed. Please try again or DM @degentoolshq for help';
+      toast.error(errMsg, {
+        id: 'launch',
+        action: { label: 'Get help', onClick: () => window.open('https://x.com/degentoolshq', '_blank') },
+      });
+      // Start 30s cooldown on error
+      setCooldownSeconds(30);
+      cooldownRef.current = setInterval(() => {
+        setCooldownSeconds(prev => {
+          if (prev <= 1) { if (cooldownRef.current) clearInterval(cooldownRef.current); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
     } finally {
       setLaunching(false);
     }
@@ -201,6 +249,16 @@ const LaunchToken = () => {
   };
 
   if (!user) { navigate('/auth'); return null; }
+
+  if (checkingExisting) {
+    return (
+      <DashboardLayout onNewSite={() => navigate('/builder')}>
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   /* ─── Success Screen ─── */
   if (launched && tokenMintResult) {
@@ -599,11 +657,13 @@ const LaunchToken = () => {
           ) : (
             <Button
               onClick={handleLaunch}
-              disabled={launching}
-              className={`bg-primary text-primary-foreground rounded-xl flex-1 h-12 text-sm font-semibold ${!launching ? 'animate-pulse-glow' : ''}`}
+              disabled={launching || cooldownSeconds > 0}
+              className={`bg-primary text-primary-foreground rounded-xl flex-1 h-12 text-sm font-semibold ${!launching && cooldownSeconds === 0 ? 'animate-pulse-glow' : ''}`}
             >
               {launching ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Launching...</>
+              ) : cooldownSeconds > 0 ? (
+                <>Retry in {cooldownSeconds}s</>
               ) : (
                 <><Rocket className="w-4 h-4 mr-2" /> Launch Token 🚀</>
               )}

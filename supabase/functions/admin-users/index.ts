@@ -86,8 +86,8 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'list') {
-      const page = Math.max(1, Math.min(100, parseInt(url.searchParams.get('page') || '1') || 1))
-      const perPage = Math.max(1, Math.min(100, parseInt(url.searchParams.get('per_page') || '50') || 50))
+      const page = Math.max(1, Math.min(1000, parseInt(url.searchParams.get('page') || '1') || 1))
+      const perPage = Math.max(1, Math.min(1000, parseInt(url.searchParams.get('per_page') || '1000') || 1000))
 
       const { data: { users }, error } = await adminClient.auth.admin.listUsers({ page, perPage })
       if (error) throw error
@@ -122,7 +122,11 @@ Deno.serve(async (req) => {
         roles: roleMap[u.id] || [],
       }))
 
-      return new Response(JSON.stringify({ users: enrichedUsers }), {
+      // Get total user count for pagination
+      const { data: allUsersData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1 })
+      const total = (allUsersData as any)?.total ?? enrichedUsers.length
+
+      return new Response(JSON.stringify({ users: enrichedUsers, total }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
