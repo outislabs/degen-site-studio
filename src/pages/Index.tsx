@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
-import ProblemSolution from '@/components/landing/ProblemSolution';
+
 import HowItWorks from '@/components/landing/HowItWorks';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
 import BagsFmSection from '@/components/landing/BagsFmSection';
@@ -96,7 +96,7 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      <ProblemSolution />
+      
       <HowItWorks />
       <FeaturesGrid />
       <BagsFmSection />
