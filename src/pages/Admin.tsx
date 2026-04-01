@@ -77,6 +77,7 @@ const Admin = () => {
   const [promoLoading, setPromoLoading] = useState(false);
   const [newPromo, setNewPromo] = useState({ code: '', plan: 'degen', duration_days: 30, max_uses: 50 });
   const [creatingPromo, setCreatingPromo] = useState(false);
+  const { settings, updateSetting } = useAppSettings();
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/auth');
