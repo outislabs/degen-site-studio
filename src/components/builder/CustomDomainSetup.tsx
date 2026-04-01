@@ -504,7 +504,7 @@ const CustomDomainSetup = ({ data, onChange, siteId, domainPaymentStatus, onPaym
               </div>
 
               <p className="text-[11px] text-muted-foreground/70 italic flex items-center gap-1.5">
-                <Clock className="w-3 h-3" /> DNS changes can take up to 48 hours to propagate.
+                <Clock className="w-3 h-3" /> DNS changes can take up to 24 hours to propagate, but usually work within a few minutes.
               </p>
             </div>
           )}
