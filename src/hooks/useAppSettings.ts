@@ -30,9 +30,18 @@ const TRADE_TERMINAL_KEY = 'trade_terminal_enabled';
 
 const AppSettingsContext = createContext<AppSettingsContextValue | undefined>(undefined);
 
+const toStoredBooleanString = (value: boolean): 'true' | 'false' => (value ? 'true' : 'false');
+
 const parseBooleanValue = (value: unknown, fallback: boolean): boolean => {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'string') return value.toLowerCase() === 'true';
+  if (value === true || value === 'true') return true;
+  if (value === false || value === 'false') return false;
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+  }
+
   return fallback;
 };
 
@@ -80,7 +89,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   }, [refreshSettings]);
 
   const updateSetting = useCallback(async (key: keyof AppSettings, value: boolean) => {
-    const storedValue = value ? 'true' : 'false';
+    const storedValue = toStoredBooleanString(value);
     const updatedAt = new Date().toISOString();
 
     const { data: updatedRows, error: updateError } = await supabase
@@ -108,7 +117,10 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({
+      ...prev,
+      [key]: parseBooleanValue(storedValue, defaults[key]),
+    }));
     return { error: null };
   }, []);
 
