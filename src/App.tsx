@@ -167,6 +167,7 @@ const App = () => {
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="/meme/:id" element={<MemeShare />} />
+                <Route path="/help" element={<Help />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
