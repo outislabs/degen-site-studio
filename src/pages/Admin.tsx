@@ -19,9 +19,11 @@ import {
   Trash2, Search, Crown, RefreshCw, AlertTriangle, Eye,
   ChevronLeft, ChevronRight, UserX, ShieldCheck, ShieldOff, Wallet,
   Tag, Plus, ToggleLeft, ToggleRight, Loader2, LayoutTemplate,
+  Settings, ArrowLeftRight,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import TemplatesTab from '@/components/admin/TemplatesTab';
+import { useAppSettings } from '@/hooks/useAppSettings';
 
 interface AdminUser {
   id: string;
