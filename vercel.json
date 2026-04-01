@@ -20,15 +20,7 @@
         {
           "key": "X-Robots-Tag",
           "value": "all"
-        }
-      ]
-    }
-  ]
-  {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; connect-src 'self' https://*.jup.ag https://*.jupiter.ag https://*.helius-rpc.com wss://*.helius-rpc.com https://*.solana.com wss://*.solana.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; font-src 'self' data:;"
