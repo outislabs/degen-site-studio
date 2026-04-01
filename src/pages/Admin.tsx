@@ -324,6 +324,7 @@ const Admin = () => {
             <TabsTrigger value="content" className="gap-1.5 text-xs"><Image className="w-3.5 h-3.5" />Content</TabsTrigger>
             <TabsTrigger value="promos" className="gap-1.5 text-xs"><Tag className="w-3.5 h-3.5" />Promos</TabsTrigger>
             <TabsTrigger value="templates" className="gap-1.5 text-xs"><LayoutTemplate className="w-3.5 h-3.5" />Templates</TabsTrigger>
+            <TabsTrigger value="settings" className="gap-1.5 text-xs"><Settings className="w-3.5 h-3.5" />Settings</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
