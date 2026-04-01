@@ -25,6 +25,7 @@ import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import LaunchToken from "./pages/LaunchToken.tsx";
 import BagsWallet from "./pages/BagsWallet.tsx";
+import Trade from "./pages/Trade.tsx";
 import ApiDashboard from "./pages/ApiDashboard.tsx";
 import ConnectTelegram from "./pages/ConnectTelegram.tsx";
 import Docs from "./pages/Docs.tsx";
