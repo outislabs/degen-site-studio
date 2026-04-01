@@ -169,7 +169,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
                   key={`${item.name}-${i}`}
                   className="flex flex-col items-center gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300 shrink-0"
                 >
-                  <img src={item.logo} alt={item.name} className="h-6 w-6 sm:h-7 sm:w-7 object-contain grayscale" />
+                  <img src={item.logo} alt={item.name} className="h-6 w-6 sm:h-7 sm:w-7 object-contain" />
                   <span className="text-[8px] sm:text-[9px] text-muted-foreground/50 font-medium">{item.name}</span>
                 </div>
               ))}
