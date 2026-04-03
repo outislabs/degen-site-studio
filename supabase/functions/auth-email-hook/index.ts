@@ -21,7 +21,6 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   reauthentication: 'Your verification code',
 }
 
-// Different redirect pages per email type
 const REDIRECT_PAGES: Record<string, string> = {
   signup: '/',
   invite: '/',
@@ -195,17 +194,17 @@ Deno.serve(async (req) => {
     const email = payload.user?.email || payload.email_data?.email
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 
-    // Use correct redirect page per email type
+    // Use redirect_to from payload if available, otherwise fall back to SITE_URL
     const redirectPage = REDIRECT_PAGES[emailType] || '/'
-    const redirectTo = `${SITE_URL}${redirectPage}`
+    const redirectTo = payload.email_data?.redirect_to || `${SITE_URL}${redirectPage}`
 
     const confirmationUrl = payload.email_data?.token_hash
-      ? `${supabaseUrl}/auth/v1/verify?token=${payload.email_data.token_hash}&type=${emailType}&redirect_to=${redirectTo}`
+      ? `${supabaseUrl}/auth/v1/verify?token=${payload.email_data.token_hash}&type=${emailType}&redirect_to=${encodeURIComponent(redirectTo)}`
       : payload.email_data?.redirect_to || SITE_URL
 
     const token = payload.email_data?.token || ''
 
-    console.log('Processing email:', { emailType, email, confirmationUrl })
+    console.log('Processing email:', { emailType, email, confirmationUrl, redirectTo })
 
     if (!email) {
       console.error('No email address in payload')
