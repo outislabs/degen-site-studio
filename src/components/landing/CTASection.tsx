@@ -17,10 +17,10 @@ const CTASection = ({ onGetStarted }: Props) => {
       >
         <div className="rounded-xl p-8 sm:p-12 bg-[hsla(0,0%,100%,0.02)] border border-[hsla(0,0%,100%,0.06)] relative">
           <Rocket className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
-          <h2 className="font-heading font-bold text-xl sm:text-2xl md:text-[36px] text-foreground mb-3 tracking-tight leading-tight">
+          <h2 className="font-heading font-bold text-2xl sm:text-3xl md:text-[36px] text-foreground mb-3 tracking-tight leading-tight">
             Ready to <span className="text-primary">Send It</span>?
           </h2>
-          <p className="text-sm text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto leading-relaxed">
             Build your first site for $0. Upgrade for custom domains and pro features when you're ready to trend.
           </p>
           <Button

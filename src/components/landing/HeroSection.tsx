@@ -50,16 +50,16 @@ const HeroSection = ({ onGetStarted }: Props) => {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[hsla(0,0%,100%,0.08)] bg-[hsla(0,0%,100%,0.03)] mb-6 sm:mb-8"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium tracking-wide">Now with multi-chain import</span>
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium tracking-wide">Now with multi-chain import</span>
           </motion.div>
 
-          {/* Heading — 56px max desktop, 32px mobile */}
-          <h1 className="text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.08] mb-4 sm:mb-6 tracking-[-0.03em] font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          {/* Heading — 56px max desktop, 36px mobile */}
+          <h1 className="text-[36px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.08] mb-4 sm:mb-6 tracking-[-0.03em] font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             The Ultimate<br />
             <span className="text-primary">Meme Coin Toolkit</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
             Everything your meme coin needs in less than 5 minutes, website, memes, shills, and more. Built for devs who move fast.
           </p>
 
@@ -89,7 +89,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mt-4 sm:mt-6 text-[10px] sm:text-xs text-muted-foreground/40"
+            className="mt-4 sm:mt-6 text-xs sm:text-sm text-muted-foreground/40"
           >
             Join 500+ devs launching on Solana, Base, and Ethereum.
           </motion.p>
@@ -157,7 +157,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           transition={{ delay: 0.6 }}
           className="mt-10 sm:mt-16 py-5 sm:py-6 border-y border-[hsla(0,0%,100%,0.05)]"
         >
-          <p className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.25em] font-medium mb-4 sm:mb-5">
+          <p className="text-xs text-muted-foreground/30 uppercase tracking-[0.25em] font-medium mb-4 sm:mb-5">
             Works with
           </p>
           <div className="overflow-hidden relative">
@@ -170,7 +170,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
                   className="flex flex-col items-center gap-1.5 opacity-30 hover:opacity-60 transition-opacity duration-300 shrink-0"
                 >
                   <img src={item.logo} alt={item.name} className="h-6 w-6 sm:h-7 sm:w-7 object-contain" />
-                  <span className="text-[8px] sm:text-[9px] text-muted-foreground/50 font-medium">{item.name}</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground/50 font-medium">{item.name}</span>
                 </div>
               ))}
             </div>
