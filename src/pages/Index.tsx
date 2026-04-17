@@ -9,7 +9,7 @@ import HeroSection from '@/components/landing/HeroSection';
 
 import HowItWorks from '@/components/landing/HowItWorks';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
-import BagsFmSection from '@/components/landing/BagsFmSection';
+
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
 import PricingSection from '@/components/landing/PricingSection';
@@ -99,7 +99,7 @@ const Index = () => {
       
       <HowItWorks />
       <FeaturesGrid />
-      <BagsFmSection />
+      
       <ContentStudioShowcase />
       <CommunityShowcase />
       <ThemeShowcase />
