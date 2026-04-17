@@ -142,8 +142,8 @@ const comparisonFeatures: { category: string; features: { name: string; values: 
       { name: 'Telegram buy bot', values: { Free: false, Degen: false, Creator: true, Whale: true } },
       { name: 'Smart whale alerts', values: { Free: false, Degen: false, Creator: true, Whale: true } },
       { name: 'Multi-platform blast', values: { Free: false, Degen: false, Creator: true, Whale: true } },
-      { name: 'Analytics dashboard', values: { Free: false, Degen: false, Creator: false, Whale: true } },
-      { name: 'API access', values: { Free: false, Degen: false, Creator: false, Whale: true } },
+      { name: 'Analytics dashboard', values: { Free: false, Degen: true, Creator: true, Whale: true } },
+      { name: 'API access', values: { Free: false, Degen: true, Creator: true, Whale: true } },
     ],
   },
   {

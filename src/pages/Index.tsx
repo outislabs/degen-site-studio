@@ -99,7 +99,7 @@ const Index = () => {
       
       <HowItWorks />
       <FeaturesGrid />
-      <BagsFmSection />
+      
       <ContentStudioShowcase />
       <CommunityShowcase />
       <ThemeShowcase />
