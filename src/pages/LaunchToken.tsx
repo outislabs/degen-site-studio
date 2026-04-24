@@ -108,13 +108,15 @@ const LaunchToken = () => {
     if (qWebsite) setWebsite(qWebsite);
   }, []);
 
-  // Fee settings
-  const LAUNCH_TYPES = [
-    { id: "fa29606e-5e48-4c37-827f-4b03d58ee23d", name: "Founder Mode", description: "Earn 2% of total trading volume pre and post migration", icon: "👑" },
-    { id: "d16d3585-6488-4a6c-9a6f-e6c39ca0fda3", name: "~0% Mode", description: "0.25% pre-migration, 1% post-migration with 50% fee compounding", icon: "🎯" },
-    { id: "a7c8e1f2-3d4b-5a6c-9e0f-1b2c3d4e5f6a", name: "Paper Hand Tax", description: "1% pre-migration, 0.25% post-migration with 50% fee compounding", icon: "📄" },
+  // Fee modes — keys must match BAGS_FEE_MODES in launch-on-bags edge function
+  const FEE_MODES = [
+    { id: "default",      name: "Standard",              description: "2% flat fee, split equally between you and protocol. Best for most launches.",          icon: "👑" },
+    { id: "low_pre_high", name: "Low Early / High Later", description: "0.25% during bonding curve, 1% after graduation. Encourages early trading volume.",     icon: "🎯" },
+    { id: "high_pre_low", name: "High Early / Low Later", description: "1% during bonding curve, 0.25% after graduation. Maximizes early fee revenue.",         icon: "📄" },
+    { id: "high_flat",    name: "High Flat",             description: "10% flat fee with compounding. Maximum fee revenue and liquidity growth.",               icon: "🔥" },
   ];
-  const [selectedLaunchType, setSelectedLaunchType] = useState(LAUNCH_TYPES[0].id);
+  const [selectedFeeMode, setSelectedFeeMode] = useState<string>("default");
+  const selectedFeeModeMeta = FEE_MODES.find(m => m.id === selectedFeeMode) || FEE_MODES[0];
   const [feeOption, setFeeOption] = useState<'keep' | 'share'>('keep');
   const [feeSharers, setFeeSharers] = useState<Array<{ platform: 'twitter' | 'github'; username: string; bps: number }>>([]);
   const [newSharerPlatform, setNewSharerPlatform] = useState<'twitter' | 'github'>('twitter');
@@ -175,7 +177,7 @@ const LaunchToken = () => {
 
       toast.loading('Setting up fee config...', { id: 'launch' });
       const { data: configData, error: configErr } = await supabase.functions.invoke('launch-on-bags', {
-        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [], bagsConfigType: selectedLaunchType }
+        body: { action: 'create_fee_config', tokenMint, wallet: address, feeSharers: feeOption === 'share' ? feeSharers : [], feeMode: selectedFeeMode }
       });
       if (configErr || !configData?.success) throw new Error(configData?.error || 'Failed to create fee config');
       const { configKey, transactions: configTxs } = configData;
@@ -494,15 +496,15 @@ const LaunchToken = () => {
             {/* ── STEP 2: Fee Settings ── */}
             {step === 2 && (
               <div className="space-y-4">
-                <GlassCard title="LAUNCH TYPE" icon={<Sparkles className="w-3.5 h-3.5" />}>
+                <GlassCard title="FEE MODE" icon={<Sparkles className="w-3.5 h-3.5" />}>
                   <p className="text-xs text-muted-foreground -mt-1 mb-3">Select a fee structure for your token launch</p>
                   <div className="grid gap-2.5">
-                    {LAUNCH_TYPES.map(lt => (
+                    {FEE_MODES.map(lt => (
                       <button
                         key={lt.id}
-                        onClick={() => setSelectedLaunchType(lt.id)}
+                        onClick={() => setSelectedFeeMode(lt.id)}
                         className={`w-full text-left rounded-xl border-2 p-4 transition-all duration-200 ${
-                          selectedLaunchType === lt.id
+                          selectedFeeMode === lt.id
                             ? 'border-[#39FF14] bg-[#39FF14]/5 shadow-[0_0_16px_rgba(57,255,20,0.15)]'
                             : 'border-border bg-card/60 hover:border-muted-foreground/30'
                         }`}
@@ -510,10 +512,10 @@ const LaunchToken = () => {
                         <div className="flex items-start gap-3">
                           <span className="text-2xl mt-0.5">{lt.icon}</span>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold ${selectedLaunchType === lt.id ? 'text-foreground' : 'text-foreground/80'}`}>{lt.name}</p>
+                            <p className={`text-sm font-semibold ${selectedFeeMode === lt.id ? 'text-foreground' : 'text-foreground/80'}`}>{lt.name}</p>
                             <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{lt.description}</p>
                           </div>
-                          {selectedLaunchType === lt.id && (
+                          {selectedFeeMode === lt.id && (
                             <div className="w-5 h-5 rounded-full bg-[#39FF14] flex items-center justify-center shrink-0 mt-0.5">
                               <Check className="w-3 h-3 text-black" strokeWidth={3} />
                             </div>
@@ -522,6 +524,9 @@ const LaunchToken = () => {
                       </button>
                     ))}
                   </div>
+                  <p className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
+                    <span className="text-foreground/80 font-medium">Selected:</span> {selectedFeeModeMeta.name} — {selectedFeeModeMeta.description}
+                  </p>
                 </GlassCard>
 
                 <GlassCard title="FEE SHARING" icon={<Settings2 className="w-3.5 h-3.5" />}>
