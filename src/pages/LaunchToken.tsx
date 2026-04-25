@@ -12,7 +12,12 @@ import { Badge } from '@/components/ui/badge';
 import DashboardLayout from '@/components/DashboardLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
-import type { Provider } from '@reown/appkit-utils/solana';
+type Provider = {
+  signTransaction: <T = any>(tx: T) => Promise<T>;
+  signAllTransactions?: <T = any>(txs: T[]) => Promise<T[]>;
+  signMessage?: (message: Uint8Array) => Promise<Uint8Array>;
+  sendTransaction?: (...args: any[]) => Promise<string>;
+};
 import {
   Rocket, ArrowLeft, ArrowRight, Check, Wallet, Info,
   ExternalLink, Copy, Loader2, CheckCircle2, Upload,
