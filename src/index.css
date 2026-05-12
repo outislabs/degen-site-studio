@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&family=Playfair+Display:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -43,7 +43,7 @@
     --sidebar-border: 0 0% 12%;
     --sidebar-ring: 142 72% 55%;
 
-    --font-display: 'Press Start 2P', cursive;
+    --font-display: 'Press Start 2P', ui-monospace, 'Courier New', monospace;
     --font-body: 'Inter', 'Space Grotesk', sans-serif;
     --font-heading: 'DM Sans', sans-serif;
   }
