@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2, ExternalLink, Pencil, Plus, Sparkles, Globe, Palette, BarChart3, Zap, Crown, Rocket, ChartLine, X, Coins } from 'lucide-react';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { themes } from '@/lib/themes';
 import { ThemeId } from '@/types/coin';
 import { Badge } from '@/components/ui/badge';
@@ -35,9 +31,48 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
   const navigate = useNavigate();
   const [analyticsSiteId, setAnalyticsSiteId] = useState<string | null>(null);
   const [analyticsSiteName, setAnalyticsSiteName] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState<SavedSite | null>(null);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set());
   const [tokenBannerDismissed, setTokenBannerDismissed] = useState(false);
+
+  const handleDeleteClick = (site: SavedSite) => {
+    if (confirmDeleteId !== site.id) {
+      setConfirmDeleteId(site.id);
+      window.setTimeout(() => {
+        setConfirmDeleteId((curr) => (curr === site.id ? null : curr));
+      }, 3000);
+      return;
+    }
+    // Confirmed — soft delete with undo window
+    setConfirmDeleteId(null);
+    setPendingDeleteIds((prev) => new Set(prev).add(site.id));
+    let undone = false;
+    const timer = window.setTimeout(() => {
+      if (!undone) {
+        onDelete(site.id);
+        setPendingDeleteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(site.id);
+          return next;
+        });
+      }
+    }, 5000);
+    toast(`"${site.name || 'Untitled'}" deleted`, {
+      duration: 5000,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          undone = true;
+          window.clearTimeout(timer);
+          setPendingDeleteIds((prev) => {
+            const next = new Set(prev);
+            next.delete(site.id);
+            return next;
+          });
+        },
+      },
+    });
+  };
 
   // If analytics panel is open, show it instead
   if (analyticsSiteId) {
@@ -177,10 +212,11 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sites.map((site, i) => {
+          {sites.filter(s => !pendingDeleteIds.has(s.id)).map((site, i) => {
             const accentColor = getThemeColor(site.data);
             const themeId = (site.data as any)?.theme as ThemeId;
             const theme = themes[themeId];
+            const isConfirming = confirmDeleteId === site.id;
 
             return (
               <motion.div
@@ -254,9 +290,21 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Launch on Bags.fm" onClick={() => navigate(`/launch?siteId=${site.id}`)}>
                         <Rocket className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteTarget(site)}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      {isConfirming ? (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="h-7 px-2 text-[11px]"
+                          title="Click again to confirm"
+                          onClick={() => handleDeleteClick(site)}
+                        >
+                          Confirm?
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => handleDeleteClick(site)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -277,37 +325,6 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
           </motion.div>
         </div>
       )}
-
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteConfirmText(''); } }}>
-        <AlertDialogContent className="border-border bg-background">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{deleteTarget?.name || 'Untitled'}"?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. Type <span className="font-bold text-destructive">DELETE</span> below to confirm.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            placeholder="Type DELETE to confirm"
-            value={deleteConfirmText}
-            onChange={(e) => setDeleteConfirmText(e.target.value)}
-            className="font-mono"
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={deleteConfirmText !== 'DELETE'}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
-              onClick={() => {
-                if (deleteTarget) onDelete(deleteTarget.id);
-                setDeleteTarget(null);
-                setDeleteConfirmText('');
-              }}
-            >
-              Delete Site
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
