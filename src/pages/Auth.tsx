@@ -52,7 +52,8 @@ const Auth = () => {
     if (pendingTelegram) {
       return <Navigate to="/connect-telegram" replace />;
     }
-    return <Navigate to="/" replace />;
+    const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+    return <Navigate to={redirectParam || '/'} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

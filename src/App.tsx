@@ -31,6 +31,7 @@ import Docs from "./pages/Docs.tsx";
 import Affiliate from "./pages/Affiliate.tsx";
 import MemeShare from "./pages/MemeShare.tsx";
 import Help from "./pages/Help.tsx";
+import CliConfirm from "./pages/CliConfirm.tsx";
 
 const queryClient = new QueryClient();
 
@@ -168,6 +169,7 @@ const App = () => {
                 <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="/meme/:id" element={<MemeShare />} />
                 <Route path="/help" element={<Help />} />
+                <Route path="/cli-confirm" element={<CliConfirm />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
