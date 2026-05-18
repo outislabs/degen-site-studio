@@ -58,26 +58,26 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
   const siteLimit = plan.maxSites === -1 ? '∞' : plan.maxSites;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
-      {/* Plan banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3 gradient-card border border-border rounded-xl px-5 py-3">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Crown className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">{plan.name} Plan</span>
-            {planId === 'free' && (
-              <Badge className="bg-primary/15 text-primary text-[9px] border border-primary/30 px-1.5 py-0">
-                Free Plan
-              </Badge>
-            )}
-          </div>
-          <span className="text-xs text-muted-foreground ml-6">
-            {sites.length}/{siteLimit} sites
-          </span>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-semibold text-foreground tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {plan.name} plan · {sites.length}/{siteLimit} sites
+          </p>
         </div>
         {planId !== 'whale' && (
-          <Button size="sm" variant="outline" onClick={() => navigate('/pricing')} className="text-xs w-full sm:w-auto">
-            {planId === 'free' ? 'Upgrade' : 'Upgrade'}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate('/pricing')}
+            className="text-xs border-border/80 hover:bg-accent w-full sm:w-auto"
+          >
+            <Crown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+            Upgrade plan
           </Button>
         )}
       </div>
@@ -87,13 +87,13 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 gradient-card border border-primary/20 rounded-xl px-5 py-3 flex items-center justify-between gap-3"
+          className="mb-6 gradient-card border border-border rounded-xl px-5 py-3 flex items-center justify-between gap-3"
         >
           <div className="flex items-center gap-3">
-            <Coins className="w-4 h-4 text-primary shrink-0" />
+            <Coins className="w-4 h-4 text-muted-foreground shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Hold <span className="text-primary font-bold">$DEGENTOOLS</span> tokens? Check if you qualify for a{' '}
-              <button onClick={() => navigate('/account')} className="text-primary font-semibold hover:underline">
+              Hold <span className="text-foreground font-semibold">$DEGENTOOLS</span> tokens? Check if you qualify for a{' '}
+              <button onClick={() => navigate('/account')} className="text-primary font-medium hover:underline">
                 free upgrade
               </button>
             </p>
@@ -105,27 +105,29 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
       )}
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {[
-          { label: 'Total Sites', value: sites.length, icon: Globe, color: 'hsl(var(--primary))' },
+          { label: 'Total Sites', value: sites.length, icon: Globe },
           { label: 'This Week', value: sites.filter(s => {
             const d = new Date(s.created_at);
             const weekAgo = new Date(Date.now() - 7 * 86400000);
             return d >= weekAgo;
-          }).length, icon: Sparkles, color: 'hsl(var(--neon-pink))' },
-          { label: 'Themes Used', value: new Set(sites.map(s => (s.data as any)?.theme).filter(Boolean)).size, icon: Palette, color: 'hsl(var(--neon-purple))' },
-          { label: 'Blockchains', value: new Set(sites.map(s => (s.data as any)?.blockchain).filter(Boolean)).size, icon: BarChart3, color: 'hsl(var(--neon-blue))' },
+          }).length, icon: Sparkles },
+          { label: 'Themes Used', value: new Set(sites.map(s => (s.data as any)?.theme).filter(Boolean)).size, icon: Palette },
+          { label: 'Blockchains', value: new Set(sites.map(s => (s.data as any)?.blockchain).filter(Boolean)).size, icon: BarChart3 },
         ].map((stat, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="gradient-card border border-border rounded-xl p-4"
+            className="gradient-card border border-border/70 rounded-xl p-4 hover:border-border transition-colors"
           >
-            <div className="flex items-center justify-between mb-2">
-              <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
-              <span className="text-2xl font-bold text-foreground">{stat.value}</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-8 h-8 rounded-lg bg-muted/40 border border-border/60 flex items-center justify-center">
+                <stat.icon className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <span className="text-2xl font-semibold text-foreground tracking-tight">{stat.value}</span>
             </div>
             <p className="text-xs text-muted-foreground">{stat.label}</p>
           </motion.div>
@@ -136,26 +138,27 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 gradient-card border border-primary/20 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:border-primary/40 transition-colors"
+        className="mb-10 gradient-card border border-border rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:border-border/60 transition-colors"
         onClick={() => navigate('/launch')}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Rocket className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-lg bg-muted/40 border border-border/60 flex items-center justify-center">
+            <Rocket className="w-4 h-4 text-foreground" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Launch a Token on Bags.fm</p>
             <p className="text-xs text-muted-foreground">Deploy a Solana token in minutes — no code needed</p>
           </div>
         </div>
-        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0">
-          <Rocket className="w-3.5 h-3.5 mr-1" /> Launch Now
+        <Button size="sm" variant="outline" className="border-border/80 hover:bg-accent shrink-0">
+          Launch Now
         </Button>
       </motion.div>
 
       {/* Section Title */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-xs text-primary tracking-wider">YOUR SITES</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-heading font-semibold text-foreground tracking-tight">Your sites</h2>
+        <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{sites.length} total</span>
       </div>
 
       {/* Sites Grid */}
@@ -163,12 +166,12 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="border-2 border-dashed border-border rounded-2xl p-16 text-center"
+          className="border border-dashed border-border/70 rounded-2xl p-16 text-center gradient-card"
         >
           <div className="text-5xl mb-4">🚀</div>
           <h3 className="text-lg font-semibold text-foreground mb-2">No sites yet</h3>
           <p className="text-sm text-muted-foreground mb-6">Create your first meme coin landing page in minutes</p>
-          <Button onClick={onNewSite} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button onClick={onNewSite} className="bg-foreground text-background hover:bg-foreground/90">
             <Zap className="w-4 h-4 mr-1" /> Start Building
           </Button>
         </motion.div>
@@ -185,24 +188,23 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="group border border-border rounded-xl overflow-hidden hover:border-opacity-50 transition-all cursor-pointer"
-                style={{ borderColor: `${accentColor}30` }}
+                className="group gradient-card border border-border/70 rounded-xl overflow-hidden hover:border-border transition-all cursor-pointer"
                 onClick={() => navigate(`/builder?id=${site.id}`)}
               >
-                <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}60)` }} />
+                <div className="h-1" style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }} />
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {(site.data as any)?.logoUrl ? (
-                        <img src={(site.data as any).logoUrl} alt="" className="w-10 h-10 rounded-full object-cover ring-1" style={{ '--tw-ring-color': `${accentColor}40` } as React.CSSProperties} />
+                        <img src={(site.data as any).logoUrl} alt="" className="w-10 h-10 rounded-full object-cover ring-1 ring-border" />
                       ) : (
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ backgroundColor: `${accentColor}15` }}>
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg bg-muted/40 border border-border/60">
                           {theme?.emoji || '🪙'}
                         </div>
                       )}
                       <div>
                         <p className="font-semibold text-foreground text-sm">{site.name || 'Untitled'}</p>
-                        <p className="text-xs" style={{ color: accentColor }}>{site.ticker || '—'}</p>
+                        <p className="text-xs text-muted-foreground">{site.ticker || '—'}</p>
                       </div>
                     </div>
                   </div>
@@ -212,10 +214,10 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
                       href={`https://${site.slug}.degentools.co`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-primary font-mono hover:underline truncate block mb-2"
+                      className="text-[11px] text-muted-foreground hover:text-foreground font-mono hover:underline truncate block mb-2"
                       onClick={e => e.stopPropagation()}
                     >
-                      🌐 {site.slug}.degentools.co
+                      {site.slug}.degentools.co
                     </a>
                   )}
                   {(site.data as any)?.tagline && (
@@ -224,14 +226,14 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted-foreground">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full border border-border/70 text-muted-foreground">
                         {theme?.name || 'Unknown'}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
                         {new Date(site.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                    <div className="flex gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Analytics" onClick={() => { setAnalyticsSiteId(site.id); setAnalyticsSiteName(site.name || 'Untitled'); }}>
                         <ChartLine className="w-3.5 h-3.5" />
                       </Button>
@@ -249,7 +251,7 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
                       <Button variant="ghost" size="icon" className="h-7 w-7" title="Edit" onClick={() => navigate(`/builder?id=${site.id}`)}>
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" title="Launch on Bags.fm" onClick={() => navigate(`/launch?siteId=${site.id}`)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Launch on Bags.fm" onClick={() => navigate(`/launch?siteId=${site.id}`)}>
                         <Rocket className="w-3.5 h-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" title="Delete" onClick={() => setDeleteTarget(site)}>
@@ -265,11 +267,11 @@ const DashboardView = ({ sites, onDelete, onNewSite, planId, plan, hasWallet }: 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-primary/30 cursor-pointer transition-all min-h-[180px]"
+            className="border border-dashed border-border/70 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-border hover:bg-card/40 cursor-pointer transition-all min-h-[180px]"
             onClick={onNewSite}
           >
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-primary" />
+            <div className="w-11 h-11 rounded-full bg-muted/40 border border-border/60 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">Create New Site</p>
           </motion.div>
