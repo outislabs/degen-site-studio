@@ -74,7 +74,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
   return (
     <div className="min-h-screen gradient-degen flex flex-col">
       {/* Top Header */}
-      <header className="border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+      <header className="border-b border-border/70 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50 bg-background/70 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           {/* Mobile menu toggle */}
           <button
@@ -115,17 +115,11 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
           {/* Plan badge */}
           <Badge
             variant="outline"
-            className={cn(
-              'hidden sm:inline-flex text-[10px] cursor-pointer hover:bg-primary/10 transition-colors',
-              planId !== 'free' && 'border-primary/30 text-primary'
-            )}
+            className="hidden sm:inline-flex text-[10px] cursor-pointer border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             onClick={() => navigate('/pricing')}
           >
             <Crown className="w-3 h-3 mr-1" />
             {plan.name}
-            {planId === 'free' && (
-              <span className="ml-1 text-[8px] text-primary">· Free</span>
-            )}
           </Badge>
 
           {/* New Site button */}
@@ -133,7 +127,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
             <Button
               size="sm"
               onClick={onNewSite}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hidden sm:inline-flex"
+              className="bg-foreground text-background hover:bg-foreground/90 hidden sm:inline-flex"
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> New Site
             </Button>
@@ -161,13 +155,13 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               <DropdownMenuItem
                 onClick={() => navigate('/pricing')}
-                className="cursor-pointer bg-primary text-black focus:bg-primary focus:text-black"
+                className="cursor-pointer"
               >
-                <Crown className="w-4 h-4 mr-2 text-black" />
+                <Crown className="w-4 h-4 mr-2 text-muted-foreground" />
                 <div className="flex-1 flex items-center justify-between">
                   <span>{plan.name} Plan</span>
                   {planId !== 'whale' && (
-                    <span className="text-[10px] text-black/70">Upgrade</span>
+                    <span className="text-[10px] text-muted-foreground">Upgrade</span>
                   )}
                 </div>
               </DropdownMenuItem>
@@ -191,7 +185,7 @@ const DashboardLayout = ({ children, onNewSite }: Props) => {
 
               <DropdownMenuItem
                 onClick={signOut}
-                className="cursor-pointer text-primary hover:bg-primary/10 focus:bg-primary/10 focus:text-primary"
+                className="cursor-pointer text-muted-foreground focus:text-foreground"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
