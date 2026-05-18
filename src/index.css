@@ -6,24 +6,24 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    --background: 0 0% 2.5%;
     --foreground: 0 0% 92%;
-    --card: 0 0% 6%;
+    --card: 0 0% 5%;
     --card-foreground: 0 0% 92%;
-    --popover: 0 0% 6%;
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 92%;
     --primary: 142 72% 55%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 0 0% 9%;
+    --primary-foreground: 0 0% 2.5%;
+    --secondary: 0 0% 7%;
     --secondary-foreground: 0 0% 70%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 12%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 0 0% 10%;
     --accent-foreground: 0 0% 92%;
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 12%;
-    --input: 0 0% 12%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
     --ring: 142 72% 55%;
     --radius: 0.75rem;
 
@@ -89,6 +89,17 @@
 
   .section-padding {
     @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Dashboard surfaces — smooth dark gradients */
+  .gradient-degen {
+    background:
+      radial-gradient(1200px 600px at 0% -10%, hsl(0 0% 6%) 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, hsl(0 0% 5%) 0%, transparent 55%),
+      hsl(var(--background));
+  }
+  .gradient-card {
+    background: linear-gradient(180deg, hsl(0 0% 6%) 0%, hsl(0 0% 4%) 100%);
   }
 }
 
