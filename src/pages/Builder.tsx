@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import CopilotPanel, { ProposedBlock } from '@/components/builder/CopilotPanel';
 
 const memecoinSteps = [
   { label: 'Basics', icon: Coins },
@@ -56,6 +57,8 @@ const Builder = () => {
   const [slug, setSlug] = useState('');
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
+  const [showCopilot, setShowCopilot] = useState(false);
+  const [copilotBlocks, setCopilotBlocks] = useState<(ProposedBlock & { id: string; justAdded?: boolean })[]>([]);
 
   const isNft = data.siteType === 'nft';
   const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
@@ -207,6 +210,19 @@ const Builder = () => {
 
   const progress = ((step + 1) / steps.length) * 100;
 
+  const activePage = steps[step]?.label ?? 'Home page';
+
+  const handleInsertBlock = (block: ProposedBlock) => {
+    const id = crypto.randomUUID();
+    setCopilotBlocks(prev => [...prev, { ...block, id, justAdded: true }]);
+    // remove sparkle after animation
+    setTimeout(() => {
+      setCopilotBlocks(prev =>
+        prev.map(b => (b.id === id ? { ...b, justAdded: false } : b))
+      );
+    }, 1600);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ── HEADER ── */}
@@ -276,6 +292,20 @@ const Builder = () => {
               <span className="hidden sm:inline">{showPreview ? 'Editor' : 'Preview'}</span>
             </Button>
             <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCopilot(v => !v)}
+              className={cn(
+                'text-xs h-8 px-3 transition-colors',
+                showCopilot
+                  ? 'bg-primary/15 text-primary hover:bg-primary/20'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Copilot</span>
+            </Button>
+            <Button
               size="sm"
               onClick={handlePublish}
               className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8 px-5 font-semibold rounded-lg shadow-[0_0_20px_hsl(var(--primary)/0.2)] hover:shadow-[0_0_28px_hsl(var(--primary)/0.35)] transition-shadow"
@@ -288,7 +318,12 @@ const Builder = () => {
       </header>
 
       {/* ── MAIN ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div
+        className={cn(
+          'flex flex-1 overflow-hidden transition-[margin] duration-300',
+          showCopilot && 'lg:mr-[400px]'
+        )}
+      >
         {/* ── LEFT PANEL: EDITOR ── */}
         <div
           className={cn(
@@ -433,6 +468,38 @@ const Builder = () => {
 
               {/* Actual preview */}
               <LivePreview data={data} />
+
+              {copilotBlocks.length > 0 && (
+                <div className="border-t border-border bg-card/60 px-4 py-3 space-y-2">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    Copilot blocks
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {copilotBlocks.map(b => (
+                      <motion.div
+                        key={b.id}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                        className={cn(
+                          'relative inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full border bg-background/80',
+                          b.justAdded
+                            ? 'border-primary text-primary shadow-[0_0_18px_hsl(var(--primary)/0.45)]'
+                            : 'border-border text-foreground/80'
+                        )}
+                      >
+                        <Sparkles
+                          className={cn(
+                            'w-3 h-3',
+                            b.justAdded ? 'text-primary animate-pulse' : 'text-muted-foreground'
+                          )}
+                        />
+                        {b.block_type}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -440,6 +507,14 @@ const Builder = () => {
 
       <MobileBottomNav />
       <PublishModal open={showPublish} onClose={() => setShowPublish(false)} data={data} siteId={publishedId} slug={slug} />
+      <CopilotPanel
+        open={showCopilot}
+        onClose={() => setShowCopilot(false)}
+        siteId={editingId}
+        activePage={activePage}
+        data={data}
+        onInsertBlock={handleInsertBlock}
+      />
     </div>
   );
 };
