@@ -77,6 +77,8 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [connectedPlugins, setConnectedPlugins] = useState<string[]>([]);
+  const [availableBlocks, setAvailableBlocks] = useState<string[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   // Restore thread per site
@@ -111,6 +113,46 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, loading]);
 
+  // Load the user's connected plugins + their unlocked block types
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) {
+        if (!cancelled) {
+          setConnectedPlugins([]);
+          setAvailableBlocks([]);
+        }
+        return;
+      }
+      const { data: conns } = await supabase
+        .from('user_plugin_connections' as any)
+        .select('plugin_slug')
+        .eq('user_id', uid);
+      const slugs = ((conns as any) ?? []).map((r: any) => r.plugin_slug);
+      if (cancelled) return;
+      setConnectedPlugins(slugs);
+      if (slugs.length === 0) {
+        setAvailableBlocks([]);
+        return;
+      }
+      const { data: plugs } = await supabase
+        .from('plugins' as any)
+        .select('enables_blocks,status')
+        .in('slug', slugs)
+        .eq('status', 'available');
+      if (cancelled) return;
+      const blocks = new Set<string>();
+      ((plugs as any) ?? []).forEach((p: any) => {
+        (p.enables_blocks ?? []).forEach((b: string) => blocks.add(b));
+      });
+      setAvailableBlocks(Array.from(blocks));
+    })();
+    return () => { cancelled = true; };
+  }, [open]);
+
   const send = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
@@ -126,6 +168,8 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
         name: data.name,
         ticker: data.ticker,
         existing_socials: data.socials,
+        connected_plugins: connectedPlugins,
+        available_blocks: availableBlocks,
       };
       const { data: res, error } = await supabase.functions.invoke('copilot-builder-chat', {
         body: {
