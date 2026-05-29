@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CoinData, defaultCoinData } from '@/types/coin';
+import { CoinData, CopilotBlockInstance, defaultCoinData } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
 import StepNftGallery from '@/components/builder/StepNftGallery';
@@ -58,7 +58,6 @@ const Builder = () => {
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
   const [showCopilot, setShowCopilot] = useState(false);
-  const [copilotBlocks, setCopilotBlocks] = useState<(ProposedBlock & { id: string; justAdded?: boolean })[]>([]);
 
   const isNft = data.siteType === 'nft';
   const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
@@ -213,14 +212,29 @@ const Builder = () => {
   const activePage = steps[step]?.label ?? 'Home page';
 
   const handleInsertBlock = (block: ProposedBlock) => {
-    const id = crypto.randomUUID();
-    setCopilotBlocks(prev => [...prev, { ...block, id, justAdded: true }]);
-    // remove sparkle after animation
-    setTimeout(() => {
-      setCopilotBlocks(prev =>
-        prev.map(b => (b.id === id ? { ...b, justAdded: false } : b))
-      );
-    }, 1600);
+    const instance: CopilotBlockInstance = {
+      id: crypto.randomUUID(),
+      block_type: block.block_type,
+      config: block.config ?? {},
+      target_section: block.target_section,
+      created_at: Date.now(),
+    };
+    setData(prev => ({
+      ...prev,
+      copilotBlocks: [...(prev.copilotBlocks ?? []), instance],
+    }));
+    // Persist immediately if the site already exists so the preview stays in sync.
+    if (editingId) {
+      (async () => {
+        const nextBlocks = [...(data.copilotBlocks ?? []), instance];
+        const nextData = { ...data, copilotBlocks: nextBlocks };
+        const { error } = await supabase
+          .from('sites')
+          .update({ data: JSON.parse(JSON.stringify(nextData)) } as any)
+          .eq('id', editingId);
+        if (error) console.error('Failed to persist copilot block:', error);
+      })();
+    }
   };
 
   return (
@@ -468,38 +482,6 @@ const Builder = () => {
 
               {/* Actual preview */}
               <LivePreview data={data} />
-
-              {copilotBlocks.length > 0 && (
-                <div className="border-t border-border bg-card/60 px-4 py-3 space-y-2">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                    Copilot blocks
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {copilotBlocks.map(b => (
-                      <motion.div
-                        key={b.id}
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-                        className={cn(
-                          'relative inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full border bg-background/80',
-                          b.justAdded
-                            ? 'border-primary text-primary shadow-[0_0_18px_hsl(var(--primary)/0.45)]'
-                            : 'border-border text-foreground/80'
-                        )}
-                      >
-                        <Sparkles
-                          className={cn(
-                            'w-3 h-3',
-                            b.justAdded ? 'text-primary animate-pulse' : 'text-muted-foreground'
-                          )}
-                        />
-                        {b.block_type}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

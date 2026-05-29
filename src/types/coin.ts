@@ -12,6 +12,14 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface CopilotBlockInstance {
+  id: string;
+  block_type: string;
+  config: Record<string, any>;
+  target_section?: string;
+  created_at: number;
+}
+
 export interface CoinData {
   // Site type
   siteType: SiteType;
@@ -71,6 +79,9 @@ export interface CoinData {
 
   // Optional
   customDomain?: string;
+
+  // Copilot-inserted utility blocks (rendered at the bottom of the site preview)
+  copilotBlocks?: CopilotBlockInstance[];
 }
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance' | 'lavender-pop' | 'sky-toon' | 'sponge-pop' | 'ocean-bolt' | 'rose-garden' | 'midnight-chrome' | 'cartoon-sky';
@@ -116,4 +127,5 @@ export const defaultCoinData: CoinData = {
   layout: 'classic',
   showCountdown: false,
   launchDate: null,
+  copilotBlocks: [],
 };
