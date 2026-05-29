@@ -69,7 +69,17 @@ interface FeePosition {
   [key: string]: any;
 }
 
-const formatSol = (lamports: number) => (lamports / 1e9).toFixed(4);
+const asNumber = (value: unknown, fallback = 0) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const safeFixed = (value: unknown, digits: number, fallback = '—') => {
+  const parsed = asNumber(value, NaN);
+  return Number.isFinite(parsed) ? parsed.toFixed(digits) : fallback;
+};
+
+const formatSol = (lamports: unknown) => safeFixed(asNumber(lamports) / 1e9, 4, '0.0000');
 const shortenAddress = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
 /* ═══════════════════════════════════════════
@@ -379,14 +389,14 @@ const TradeTab = ({
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Price impact</span>
               <span className={parseFloat(quote.priceImpactPct) > 5 ? 'text-destructive font-semibold' : 'text-foreground'}>
-                {parseFloat(quote.priceImpactPct).toFixed(2)}%
+                {safeFixed(quote.priceImpactPct, 2)}%
               </span>
             </div>
           )}
           {quote.slippageBps != null && (
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Slippage</span>
-              <span className="text-foreground">{(quote.slippageBps / 100).toFixed(2)}%</span>
+              <span className="text-foreground">{safeFixed(asNumber(quote.slippageBps) / 100, 2)}%</span>
             </div>
           )}
         </div>
@@ -506,7 +516,7 @@ const FeesTab = ({
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-muted-foreground">SOL claimable</span>
-            <span className="text-primary font-semibold">{(((pos.virtualPoolClaimableLamportsUserShare || 0) + (pos.userVaultClaimableLamportsUserShare || 0)) / 1_000_000_000).toFixed(4)} SOL</span>
+            <span className="text-primary font-semibold">{safeFixed((asNumber(pos.virtualPoolClaimableLamportsUserShare) + asNumber(pos.userVaultClaimableLamportsUserShare)) / 1_000_000_000, 4, '0.0000')} SOL</span>
           </div>
         </div>
       ))}
