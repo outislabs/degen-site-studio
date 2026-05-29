@@ -4,8 +4,16 @@ import { cn } from '@/lib/utils';
 import type { CopilotBlockInstance } from '@/types/coin';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-const fmt = (n: unknown, digits = 2, fallback = '—') =>
-  typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : fallback;
+const numberValue = (value: unknown, fallback?: number) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  if (Number.isFinite(parsed)) return parsed;
+  return fallback;
+};
+
+const fmt = (value: unknown, digits = 2, fallback = '—') => {
+  const parsed = numberValue(value);
+  return parsed == null ? fallback : parsed.toFixed(digits);
+};
 
 const text = (value: unknown, fallback: string) => {
   if (typeof value === 'string' && value.trim()) return value.trim();
@@ -62,11 +70,13 @@ const Shell = ({
 const SwapWidget = ({ config = {} }: { config?: any }) => {
   const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
   const chain = text(config?.chain, 'solana');
-  const pay = fmt(config?.pay_amount ?? 0, 2, '0.0');
-  const receive = fmt(config?.receive_amount ?? 0, 2, '0.0');
+  const hasToken = token !== 'TOKEN';
+  const pay = fmt(config?.pay_amount ?? config?.amount_in ?? 0, 2, '0.00');
+  const receive = fmt(config?.receive_amount ?? config?.amount_out ?? 0, 2, '0.00');
   return (
     <Shell icon={Zap} title={`Swap ${token}`} tag={`Swap ${token} on ${chain} · Powered by Jupiter`}>
       <div className="space-y-2 text-xs">
+        {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-muted-foreground">Swap widget — configure to display</div>}
         <div className="rounded-lg bg-primary/10 border border-primary/20 p-2.5 text-primary font-semibold">
           Swap {token} on {chain} (Powered by Jupiter)
         </div>
@@ -88,11 +98,13 @@ const SwapWidget = ({ config = {} }: { config?: any }) => {
 
 const LpStats = ({ config = {} }: { config?: any }) => {
   const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const price = typeof config?.price === 'number' ? `$${fmt(config.price, 5, '0.00')}` : '$0.00042';
-  const volume = text(config?.volume_24h, '$128k');
-  const liquidity = text(config?.liquidity, '$540k');
+  const hasToken = token !== 'TOKEN';
+  const price = `$${fmt(config?.price ?? config?.usd_price ?? 0.00042, 5, '0.00000')}`;
+  const volume = `$${text(config?.volume_24h ?? config?.volume ?? '128k', '128k')}`.replace('$$', '$');
+  const liquidity = `$${text(config?.liquidity ?? '540k', '540k')}`.replace('$$', '$');
   return (
     <Shell icon={BarChart3} title={`${token} · LP Stats`} tag="Mock market data">
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">LP stats — configure to display</div>}
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
           { l: 'Price', v: price },
@@ -155,9 +167,11 @@ const HolderGate = ({ config = {} }: { config?: any }) => {
 const ClaimPage = ({ config = {} }: { config?: any }) => {
   const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
   const claimType = text(config?.claim_type, 'airdrop');
-  const amount = text(config?.amount, '1,500');
+  const amount = text(config?.amount ?? config?.claim_amount, '1,500');
+  const hasToken = token !== 'TOKEN';
   return (
     <Shell icon={Gift} title="Claim your rewards" tag={`${claimType} claim`}>
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Claim page — configure to display</div>}
       <div className="rounded-lg bg-white/5 p-3 text-center mb-3">
         <div className="text-[10px] uppercase tracking-wide text-white/50">Eligible</div>
         <div className="text-lg font-bold mt-0.5">{amount} ${token}</div>
@@ -252,8 +266,9 @@ const BLOCK_REGISTRY: Record<string, (props: { config: any }) => JSX.Element> = 
   'social-cta': SocialCta,
 };
 
-const CopilotBlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
-  const key = normalize(block.block_type);
+export const BlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
+  const blockType = text(block?.block_type, 'unknown-block');
+  const key = normalize(blockType);
   const Comp = BLOCK_REGISTRY[key];
   // Animate fresh blocks: pulse for 1.6s after mount
   const isFresh = Date.now() - (block.created_at ?? 0) < 1600;
@@ -267,11 +282,11 @@ const CopilotBlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
         isFresh && 'after:absolute after:inset-0 after:rounded-2xl after:ring-2 after:ring-primary/60 after:animate-pulse after:pointer-events-none'
       )}
     >
-      <ErrorBoundary label={`copilot-block:${block.block_type}`}>
+      <ErrorBoundary label={`copilot-block:${blockType}`}>
         {Comp ? (
           <Comp config={block.config ?? {}} />
         ) : (
-          <Shell icon={Sparkles} title={block.block_type} tag="Unknown block">
+          <Shell icon={Sparkles} title={blockType} tag="Unknown block">
             <div className="text-[11px] text-white/50">No renderer is registered for this block type.</div>
           </Shell>
         )}
@@ -290,7 +305,7 @@ export const CopilotBlocksSection = ({ blocks }: { blocks?: CopilotBlockInstance
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {blocks.map(b => (
-          <CopilotBlockRenderer key={b.id} block={b} />
+          <BlockRenderer key={b.id} block={b} />
         ))}
       </div>
     </section>
