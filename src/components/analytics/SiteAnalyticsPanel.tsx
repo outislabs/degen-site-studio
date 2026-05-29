@@ -24,6 +24,11 @@ interface AnalyticsRow {
   created_at: string;
 }
 
+const safeFixed = (value: unknown, digits: number, fallback = '0.0') => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(parsed) ? parsed.toFixed(digits) : fallback;
+};
+
 const SiteAnalyticsPanel = ({ siteId, siteName, onClose }: Props) => {
   const [events, setEvents] = useState<AnalyticsRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +48,7 @@ const SiteAnalyticsPanel = ({ siteId, siteName, onClose }: Props) => {
     const pageViews = events.filter(e => e.event_type === 'page_view').length;
     const uniqueVisitors = events.filter(e => e.event_type === 'unique_visit').length;
     const buyClicks = events.filter(e => e.event_type === 'buy_click').length;
-    const conversionRate = uniqueVisitors > 0 ? ((buyClicks / uniqueVisitors) * 100).toFixed(1) : '0.0';
+    const conversionRate = uniqueVisitors > 0 ? safeFixed((buyClicks / uniqueVisitors) * 100, 1) : '0.0';
     return { pageViews, uniqueVisitors, buyClicks, conversionRate };
   }, [events]);
 

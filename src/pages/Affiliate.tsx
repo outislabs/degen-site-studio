@@ -15,6 +15,11 @@ import {
   Download, Share2, QrCode, ArrowRight,
 } from 'lucide-react';
 
+const safeMoney = (value: unknown) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : '0.00';
+};
+
 const Affiliate = () => {
   const { user } = useAuth();
   const [referralCode, setReferralCode] = useState('');
@@ -96,8 +101,8 @@ const Affiliate = () => {
     { label: 'Total Clicks', value: stats.totalClicks, icon: MousePointerClick },
     { label: 'Total Signups', value: stats.totalSignups, icon: Users },
     { label: 'Converted', value: stats.converted, icon: Check },
-    { label: 'Total Earned', value: `$${stats.totalEarned.toFixed(2)}`, icon: DollarSign },
-    { label: 'Pending Payout', value: `$${stats.pendingPayout.toFixed(2)}`, icon: Wallet },
+    { label: 'Total Earned', value: `$${safeMoney(stats.totalEarned)}`, icon: DollarSign },
+    { label: 'Pending Payout', value: `$${safeMoney(stats.pendingPayout)}`, icon: Wallet },
   ];
 
   const twitterTemplates = [
@@ -197,7 +202,7 @@ const Affiliate = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right text-xs font-mono">
-                        ${r.amount.toFixed(2)}
+                        ${safeMoney(r.amount)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -238,7 +243,7 @@ const Affiliate = () => {
               Request Payout
               {stats.pendingPayout < 10 && (
                 <span className="ml-2 text-[10px] opacity-70">
-                  (${(10 - stats.pendingPayout).toFixed(2)} more needed)
+                  (${safeMoney(10 - (typeof stats.pendingPayout === 'number' ? stats.pendingPayout : 0))} more needed)
                 </span>
               )}
             </Button>

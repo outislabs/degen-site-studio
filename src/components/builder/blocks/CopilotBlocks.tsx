@@ -4,8 +4,16 @@ import { cn } from '@/lib/utils';
 import type { CopilotBlockInstance } from '@/types/coin';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-const fmt = (n: unknown, digits = 2, fallback = '—') =>
-  typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : fallback;
+const numberValue = (value: unknown, fallback?: number) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  if (Number.isFinite(parsed)) return parsed;
+  return fallback;
+};
+
+const fmt = (value: unknown, digits = 2, fallback = '—') => {
+  const parsed = numberValue(value);
+  return parsed == null ? fallback : parsed.toFixed(digits);
+};
 
 const text = (value: unknown, fallback: string) => {
   if (typeof value === 'string' && value.trim()) return value.trim();
@@ -60,13 +68,16 @@ const Shell = ({
 );
 
 const SwapWidget = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const chain = text(config?.chain, 'solana');
-  const pay = fmt(config?.pay_amount ?? 0, 2, '0.0');
-  const receive = fmt(config?.receive_amount ?? 0, 2, '0.0');
+  const { token: rawToken, token_symbol, symbol, chain: rawChain = 'solana', pay_amount, amount_in, receive_amount, amount_out } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const chain = text(rawChain, 'solana');
+  const hasToken = token !== 'TOKEN';
+  const pay = fmt(pay_amount ?? amount_in ?? 0, 2, '0.00');
+  const receive = fmt(receive_amount ?? amount_out ?? 0, 2, '0.00');
   return (
     <Shell icon={Zap} title={`Swap ${token}`} tag={`Swap ${token} on ${chain} · Powered by Jupiter`}>
       <div className="space-y-2 text-xs">
+        {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-muted-foreground">Swap widget — configure to display</div>}
         <div className="rounded-lg bg-primary/10 border border-primary/20 p-2.5 text-primary font-semibold">
           Swap {token} on {chain} (Powered by Jupiter)
         </div>
@@ -87,16 +98,19 @@ const SwapWidget = ({ config = {} }: { config?: any }) => {
 };
 
 const LpStats = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const price = typeof config?.price === 'number' ? `$${fmt(config.price, 5, '0.00')}` : '$0.00042';
-  const volume = text(config?.volume_24h, '$128k');
-  const liquidity = text(config?.liquidity, '$540k');
+  const { token: rawToken, token_symbol, symbol, price: rawPrice, usd_price, volume_24h, volume, liquidity: rawLiquidity = '540k' } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const hasToken = token !== 'TOKEN';
+  const price = `$${fmt(rawPrice ?? usd_price ?? 0.00042, 5, '0.00000')}`;
+  const volumeLabel = `$${text(volume_24h ?? volume ?? '128k', '128k')}`.replace('$$', '$');
+  const liquidity = `$${text(rawLiquidity, '540k')}`.replace('$$', '$');
   return (
     <Shell icon={BarChart3} title={`${token} · LP Stats`} tag="Mock market data">
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">LP stats — configure to display</div>}
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
           { l: 'Price', v: price },
-          { l: '24h Vol', v: volume },
+          { l: '24h Vol', v: volumeLabel },
           { l: 'Liquidity', v: liquidity },
         ].map(s => (
           <div key={s.l} className="rounded-lg bg-white/5 p-2">
@@ -153,11 +167,14 @@ const HolderGate = ({ config = {} }: { config?: any }) => {
 };
 
 const ClaimPage = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const claimType = text(config?.claim_type, 'airdrop');
-  const amount = text(config?.amount, '1,500');
+  const { token: rawToken, token_symbol, symbol, claim_type = 'airdrop', amount: rawAmount, claim_amount } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const claimType = text(claim_type, 'airdrop');
+  const amount = text(rawAmount ?? claim_amount, '1,500');
+  const hasToken = token !== 'TOKEN';
   return (
     <Shell icon={Gift} title="Claim your rewards" tag={`${claimType} claim`}>
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Claim page — configure to display</div>}
       <div className="rounded-lg bg-white/5 p-3 text-center mb-3">
         <div className="text-[10px] uppercase tracking-wide text-white/50">Eligible</div>
         <div className="text-lg font-bold mt-0.5">{amount} ${token}</div>
@@ -170,8 +187,10 @@ const ClaimPage = ({ config = {} }: { config?: any }) => {
 };
 
 const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const limit = positiveInt(config?.limit, 10, 20);
+  const { token: rawToken, token_symbol, symbol, limit: rawLimit = 10 } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const limit = positiveInt(rawLimit, 10, 20);
+  const hasToken = token !== 'TOKEN';
   const rows = Array.from({ length: limit }).map((_, i) => ({
     rank: i + 1,
     addr: `WALLET${String(i + 1).padStart(2, '0')}…${String(9000 + i)}`,
@@ -179,6 +198,7 @@ const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
   }));
   return (
     <Shell icon={Trophy} title="Top holders" tag={`${token} · Top ${limit}`}>
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Holder leaderboard — configure to display</div>}
       <div className="space-y-1">
         {rows.map(r => (
           <div key={r.rank} className="grid grid-cols-[20px_1fr_60px] items-center text-[11px] px-2 py-1 rounded-md bg-white/5">
@@ -193,10 +213,13 @@ const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
 };
 
 const LiveChart = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const timeframe = text(config?.timeframe, '24h');
+  const { token: rawToken, token_symbol, symbol, timeframe: rawTimeframe = '24h' } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const timeframe = text(rawTimeframe, '24h');
+  const hasToken = token !== 'TOKEN';
   return (
   <Shell icon={LineChart} title={`${token} live chart`} tag={`Mock ${timeframe} chart`}>
+    {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Live chart — configure to display</div>}
     <div className="aspect-video rounded-lg bg-gradient-to-br from-primary/20 via-white/5 to-transparent flex items-end p-2 overflow-hidden">
       <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
         <polyline
@@ -252,8 +275,9 @@ const BLOCK_REGISTRY: Record<string, (props: { config: any }) => JSX.Element> = 
   'social-cta': SocialCta,
 };
 
-const CopilotBlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
-  const key = normalize(block.block_type);
+export const BlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
+  const blockType = text(block?.block_type, 'unknown-block');
+  const key = normalize(blockType);
   const Comp = BLOCK_REGISTRY[key];
   // Animate fresh blocks: pulse for 1.6s after mount
   const isFresh = Date.now() - (block.created_at ?? 0) < 1600;
@@ -267,11 +291,11 @@ const CopilotBlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
         isFresh && 'after:absolute after:inset-0 after:rounded-2xl after:ring-2 after:ring-primary/60 after:animate-pulse after:pointer-events-none'
       )}
     >
-      <ErrorBoundary label={`copilot-block:${block.block_type}`}>
+      <ErrorBoundary label={`copilot-block:${blockType}`}>
         {Comp ? (
           <Comp config={block.config ?? {}} />
         ) : (
-          <Shell icon={Sparkles} title={block.block_type} tag="Unknown block">
+          <Shell icon={Sparkles} title={blockType} tag="Unknown block">
             <div className="text-[11px] text-white/50">No renderer is registered for this block type.</div>
           </Shell>
         )}
@@ -290,7 +314,7 @@ export const CopilotBlocksSection = ({ blocks }: { blocks?: CopilotBlockInstance
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {blocks.map(b => (
-          <CopilotBlockRenderer key={b.id} block={b} />
+          <BlockRenderer key={b.id} block={b} />
         ))}
       </div>
     </section>
