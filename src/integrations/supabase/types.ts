@@ -240,6 +240,45 @@ export type Database = {
           },
         ]
       }
+      plugins: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          enables_blocks: string[]
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          sort_order: number
+          status: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          enables_blocks?: string[]
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number
+          status?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          enables_blocks?: string[]
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: string
+        }
+        Relationships: []
+      }
       promo_codes: {
         Row: {
           active: boolean
@@ -464,6 +503,30 @@ export type Database = {
           is_pro?: boolean
           template_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_plugin_connections: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          plugin_slug: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          plugin_slug: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          plugin_slug?: string
+          user_id?: string
         }
         Relationships: []
       }
