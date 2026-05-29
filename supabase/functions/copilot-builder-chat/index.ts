@@ -7,13 +7,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // ---- Config (tune freely) ----
 const MODEL = "gemini-2.5-flash";
 const FREE_GENERATIONS_PER_DAY = 10;
-const CREDIT_COST_PER_GENERATION = 0.02; // USD-equiv credits per generation
+const CREDIT_COST_PER_GENERATION = 0.02;
 const VERTEX_LOCATION = "us-central1";
 
 // ---- Secrets ----
-// GCP_SERVICE_ACCOUNT  -> full service-account JSON (string)
-// GCP_PROJECT_ID       -> Vertex project id
-// SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY -> auto-injected by Supabase
 const SA = JSON.parse(Deno.env.get("GOOGLE_SERVICE_ACCOUNT_KEY")!);
 const PROJECT = Deno.env.get("GOOGLE_CLOUD_PROJECT_ID")!;
 const supabase = createClient(
@@ -23,10 +20,9 @@ const supabase = createClient(
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
 };
 
-// ---- Google OAuth: sign a JWT with the SA private key, exchange for access token ----
 function pemToArrayBuffer(pem: string): ArrayBuffer {
   const b64 = pem
     .replace(/-----BEGIN PRIVATE KEY-----/, "")
@@ -75,13 +71,12 @@ async function getAccessToken(): Promise<string> {
       assertion: jwt,
     }),
   });
-  const json = await res.json();
-  if (!json.access_token) throw new Error("Vertex auth failed: " + JSON.stringify(json));
-  return json.access_token;
+  const out = await res.json();
+  if (!out.access_token) throw new Error("Vertex auth failed: " + JSON.stringify(out));
+  return out.access_token;
 }
 
-// ---- System prompt: scoped to the DegenTools block library ----
-function systemPrompt(siteContext: any): string {
+function systemPrompt(ctx: any): string {
   return `You are the DegenTools builder copilot. You help users add plugin-powered utility blocks to their memecoin/NFT project sites.
 
 RULES:
@@ -90,9 +85,12 @@ RULES:
 - Ask a clarifying question when the request is ambiguous instead of guessing.
 - Keep "message" punchy and degen-native — no corporate tone.
 
-The user is editing: ${siteContext?.active_page ?? "unknown page"}.
-Existing blocks on this page: ${JSON.stringify(siteContext?.existing_blocks ?? [])}.
-Connected plugins: ${JSON.stringify(siteContext?.connected_plugins ?? [])}.
+Site type: ${ctx?.site_type ?? "unknown"}.
+Editing page: ${ctx?.active_page ?? "unknown"}.
+Project name: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}).
+Existing socials: ${JSON.stringify(ctx?.existing_socials ?? {})}.
+Existing blocks: ${JSON.stringify(ctx?.existing_blocks ?? [])}.
+Connected plugins: ${JSON.stringify(ctx?.connected_plugins ?? [])}.
 
 Respond ONLY with JSON matching this schema (no markdown, no prose outside JSON):
 {
@@ -106,7 +104,7 @@ async function callGemini(token: string, system: string, history: any[]): Promis
   const url = `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT}/locations/${VERTEX_LOCATION}/publishers/google/models/${MODEL}:generateContent`;
   const body = {
     systemInstruction: { parts: [{ text: system }] },
-    contents: history.map((m) => ({
+    contents: history.map((m: any) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: typeof m.content === "string" ? m.content : JSON.stringify(m.content) }],
     })),
@@ -117,8 +115,9 @@ async function callGemini(token: string, system: string, history: any[]): Promis
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const json = await res.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  const out = await res.json();
+  if (out.error) throw new Error("Gemini error: " + JSON.stringify(out.error));
+  const text = out?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
   try {
     return JSON.parse(text);
   } catch {
@@ -126,24 +125,20 @@ async function callGemini(token: string, system: string, history: any[]): Promis
   }
 }
 
-// ---- Credits: check free quota, else debit balance. Returns null if blocked. ----
 async function consumeCredit(userId: string): Promise<{ ok: boolean; reason?: string }> {
   const { data: row } = await supabase
     .from("copilot_credits").select("*").eq("user_id", userId).maybeSingle();
 
   const today = new Date().toISOString().slice(0, 10);
-  let balance = row?.balance ?? 0;
-  let freeUsed = row?.free_used_today ?? 0;
+  let balance = Number(row?.balance ?? 0);
+  let freeUsed = Number(row?.free_used_today ?? 0);
   const resetAt = row?.free_reset_at ?? today;
-  if (resetAt !== today) freeUsed = 0; // new day -> reset free counter
+  if (resetAt !== today) freeUsed = 0;
 
   if (freeUsed < FREE_GENERATIONS_PER_DAY) {
     await supabase.from("copilot_credits").upsert({
-      user_id: userId,
-      balance,
-      free_used_today: freeUsed + 1,
-      free_reset_at: today,
-      updated_at: new Date().toISOString(),
+      user_id: userId, balance, free_used_today: freeUsed + 1,
+      free_reset_at: today, updated_at: new Date().toISOString(),
     });
     await supabase.from("copilot_credit_ledger").insert({
       user_id: userId, kind: "free_grant", amount: 0,
@@ -172,40 +167,50 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
     const jwt = req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
-    const { data: userData } = await supabase.auth.getUser(jwt);
+    const { data: userData, error: userErr } = await supabase.auth.getUser(jwt);
+    if (userErr) console.log("auth error:", userErr.message);
     const user = userData?.user;
     if (!user) return json({ error: "unauthorized" }, 401);
 
-    const { session_id, message, site_context } = await req.json();
+    const body = await req.json();
+    const message: string = body.message ?? "";
+    const context = body.context ?? body.site_context ?? {};
+    const history: any[] = Array.isArray(body.history) ? body.history : [];
 
-    // Gate on credits BEFORE spending compute.
-    const gate = await consumeCredit(user.id);
-    if (!gate.ok) {
-      return json({ error: gate.reason, message: "You're out of credits. Top up with $DEGENTOOLS to keep building." }, 402);
+    if (!message.trim()) {
+      return json({ error: "empty_message", message: "Tell me what you want to build." }, 400);
     }
 
-    // Persist user message + load history.
-    await supabase.from("copilot_messages").insert({
-      session_id, role: "user", content: { text: message },
-    });
-    const { data: history } = await supabase
-      .from("copilot_messages").select("role, content")
-      .eq("session_id", session_id).order("created_at", { ascending: true }).limit(40);
+    const gate = await consumeCredit(user.id);
+    if (!gate.ok) {
+      return json({
+        error: gate.reason,
+        message: "You're out of credits. Top up with $DEGENTOOLS to keep building.",
+        proposed_block: null,
+        plugin_suggestions: [],
+      }, 402);
+    }
 
+    const convo = [...history, { role: "user", content: message }];
     const token = await getAccessToken();
-    const result = await callGemini(
-      token,
-      systemPrompt(site_context),
-      (history ?? []).map((m: any) => ({ role: m.role, content: m.content?.text ?? m.content })),
-    );
+    const result = await callGemini(token, systemPrompt(context), convo);
 
-    await supabase.from("copilot_messages").insert({
-      session_id, role: "assistant", content: result,
-    });
+    // Fire-and-forget persistence — don't block response.
+    supabase.from("copilot_messages").insert([
+      { session_id: context?.site_id ?? null, role: "user", content: { text: message } },
+      { session_id: context?.site_id ?? null, role: "assistant", content: result },
+    ]).then(({ error }) => { if (error) console.log("persist err:", error.message); });
 
     return json(result, 200);
   } catch (e) {
-    return json({ error: String(e) }, 500);
+    console.log("handler error:", String(e));
+    return json({
+      error: "server_error",
+      message: "Something broke on my end. Try again?",
+      detail: String(e),
+      proposed_block: null,
+      plugin_suggestions: [],
+    }, 500);
   }
 });
 
