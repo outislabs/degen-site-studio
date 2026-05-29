@@ -68,11 +68,12 @@ const Shell = ({
 );
 
 const SwapWidget = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const chain = text(config?.chain, 'solana');
+  const { token: rawToken, token_symbol, symbol, chain: rawChain = 'solana', pay_amount, amount_in, receive_amount, amount_out } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const chain = text(rawChain, 'solana');
   const hasToken = token !== 'TOKEN';
-  const pay = fmt(config?.pay_amount ?? config?.amount_in ?? 0, 2, '0.00');
-  const receive = fmt(config?.receive_amount ?? config?.amount_out ?? 0, 2, '0.00');
+  const pay = fmt(pay_amount ?? amount_in ?? 0, 2, '0.00');
+  const receive = fmt(receive_amount ?? amount_out ?? 0, 2, '0.00');
   return (
     <Shell icon={Zap} title={`Swap ${token}`} tag={`Swap ${token} on ${chain} · Powered by Jupiter`}>
       <div className="space-y-2 text-xs">
@@ -97,18 +98,19 @@ const SwapWidget = ({ config = {} }: { config?: any }) => {
 };
 
 const LpStats = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
+  const { token: rawToken, token_symbol, symbol, price: rawPrice = 0.00042, usd_price, volume_24h, volume, liquidity: rawLiquidity = '540k' } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
   const hasToken = token !== 'TOKEN';
-  const price = `$${fmt(config?.price ?? config?.usd_price ?? 0.00042, 5, '0.00000')}`;
-  const volume = `$${text(config?.volume_24h ?? config?.volume ?? '128k', '128k')}`.replace('$$', '$');
-  const liquidity = `$${text(config?.liquidity ?? '540k', '540k')}`.replace('$$', '$');
+  const price = `$${fmt(rawPrice ?? usd_price, 5, '0.00000')}`;
+  const volumeLabel = `$${text(volume_24h ?? volume ?? '128k', '128k')}`.replace('$$', '$');
+  const liquidity = `$${text(rawLiquidity, '540k')}`.replace('$$', '$');
   return (
     <Shell icon={BarChart3} title={`${token} · LP Stats`} tag="Mock market data">
       {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">LP stats — configure to display</div>}
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
           { l: 'Price', v: price },
-          { l: '24h Vol', v: volume },
+          { l: '24h Vol', v: volumeLabel },
           { l: 'Liquidity', v: liquidity },
         ].map(s => (
           <div key={s.l} className="rounded-lg bg-white/5 p-2">
@@ -165,9 +167,10 @@ const HolderGate = ({ config = {} }: { config?: any }) => {
 };
 
 const ClaimPage = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const claimType = text(config?.claim_type, 'airdrop');
-  const amount = text(config?.amount ?? config?.claim_amount, '1,500');
+  const { token: rawToken, token_symbol, symbol, claim_type = 'airdrop', amount: rawAmount, claim_amount } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const claimType = text(claim_type, 'airdrop');
+  const amount = text(rawAmount ?? claim_amount, '1,500');
   const hasToken = token !== 'TOKEN';
   return (
     <Shell icon={Gift} title="Claim your rewards" tag={`${claimType} claim`}>
@@ -184,8 +187,10 @@ const ClaimPage = ({ config = {} }: { config?: any }) => {
 };
 
 const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const limit = positiveInt(config?.limit, 10, 20);
+  const { token: rawToken, token_symbol, symbol, limit: rawLimit = 10 } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const limit = positiveInt(rawLimit, 10, 20);
+  const hasToken = token !== 'TOKEN';
   const rows = Array.from({ length: limit }).map((_, i) => ({
     rank: i + 1,
     addr: `WALLET${String(i + 1).padStart(2, '0')}…${String(9000 + i)}`,
@@ -193,6 +198,7 @@ const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
   }));
   return (
     <Shell icon={Trophy} title="Top holders" tag={`${token} · Top ${limit}`}>
+      {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Holder leaderboard — configure to display</div>}
       <div className="space-y-1">
         {rows.map(r => (
           <div key={r.rank} className="grid grid-cols-[20px_1fr_60px] items-center text-[11px] px-2 py-1 rounded-md bg-white/5">
@@ -207,10 +213,13 @@ const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
 };
 
 const LiveChart = ({ config = {} }: { config?: any }) => {
-  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
-  const timeframe = text(config?.timeframe, '24h');
+  const { token: rawToken, token_symbol, symbol, timeframe: rawTimeframe = '24h' } = config ?? {};
+  const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
+  const timeframe = text(rawTimeframe, '24h');
+  const hasToken = token !== 'TOKEN';
   return (
   <Shell icon={LineChart} title={`${token} live chart`} tag={`Mock ${timeframe} chart`}>
+    {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">Live chart — configure to display</div>}
     <div className="aspect-video rounded-lg bg-gradient-to-br from-primary/20 via-white/5 to-transparent flex items-end p-2 overflow-hidden">
       <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
         <polyline
