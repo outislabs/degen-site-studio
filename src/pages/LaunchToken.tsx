@@ -31,6 +31,16 @@ const STEPS = [
   { label: 'Review & Launch', icon: Rocket },
 ];
 
+const asNumber = (value: unknown, fallback = 0) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const safeFixed = (value: unknown, digits: number, fallback = '0') => {
+  const parsed = asNumber(value, NaN);
+  return Number.isFinite(parsed) ? parsed.toFixed(digits) : fallback;
+};
+
 /* ─────────────────── main component ─────────────────── */
 const LaunchToken = () => {
   const navigate = useNavigate();
@@ -320,7 +330,7 @@ const LaunchToken = () => {
   }
 
   /* ─── Wizard ─── */
-  const totalFeeSharePct = feeSharers.reduce((s, f) => s + f.bps / 100, 0);
+  const totalFeeSharePct = feeSharers.reduce((s, f) => s + asNumber(f.bps) / 100, 0);
 
   return (
     <DashboardLayout onNewSite={() => navigate('/builder')}>
@@ -491,7 +501,7 @@ const LaunchToken = () => {
                     <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span className="text-foreground">~0.01 SOL</span></div>
                     <div className="border-t border-border pt-2 flex justify-between font-semibold">
                       <span className="text-foreground">Total (est.)</span>
-                      <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
+                      <span className="text-primary">{safeFixed(asNumber(solAmount) + 0.01, 3, '0.010')} SOL</span>
                     </div>
                   </div>
                 </GlassCard>
@@ -570,7 +580,7 @@ const LaunchToken = () => {
                         {/* Summary */}
                         <div className="flex items-center justify-between text-xs px-1">
                           <span className="text-muted-foreground">You keep</span>
-                          <span className="text-primary font-bold">{(100 - totalFeeSharePct).toFixed(1)}%</span>
+                          <span className="text-primary font-bold">{safeFixed(100 - totalFeeSharePct, 1, '100.0')}%</span>
                         </div>
 
                         {/* Add new */}
@@ -636,7 +646,7 @@ const LaunchToken = () => {
                     <div className="flex justify-between"><span className="text-muted-foreground">Network Fee (est.)</span><span>~0.01 SOL</span></div>
                     <div className="border-t border-border pt-2 flex justify-between font-bold">
                       <span>Total (est.)</span>
-                      <span className="text-primary">{(parseFloat(solAmount || '0') + 0.01).toFixed(3)} SOL</span>
+                      <span className="text-primary">{safeFixed(asNumber(solAmount) + 0.01, 3, '0.010')} SOL</span>
                     </div>
                   </div>
                 </GlassCard>
