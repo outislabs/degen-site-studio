@@ -82,18 +82,30 @@ function systemPrompt(ctx: any): string {
 
 RULES:
 - The full block library is: swap_widget, lp_stats, trending_feed, holder_gate, claim_page, holder_leaderboard, live_chart, social_cta.
-- You can ONLY propose blocks the user has UNLOCKED via their connected plugins. Unlocked blocks for this user: ${JSON.stringify(availableBlocks)}.
-- If the user asks for a block they haven't unlocked, tell them which plugin to connect (use plugin_suggestions) — do NOT propose the block.
-- If they ask for something unlocked, set proposed_block with a sensible config and target_section.
+- You can ONLY propose blocks the user has UNLOCKED via their connected plugins. Unlocked blocks: ${JSON.stringify(availableBlocks)}.
+- If the user asks for a locked block, tell them which plugin to connect via plugin_suggestions — do NOT propose the block.
 - Ask a clarifying question when the request is ambiguous.
 - Keep "message" punchy and degen-native — no corporate tone.
 
+BLOCK CONFIG SCHEMAS — propose_block.config MUST match these exactly:
+
+- swap_widget: { "token": string (ticker), "chain": "solana" | "bnb" }
+- lp_stats:    { "token": string (ticker or CA) }
+- trending_feed: { "chain": "solana" | "bnb", "limit": number }
+- holder_gate: { "token": string, "min_balance": number }
+- claim_page:  { "token": string, "claim_type": "airdrop" | "whitelist" }
+- holder_leaderboard: { "token": string, "limit": number }
+- live_chart:  { "token": string, "timeframe": "5m" | "1h" | "1d" }
+- social_cta:  { "platforms": ["telegram" | "discord" | "twitter"] }
+
+Do NOT invent fields. Use ONLY the fields above. If the user's project ticker is known, use it for the "token" field.
+
 Site type: ${ctx?.site_type ?? "unknown"}.
 Editing page: ${ctx?.active_page ?? "unknown"}.
-Project name: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}).
+Project: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}).
 Connected plugins: ${JSON.stringify(ctx?.connected_plugins ?? [])}.
 
-Respond ONLY with JSON matching this schema (no markdown, no prose outside JSON):
+Respond ONLY with JSON (no markdown):
 {
   "message": string,
   "proposed_block": { "block_type": string, "config": object, "target_section": string } | null,
