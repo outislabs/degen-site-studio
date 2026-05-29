@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CoinData, defaultCoinData } from '@/types/coin';
+import { CoinData, CopilotBlockInstance, defaultCoinData } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
 import StepNftGallery from '@/components/builder/StepNftGallery';
@@ -58,7 +58,6 @@ const Builder = () => {
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
   const [showCopilot, setShowCopilot] = useState(false);
-  const [copilotBlocks, setCopilotBlocks] = useState<(ProposedBlock & { id: string; justAdded?: boolean })[]>([]);
 
   const isNft = data.siteType === 'nft';
   const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
@@ -213,14 +212,29 @@ const Builder = () => {
   const activePage = steps[step]?.label ?? 'Home page';
 
   const handleInsertBlock = (block: ProposedBlock) => {
-    const id = crypto.randomUUID();
-    setCopilotBlocks(prev => [...prev, { ...block, id, justAdded: true }]);
-    // remove sparkle after animation
-    setTimeout(() => {
-      setCopilotBlocks(prev =>
-        prev.map(b => (b.id === id ? { ...b, justAdded: false } : b))
-      );
-    }, 1600);
+    const instance: CopilotBlockInstance = {
+      id: crypto.randomUUID(),
+      block_type: block.block_type,
+      config: block.config ?? {},
+      target_section: block.target_section,
+      created_at: Date.now(),
+    };
+    setData(prev => ({
+      ...prev,
+      copilotBlocks: [...(prev.copilotBlocks ?? []), instance],
+    }));
+    // Persist immediately if the site already exists so the preview stays in sync.
+    if (editingId) {
+      (async () => {
+        const nextBlocks = [...(data.copilotBlocks ?? []), instance];
+        const nextData = { ...data, copilotBlocks: nextBlocks };
+        const { error } = await supabase
+          .from('sites')
+          .update({ data: JSON.parse(JSON.stringify(nextData)) } as any)
+          .eq('id', editingId);
+        if (error) console.error('Failed to persist copilot block:', error);
+      })();
+    }
   };
 
   return (
