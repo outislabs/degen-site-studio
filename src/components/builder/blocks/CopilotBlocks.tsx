@@ -169,14 +169,16 @@ const ClaimPage = ({ config = {} }: { config?: any }) => {
   );
 };
 
-const HolderLeaderboard = () => {
-  const rows = Array.from({ length: 10 }).map((_, i) => ({
+const HolderLeaderboard = ({ config = {} }: { config?: any }) => {
+  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
+  const limit = positiveInt(config?.limit, 10, 20);
+  const rows = Array.from({ length: limit }).map((_, i) => ({
     rank: i + 1,
-    addr: `${(Math.random().toString(36).slice(2, 6) + 'XYZ').toUpperCase()}…${(Math.random().toString(36).slice(2, 6)).toUpperCase()}`,
+    addr: `WALLET${String(i + 1).padStart(2, '0')}…${String(9000 + i)}`,
     bal: `${fmt(Math.random() * 5 + 0.1, 2, '0.00')}%`,
   }));
   return (
-    <Shell icon={Trophy} title="Top holders">
+    <Shell icon={Trophy} title="Top holders" tag={`${token} · Top ${limit}`}>
       <div className="space-y-1">
         {rows.map(r => (
           <div key={r.rank} className="grid grid-cols-[20px_1fr_60px] items-center text-[11px] px-2 py-1 rounded-md bg-white/5">
@@ -190,8 +192,11 @@ const HolderLeaderboard = () => {
   );
 };
 
-const LiveChart = () => (
-  <Shell icon={LineChart} title="Live chart" tag="DexScreener">
+const LiveChart = ({ config = {} }: { config?: any }) => {
+  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
+  const timeframe = text(config?.timeframe, '24h');
+  return (
+  <Shell icon={LineChart} title={`${token} live chart`} tag={`Mock ${timeframe} chart`}>
     <div className="aspect-video rounded-lg bg-gradient-to-br from-primary/20 via-white/5 to-transparent flex items-end p-2 overflow-hidden">
       <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
         <polyline
@@ -203,30 +208,34 @@ const LiveChart = () => (
       </svg>
     </div>
   </Shell>
-);
+  );
+};
 
 const SocialCta = ({ config = {} }: { config?: any }) => {
-  const tg = config?.telegram ?? '#';
-  const dc = config?.discord ?? '#';
+  const platforms = stringList(config?.platforms, ['Telegram', 'Discord']);
+  const platformStyles: Record<string, { icon: typeof Send; className: string }> = {
+    telegram: { icon: Send, className: 'bg-[#229ED9]/90 hover:bg-[#229ED9]' },
+    discord: { icon: MessageCircle, className: 'bg-[#5865F2]/90 hover:bg-[#5865F2]' },
+    twitter: { icon: MessageCircle, className: 'bg-white/10 hover:bg-white/15' },
+    x: { icon: MessageCircle, className: 'bg-white/10 hover:bg-white/15' },
+  };
   return (
-    <Shell icon={MessageCircle} title="Join the community">
-      <div className="grid grid-cols-2 gap-2">
-        <a
-          href={tg}
-          target="_blank"
-          rel="noreferrer"
-          className="h-9 rounded-lg bg-[#229ED9]/90 hover:bg-[#229ED9] text-white text-xs font-semibold flex items-center justify-center gap-1.5"
-        >
-          <Send className="w-3.5 h-3.5" /> Telegram
-        </a>
-        <a
-          href={dc}
-          target="_blank"
-          rel="noreferrer"
-          className="h-9 rounded-lg bg-[#5865F2]/90 hover:bg-[#5865F2] text-white text-xs font-semibold flex items-center justify-center gap-1.5"
-        >
-          <MessageCircle className="w-3.5 h-3.5" /> Discord
-        </a>
+    <Shell icon={MessageCircle} title="Join the community" tag={platforms.join(' · ')}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {platforms.map((platform) => {
+          const key = platform.toLowerCase();
+          const style = platformStyles[key] ?? { icon: MessageCircle, className: 'bg-primary/80 hover:bg-primary' };
+          const Icon = style.icon;
+          return (
+            <a
+              key={platform}
+              href="#"
+              className={cn('h-9 rounded-lg text-white text-xs font-semibold flex items-center justify-center gap-1.5', style.className)}
+            >
+              <Icon className="w-3.5 h-3.5" /> {platform}
+            </a>
+          );
+        })}
       </div>
     </Shell>
   );
@@ -235,11 +244,11 @@ const SocialCta = ({ config = {} }: { config?: any }) => {
 const BLOCK_REGISTRY: Record<string, (props: { config: any }) => JSX.Element> = {
   'swap-widget': SwapWidget,
   'lp-stats': LpStats,
-  'trending-feed': () => <TrendingFeed />,
+  'trending-feed': TrendingFeed,
   'holder-gate': HolderGate,
   'claim-page': ClaimPage,
-  'holder-leaderboard': () => <HolderLeaderboard />,
-  'live-chart': () => <LiveChart />,
+  'holder-leaderboard': HolderLeaderboard,
+  'live-chart': LiveChart,
   'social-cta': SocialCta,
 };
 
