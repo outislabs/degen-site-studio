@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
 import { CoinData, defaultCoinData } from '@/types/coin';
 import { usePageTracking, trackBuyClick } from '@/hooks/useSiteAnalytics';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const SiteView = () => {
   const { id } = useParams();
@@ -107,7 +108,15 @@ const SiteView = () => {
           <meta name="twitter:image" content={ogImageUrl} />
         </Helmet>
       )}
-      <LivePreview data={data} showWatermark={showWatermark} siteId={siteUuid} />
+      <ErrorBoundary label="live-site-root">
+        {data ? (
+          <LivePreview data={data} showWatermark={showWatermark} siteId={siteUuid} />
+        ) : loading ? (
+          <div className="min-h-screen bg-background" />
+        ) : error ? (
+          <div className="min-h-screen bg-background text-foreground flex items-center justify-center text-sm">Site not found</div>
+        ) : null}
+      </ErrorBoundary>
     </div>
   );
 };
