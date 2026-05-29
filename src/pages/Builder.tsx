@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import CopilotPanel, { ProposedBlock } from '@/components/builder/CopilotPanel';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const memecoinSteps = [
   { label: 'Basics', icon: Coins },
@@ -481,7 +482,16 @@ const Builder = () => {
               </div>
 
               {/* Actual preview */}
-              <LivePreview data={data} />
+              <ErrorBoundary
+                label="builder-canvas"
+                fallback={
+                  <div className="p-8 text-center text-sm text-white/60">
+                    The preview hit an error and was prevented from crashing the editor. Try undoing your last change or reloading.
+                  </div>
+                }
+              >
+                <LivePreview data={data} />
+              </ErrorBoundary>
             </div>
           </div>
         </div>

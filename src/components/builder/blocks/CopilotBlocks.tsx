@@ -2,6 +2,10 @@ import { Zap, BarChart3, TrendingUp, Users, Gift, Trophy, LineChart, MessageCirc
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { CopilotBlockInstance } from '@/types/coin';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+const fmt = (n: unknown, digits = 2, fallback = '—') =>
+  typeof n === 'number' && Number.isFinite(n) ? n.toFixed(digits) : fallback;
 
 // Accept both snake_case (AI) and kebab-case (UI) block ids.
 const normalize = (t: string) => t.replace(/_/g, '-').toLowerCase();
@@ -38,18 +42,20 @@ const Shell = ({
   </div>
 );
 
-const SwapWidget = ({ config }: { config: any }) => {
+const SwapWidget = ({ config = {} }: { config?: any }) => {
   const symbol = config?.token_symbol ?? config?.symbol ?? 'TOKEN';
+  const pay = fmt(config?.pay_amount ?? 0, 2, '0.0');
+  const receive = fmt(config?.receive_amount ?? 0, 2, '0.0');
   return (
     <Shell icon={Zap} title="Swap" tag="Powered by Jupiter">
       <div className="space-y-2 text-xs">
         <div className="rounded-lg bg-white/5 p-2.5 flex items-center justify-between">
           <span className="text-white/60">You pay</span>
-          <span className="font-mono">0.0 SOL</span>
+          <span className="font-mono">{pay} SOL</span>
         </div>
         <div className="rounded-lg bg-white/5 p-2.5 flex items-center justify-between">
           <span className="text-white/60">You receive</span>
-          <span className="font-mono">0.0 ${symbol}</span>
+          <span className="font-mono">{receive} ${symbol}</span>
         </div>
         <button className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
           Swap
@@ -59,15 +65,18 @@ const SwapWidget = ({ config }: { config: any }) => {
   );
 };
 
-const LpStats = ({ config }: { config: any }) => {
+const LpStats = ({ config = {} }: { config?: any }) => {
   const symbol = config?.token_symbol ?? config?.symbol ?? 'TOKEN';
+  const price = typeof config?.price === 'number' ? `$${fmt(config.price, 5, '0.00')}` : '$0.00042';
+  const volume = config?.volume_24h ?? '$128k';
+  const liquidity = config?.liquidity ?? '$540k';
   return (
     <Shell icon={BarChart3} title={`${symbol} · LP Stats`} tag="DexScreener">
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
-          { l: 'Price', v: '$0.00042' },
-          { l: '24h Vol', v: '$128k' },
-          { l: 'Liquidity', v: '$540k' },
+          { l: 'Price', v: price },
+          { l: '24h Vol', v: String(volume) },
+          { l: 'Liquidity', v: String(liquidity) },
         ].map(s => (
           <div key={s.l} className="rounded-lg bg-white/5 p-2">
             <div className="text-[10px] text-white/50 uppercase tracking-wide">{s.l}</div>
@@ -104,7 +113,7 @@ const TrendingFeed = () => {
   );
 };
 
-const HolderGate = ({ config }: { config: any }) => {
+const HolderGate = ({ config = {} }: { config?: any }) => {
   const min = config?.min_holding ?? config?.minimum ?? '1,000';
   return (
     <Shell icon={Users} title="Holders only" tag={`Requires ${min}+ tokens`}>
@@ -116,7 +125,7 @@ const HolderGate = ({ config }: { config: any }) => {
   );
 };
 
-const ClaimPage = ({ config }: { config: any }) => {
+const ClaimPage = ({ config = {} }: { config?: any }) => {
   const amount = config?.amount ?? '1,500';
   const symbol = config?.token_symbol ?? config?.symbol ?? 'TOKEN';
   return (
@@ -136,7 +145,7 @@ const HolderLeaderboard = () => {
   const rows = Array.from({ length: 10 }).map((_, i) => ({
     rank: i + 1,
     addr: `${(Math.random().toString(36).slice(2, 6) + 'XYZ').toUpperCase()}…${(Math.random().toString(36).slice(2, 6)).toUpperCase()}`,
-    bal: `${(Math.random() * 5 + 0.1).toFixed(2)}%`,
+    bal: `${fmt(Math.random() * 5 + 0.1, 2, '0.00')}%`,
   }));
   return (
     <Shell icon={Trophy} title="Top holders">
@@ -168,7 +177,7 @@ const LiveChart = () => (
   </Shell>
 );
 
-const SocialCta = ({ config }: { config: any }) => {
+const SocialCta = ({ config = {} }: { config?: any }) => {
   const tg = config?.telegram ?? '#';
   const dc = config?.discord ?? '#';
   return (
@@ -221,13 +230,15 @@ const CopilotBlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
         isFresh && 'after:absolute after:inset-0 after:rounded-2xl after:ring-2 after:ring-primary/60 after:animate-pulse after:pointer-events-none'
       )}
     >
-      {Comp ? (
-        <Comp config={block.config ?? {}} />
-      ) : (
-        <Shell icon={Sparkles} title={block.block_type} tag="Unknown block">
-          <div className="text-[11px] text-white/50">No renderer is registered for this block type.</div>
-        </Shell>
-      )}
+      <ErrorBoundary label={`copilot-block:${block.block_type}`}>
+        {Comp ? (
+          <Comp config={block.config ?? {}} />
+        ) : (
+          <Shell icon={Sparkles} title={block.block_type} tag="Unknown block">
+            <div className="text-[11px] text-white/50">No renderer is registered for this block type.</div>
+          </Shell>
+        )}
+      </ErrorBoundary>
     </motion.div>
   );
 };
