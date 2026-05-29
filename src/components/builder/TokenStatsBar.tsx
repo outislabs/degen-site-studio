@@ -14,10 +14,22 @@ interface Props {
   style: ThemeConfig;
 }
 
-const formatNumber = (n: number, prefix = '$') => {
+const asNumber = (value: unknown) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const safeFixed = (value: unknown, digits: number, fallback = '—') => {
+  const parsed = asNumber(value);
+  return parsed == null ? fallback : parsed.toFixed(digits);
+};
+
+const formatNumber = (value: unknown, prefix = '$') => {
+  const n = asNumber(value);
+  if (n == null) return '—';
   if (n >= 1_000_000) return `${prefix}${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000) return `${prefix}${(n / 1_000).toFixed(1)}K`;
-  return `${prefix}${n.toFixed(2)}`;
+  return `${prefix}${safeFixed(n, 2)}`;
 };
 
 const TokenStatsBar = ({ contractAddress, style }: Props) => {
@@ -42,7 +54,8 @@ const TokenStatsBar = ({ contractAddress, style }: Props) => {
 
   if (!stats || !contractAddress) return null;
 
-  const priceChange = stats.stats24h?.priceChange;
+  const price = asNumber(stats.usdPrice);
+  const priceChange = asNumber(stats.stats24h?.priceChange);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 py-6 max-w-4xl mx-auto w-full">
@@ -53,7 +66,7 @@ const TokenStatsBar = ({ contractAddress, style }: Props) => {
       <div className={cn('rounded-xl p-4 text-center', style.cardBg)} style={{ border: `1px solid ${style.accentHex}12` }}>
         <p className="text-xs text-white/50 mb-1">Price</p>
         <p className={cn('font-bold text-lg', style.accent)}>
-          ${stats.usdPrice < 0.01 ? stats.usdPrice.toFixed(8) : stats.usdPrice.toFixed(4)}
+          {price == null ? '—' : `$${safeFixed(price, price < 0.01 ? 8 : 4)}`}
         </p>
       </div>
       <div className={cn('rounded-xl p-4 text-center', style.cardBg)} style={{ border: `1px solid ${style.accentHex}12` }}>
@@ -63,7 +76,7 @@ const TokenStatsBar = ({ contractAddress, style }: Props) => {
       <div className={cn('rounded-xl p-4 text-center', style.cardBg)} style={{ border: `1px solid ${style.accentHex}12` }}>
         <p className="text-xs text-white/50 mb-1">24h Change</p>
         <p className={`font-bold text-lg ${priceChange != null && priceChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-          {priceChange != null ? `${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%` : '—'}
+          {priceChange != null ? `${priceChange >= 0 ? '+' : ''}${safeFixed(priceChange, 2)}%` : '—'}
         </p>
       </div>
     </div>
