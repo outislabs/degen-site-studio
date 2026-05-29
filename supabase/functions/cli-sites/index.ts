@@ -1,0 +1,51 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { verifyCliToken } from "../_shared/cliJWT.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
+
+  try {
+    const cliUser = await verifyCliToken(req);
+    if (!cliUser) return json({ error: "Unauthorized" }, 401);
+
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const { data: sites, error } = await adminClient
+      .from("sites")
+      .select("id, name, slug, data, site_type, status, created_at")
+      .eq("user_id", cliUser.userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    const result = (sites ?? []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      subdomain: s.slug ?? "",
+      template: (s.data as Record<string, string> | null)?.template ?? s.site_type ?? "",
+      status: (s.status ?? "draft") as "draft" | "published",
+      createdAt: s.created_at,
+    }));
+
+    return json(result);
+  } catch (err) {
+    console.error("cli-sites error:", err);
+    return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
+  }
+});

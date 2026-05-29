@@ -1,4 +1,4 @@
-project_id = "yvjsruyebqyhgsmgfbtu"
+project_id = "rxrgenpyiydwurvrdyzz"
 
 [functions]
   [functions.admin-users]
@@ -13,6 +13,33 @@ project_id = "yvjsruyebqyhgsmgfbtu"
     verify_jwt = false
   [functions.process-email-queue]
     verify_jwt = true
+  # CLI auth — device-auth flow (no email, browser-based)
+  [functions.cli-session-start]
+    verify_jwt = false
+  [functions.cli-session-confirm]
+    verify_jwt = false
+  [functions.cli-session-poll]
+    verify_jwt = false
+  [functions.cli-whoami]
+    verify_jwt = false
+  [functions.cli-auth-revoke]
+    verify_jwt = false
+  # CLI read endpoints
+  [functions.cli-sites]
+    verify_jwt = false
+  [functions.cli-templates]
+    verify_jwt = false
+  [functions.cli-trending]
+    verify_jwt = false
+  # CLI action endpoints
+  [functions.cli-launch]
+    verify_jwt = false
+  [functions.cli-ai-tweet]
+    verify_jwt = false
+  [functions.cli-ai-longform]
+    verify_jwt = false
+  [functions.cli-scan]
+    verify_jwt = false
 
 [functions.provision-custom-domain]
 enabled = true

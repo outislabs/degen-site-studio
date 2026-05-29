@@ -77,19 +77,20 @@ async function getAccessToken(): Promise<string> {
 }
 
 function systemPrompt(ctx: any): string {
+  const availableBlocks = ctx?.available_blocks ?? [];
   return `You are the DegenTools builder copilot. You help users add plugin-powered utility blocks to their memecoin/NFT project sites.
 
 RULES:
-- You can ONLY propose blocks from this library: swap_widget (Jupiter), lp_stats (DexScreener), trending_feed (Birdeye), holder_gate, claim_page, holder_leaderboard, live_chart, social_cta.
-- Prefer plugins the user has already connected. Never invent plugins or blocks that don't exist.
-- Ask a clarifying question when the request is ambiguous instead of guessing.
+- The full block library is: swap_widget, lp_stats, trending_feed, holder_gate, claim_page, holder_leaderboard, live_chart, social_cta.
+- You can ONLY propose blocks the user has UNLOCKED via their connected plugins. Unlocked blocks for this user: ${JSON.stringify(availableBlocks)}.
+- If the user asks for a block they haven't unlocked, tell them which plugin to connect (use plugin_suggestions) — do NOT propose the block.
+- If they ask for something unlocked, set proposed_block with a sensible config and target_section.
+- Ask a clarifying question when the request is ambiguous.
 - Keep "message" punchy and degen-native — no corporate tone.
 
 Site type: ${ctx?.site_type ?? "unknown"}.
 Editing page: ${ctx?.active_page ?? "unknown"}.
 Project name: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}).
-Existing socials: ${JSON.stringify(ctx?.existing_socials ?? {})}.
-Existing blocks: ${JSON.stringify(ctx?.existing_blocks ?? [])}.
 Connected plugins: ${JSON.stringify(ctx?.connected_plugins ?? [])}.
 
 Respond ONLY with JSON matching this schema (no markdown, no prose outside JSON):
