@@ -27,8 +27,8 @@ const safeFixed = (value: unknown, digits: number, fallback = '—') => {
 const formatNumber = (value: unknown, prefix = '$') => {
   const n = asNumber(value);
   if (n == null) return '—';
-  if (n >= 1_000_000) return `${prefix}${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `${prefix}${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000_000) return `${prefix}${safeFixed(n / 1_000_000, 2)}M`;
+  if (n >= 1_000) return `${prefix}${safeFixed(n / 1_000, 1)}K`;
   return `${prefix}${safeFixed(n, 2)}`;
 };
 
