@@ -109,16 +109,21 @@ const LpStats = ({ config = {} }: { config?: any }) => {
   );
 };
 
-const TrendingFeed = () => {
+const TrendingFeed = ({ config = {} }: { config?: any }) => {
+  const chain = text(config?.chain, 'solana');
+  const limit = positiveInt(config?.limit, 5, 10);
   const tokens = [
     { s: 'BONK', c: '+12.4%' },
     { s: 'WIF', c: '+8.1%' },
     { s: 'POPCAT', c: '+5.7%' },
     { s: 'MEW', c: '-2.3%' },
     { s: 'JUP', c: '+1.9%' },
-  ];
+    { s: 'BOME', c: '+1.1%' },
+    { s: 'MOBILE', c: '-0.8%' },
+    { s: 'PYTH', c: '+0.6%' },
+  ].slice(0, limit);
   return (
-    <Shell icon={TrendingUp} title="Trending" tag="Birdeye">
+    <Shell icon={TrendingUp} title="Trending" tag={`${chain} · Top ${limit}`}>
       <div className="space-y-1.5">
         {tokens.map((t, i) => (
           <div key={t.s} className="flex items-center justify-between text-xs rounded-md bg-white/5 px-2.5 py-1.5">
@@ -135,10 +140,11 @@ const TrendingFeed = () => {
 };
 
 const HolderGate = ({ config = {} }: { config?: any }) => {
-  const min = config?.min_holding ?? config?.minimum ?? '1,000';
+  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
+  const min = text(config?.min_balance ?? config?.min_holding ?? config?.minimum, '1,000');
   return (
-    <Shell icon={Users} title="Holders only" tag={`Requires ${min}+ tokens`}>
-      <div className="text-xs text-white/60 mb-3">Connect your wallet to verify you hold the required tokens to view this content.</div>
+    <Shell icon={Users} title="Holders only" tag={`Requires ${min}+ ${token}`}>
+      <div className="text-xs text-white/60 mb-3">Connect your wallet to verify you hold {min}+ ${token} to view this content.</div>
       <button className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
         Connect wallet
       </button>
@@ -147,13 +153,14 @@ const HolderGate = ({ config = {} }: { config?: any }) => {
 };
 
 const ClaimPage = ({ config = {} }: { config?: any }) => {
-  const amount = config?.amount ?? '1,500';
-  const symbol = config?.token_symbol ?? config?.symbol ?? 'TOKEN';
+  const token = text(config?.token ?? config?.token_symbol ?? config?.symbol, 'TOKEN');
+  const claimType = text(config?.claim_type, 'airdrop');
+  const amount = text(config?.amount, '1,500');
   return (
-    <Shell icon={Gift} title="Claim your rewards">
+    <Shell icon={Gift} title="Claim your rewards" tag={`${claimType} claim`}>
       <div className="rounded-lg bg-white/5 p-3 text-center mb-3">
         <div className="text-[10px] uppercase tracking-wide text-white/50">Eligible</div>
-        <div className="text-lg font-bold mt-0.5">{amount} ${symbol}</div>
+        <div className="text-lg font-bold mt-0.5">{amount} ${token}</div>
       </div>
       <button className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
         Claim
