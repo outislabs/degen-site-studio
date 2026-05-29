@@ -214,8 +214,8 @@ const LiveChart = ({ config = {} }: { config?: any }) => {
 const SocialCta = ({ config = {} }: { config?: any }) => {
   const platforms = stringList(config?.platforms, ['Telegram', 'Discord']);
   const platformStyles: Record<string, { icon: typeof Send; className: string }> = {
-    telegram: { icon: Send, className: 'bg-[#229ED9]/90 hover:bg-[#229ED9]' },
-    discord: { icon: MessageCircle, className: 'bg-[#5865F2]/90 hover:bg-[#5865F2]' },
+    telegram: { icon: Send, className: 'bg-primary/80 hover:bg-primary' },
+    discord: { icon: MessageCircle, className: 'bg-secondary hover:bg-secondary/80' },
     twitter: { icon: MessageCircle, className: 'bg-white/10 hover:bg-white/15' },
     x: { icon: MessageCircle, className: 'bg-white/10 hover:bg-white/15' },
   };
