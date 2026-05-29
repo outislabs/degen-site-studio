@@ -32,6 +32,7 @@ import {
   Code2,
   Book,
   Gift,
+  Puzzle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -47,6 +48,7 @@ const navItems = [
   { label: 'Sites', icon: Globe, path: '/' },
   { label: 'Bags', icon: Wallet, path: '/bags' },
   { label: 'Studio', icon: Image, path: '/studio' },
+  { label: 'Plugins', icon: Puzzle, path: '/plugins' },
   { label: 'API', icon: Code2, path: '/api-dashboard' },
   { label: 'Pricing', icon: CreditCard, path: '/pricing' },
   { label: 'Account', icon: UserCog, path: '/account' },

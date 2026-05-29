@@ -32,6 +32,7 @@ import Affiliate from "./pages/Affiliate.tsx";
 import MemeShare from "./pages/MemeShare.tsx";
 import Help from "./pages/Help.tsx";
 import CliAuthorize from "./pages/CliAuthorize.tsx";
+import Plugins from "./pages/Plugins.tsx";
 
 const queryClient = new QueryClient();
 
@@ -170,6 +171,7 @@ const App = () => {
                 <Route path="/meme/:id" element={<MemeShare />} />
                 <Route path="/help" element={<Help />} />
                 <Route path="/cli-authorize" element={<CliAuthorize />} />
+                <Route path="/plugins" element={<Plugins />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
