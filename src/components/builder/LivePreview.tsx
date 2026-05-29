@@ -28,6 +28,7 @@ import NftAnimeLayout from './layouts/NftAnimeLayout';
 import NftBlueprintLayout from './layouts/NftBlueprintLayout';
 import NftLuxuryEditorialLayout from './layouts/NftLuxuryEditorialLayout';
 import CopilotBlocksSection from './blocks/CopilotBlocks';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Props {
   data: CoinData;
@@ -92,7 +93,9 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
       {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
       {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
       {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
-      <CopilotBlocksSection blocks={data.copilotBlocks} />
+      <ErrorBoundary label="copilot-blocks-section">
+        <CopilotBlocksSection blocks={data.copilotBlocks} />
+      </ErrorBoundary>
     </div>
   );
 };
