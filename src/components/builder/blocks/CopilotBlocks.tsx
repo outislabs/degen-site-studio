@@ -98,10 +98,10 @@ const SwapWidget = ({ config = {} }: { config?: any }) => {
 };
 
 const LpStats = ({ config = {} }: { config?: any }) => {
-  const { token: rawToken, token_symbol, symbol, price: rawPrice = 0.00042, usd_price, volume_24h, volume, liquidity: rawLiquidity = '540k' } = config ?? {};
+  const { token: rawToken, token_symbol, symbol, price: rawPrice, usd_price, volume_24h, volume, liquidity: rawLiquidity = '540k' } = config ?? {};
   const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
   const hasToken = token !== 'TOKEN';
-  const price = `$${fmt(rawPrice ?? usd_price, 5, '0.00000')}`;
+  const price = `$${fmt(rawPrice ?? usd_price ?? 0.00042, 5, '0.00000')}`;
   const volumeLabel = `$${text(volume_24h ?? volume ?? '128k', '128k')}`.replace('$$', '$');
   const liquidity = `$${text(rawLiquidity, '540k')}`.replace('$$', '$');
   return (
