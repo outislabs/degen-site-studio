@@ -1,4 +1,4 @@
-import { CoinData } from '@/types/coin';
+import { CoinData, ThemeId } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { themes } from '@/lib/themes';
@@ -43,12 +43,16 @@ interface Props {
   onOpenCopilot?: () => void;
 }
 
+// Deep-merged or AI-generated site data may contain an unknown theme id.
+// Falling back to the default theme prevents `style.bgGradient` crashes.
+const FALLBACK_THEME: ThemeId = 'degen-dark';
+
 const LivePreview = ({
   data, showWatermark = false, siteId, editor = false,
   onDeleteBlock, onMoveBlock, onDuplicateBlock, onConfigBlockChange,
   onPositionChange, onOpenCopilot,
 }: Props) => {
-  const style = themes[data.theme];
+  const style = themes[data.theme] ?? themes[FALLBACK_THEME];
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
   useEffect(() => {
@@ -95,7 +99,7 @@ const LivePreview = ({
   );
 
   return (
-    <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style.bgGradient }}>
+    <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style?.bgGradient ?? '#050a05' }}>
       {pageTitle && (
         <h1 className="sr-only">{pageTitle}</h1>
       )}

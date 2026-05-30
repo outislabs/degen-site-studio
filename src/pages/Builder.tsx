@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import CopilotPanel, { CopilotAction } from '@/components/builder/CopilotPanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { deepMerge } from '@/lib/deepMerge';
+import { themes } from '@/lib/themes';
 
 const memecoinSteps = [
   { label: 'Basics', icon: Coins },
@@ -303,29 +305,32 @@ const Builder = () => {
         case 'update_section': {
           const patch = action.patch ?? {};
           if (action.section_id === 'hero') {
-            next = {
-              ...prev,
-              ...(patch.title != null ? { name: String(patch.title) } : {}),
-              ...(patch.subtitle != null ? { tagline: String(patch.subtitle) } : {}),
-              ...(patch.description != null ? { description: String(patch.description) } : {}),
-            };
+            // Map hero patch fields, deep-merging anything else into the site.
+            const { title, subtitle, description, ...rest } = patch;
+            next = deepMerge(prev, {
+              ...(title != null ? { name: String(title) } : {}),
+              ...(subtitle != null ? { tagline: String(subtitle) } : {}),
+              ...(description != null ? { description: String(description) } : {}),
+              ...rest,
+            } as Partial<CoinData>);
           } else if (action.section_id === 'utilities' && patch.position) {
             next = { ...prev, utilitiesPosition: patch.position };
+          } else {
+            // Generic deep-merge fallback for any other section patch.
+            next = deepMerge(prev, patch as Partial<CoinData>);
           }
           break;
         }
         case 'update_site': {
-          const patch = action.patch ?? {};
-          next = {
-            ...prev,
-            ...(patch.name != null ? { name: String(patch.name) } : {}),
-            ...(patch.ticker != null ? { ticker: String(patch.ticker) } : {}),
-            ...(patch.tagline != null ? { tagline: String(patch.tagline) } : {}),
-            ...(patch.description != null ? { description: String(patch.description) } : {}),
-            ...(patch.theme != null ? { theme: patch.theme } : {}),
-            ...(patch.layout != null ? { layout: patch.layout } : {}),
-            ...(patch.socials != null ? { socials: { ...prev.socials, ...patch.socials } } : {}),
-          };
+          const patch = { ...(action.patch ?? {}) };
+          // Only accept known theme ids — unknown values would crash the renderer.
+          if (patch.theme != null && !(patch.theme in themes)) {
+            console.warn('Copilot tried to set unknown theme:', patch.theme);
+            delete patch.theme;
+          }
+          // Deep-merge the entire patch so nested objects (theme settings,
+          // socials, distribution, etc.) don't wipe sibling fields.
+          next = deepMerge(prev, patch as Partial<CoinData>);
           break;
         }
       }
