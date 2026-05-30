@@ -34,9 +34,20 @@ interface Props {
   data: CoinData;
   showWatermark?: boolean;
   siteId?: string;
+  editor?: boolean;
+  onDeleteBlock?: (id: string) => void;
+  onMoveBlock?: (id: string, dir: 'up' | 'down') => void;
+  onDuplicateBlock?: (id: string) => void;
+  onConfigBlockChange?: (id: string, cfg: Record<string, any>) => void;
+  onPositionChange?: (p: 'top' | 'after-hero' | 'before-footer' | 'bottom') => void;
+  onOpenCopilot?: () => void;
 }
 
-const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
+const LivePreview = ({
+  data, showWatermark = false, siteId, editor = false,
+  onDeleteBlock, onMoveBlock, onDuplicateBlock, onConfigBlockChange,
+  onPositionChange, onOpenCopilot,
+}: Props) => {
   const style = themes[data.theme];
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
@@ -63,11 +74,32 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
     return `${data.name}${data.ticker ? ` ($${data.ticker})` : ''}`;
   }, [data.name, data.ticker]);
 
+  const position = data.utilitiesPosition ?? 'bottom';
+  // top + after-hero render above the layout; before-footer + bottom render below.
+  const renderAbove = position === 'top' || position === 'after-hero';
+
+  const utilities = (
+    <ErrorBoundary label="copilot-blocks-section">
+      <CopilotBlocksSection
+        blocks={data.copilotBlocks}
+        editor={editor}
+        position={position}
+        onPositionChange={onPositionChange}
+        onDelete={onDeleteBlock}
+        onMove={onMoveBlock}
+        onDuplicate={onDuplicateBlock}
+        onConfigChange={onConfigBlockChange}
+        onOpenCopilot={onOpenCopilot}
+      />
+    </ErrorBoundary>
+  );
+
   return (
     <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style.bgGradient }}>
       {pageTitle && (
         <h1 className="sr-only">{pageTitle}</h1>
       )}
+      {renderAbove && utilities}
       {layout === 'classic' && <ClassicLayout {...layoutProps} />}
       {layout === 'split-hero' && <SplitHeroLayout {...layoutProps} />}
       {layout === 'bento' && <BentoLayout {...layoutProps} />}
@@ -93,9 +125,7 @@ const LivePreview = ({ data, showWatermark = false, siteId }: Props) => {
       {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
       {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
       {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
-      <ErrorBoundary label="copilot-blocks-section">
-        <CopilotBlocksSection blocks={data.copilotBlocks} />
-      </ErrorBoundary>
+      {!renderAbove && utilities}
     </div>
   );
 };
