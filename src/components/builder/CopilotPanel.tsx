@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { X, Sparkles, Send, Paperclip, Check, Plus, Loader2, Zap, Users, BarChart3, Gift, TrendingUp, Trophy, LineChart, MessageCircle } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { X, Sparkles, Send, Paperclip, Check, Plus, Loader2, Zap, Users, BarChart3, Gift, TrendingUp, Trophy, LineChart, MessageCircle, Wand2, Palette, Type, Layers, FileText, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -31,22 +31,33 @@ export interface PluginSuggestion {
   block_type: PluginBlockType | string;
 }
 
+export type CopilotAction =
+  | { type: 'insert_block'; block_type: string; config?: Record<string, any>; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'update_block'; block_id: string; patch?: Record<string, any>; config?: Record<string, any>; requires_confirmation?: boolean }
+  | { type: 'delete_block'; block_id: string; requires_confirmation?: boolean }
+  | { type: 'move_block'; block_id: string; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'update_section'; section_id: string; patch: Record<string, any>; requires_confirmation?: boolean }
+  | { type: 'update_site'; patch: Record<string, any>; requires_confirmation?: boolean };
+
 interface CopilotMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   proposed_block?: ProposedBlock;
   plugin_suggestions?: PluginSuggestion[];
-  inserted?: boolean;
-  pending?: boolean;
+  actions?: CopilotAction[];
+  applied?: Record<number, 'applied' | 'skipped'>;
+  mode?: 'bulk' | 'step';
 }
 
 const QUICK_ACTIONS: { label: string; icon: any; prompt: string }[] = [
+  { label: 'Change hero text', icon: Type, prompt: 'Rewrite the hero title and subtitle to be punchier and degen-native.' },
+  { label: 'Update theme colors', icon: Palette, prompt: 'Update the theme to a bolder color palette that fits this project.' },
+  { label: 'Edit tokenomics', icon: BarChart3, prompt: 'Suggest improvements to the tokenomics copy and numbers.' },
+  { label: 'Add a new section', icon: Layers, prompt: 'Add a new section to the site that highlights what makes this project different.' },
+  { label: 'Polish copy', icon: FileText, prompt: 'Polish all copy across the site — punchier, on-brand, no filler.' },
   { label: 'Add swap widget', icon: Zap, prompt: 'Add a Jupiter swap widget to this page.' },
   { label: 'Add holder gate', icon: Users, prompt: 'Add a holder gate so only token holders can view content.' },
-  { label: 'Add LP stats', icon: BarChart3, prompt: 'Add an LP stats card from DexScreener.' },
-  { label: 'Add claim page', icon: Gift, prompt: 'Add a claim page for token rewards.' },
-  { label: 'Add trending feed', icon: TrendingUp, prompt: 'Add a Birdeye trending feed.' },
   { label: 'Add leaderboard', icon: Trophy, prompt: 'Add a holder leaderboard.' },
 ];
 
@@ -59,6 +70,14 @@ const BLOCK_META: Record<string, { label: string; icon: any }> = {
   'holder-leaderboard': { label: 'Holder Leaderboard', icon: Trophy },
   'live-chart': { label: 'Live Chart', icon: LineChart },
   'social-cta': { label: 'Telegram / Discord CTA', icon: MessageCircle },
+  'swap_widget': { label: 'Swap Widget (Jupiter)', icon: Zap },
+  'lp_stats': { label: 'LP Stats Card', icon: BarChart3 },
+  'trending_feed': { label: 'Trending Feed', icon: TrendingUp },
+  'holder_gate': { label: 'Holder Gate', icon: Users },
+  'claim_page': { label: 'Claim Page', icon: Gift },
+  'holder_leaderboard': { label: 'Holder Leaderboard', icon: Trophy },
+  'live_chart': { label: 'Live Chart', icon: LineChart },
+  'social_cta': { label: 'Telegram / Discord CTA', icon: MessageCircle },
 };
 
 interface Props {
@@ -67,18 +86,20 @@ interface Props {
   siteId: string | null;
   activePage: string;
   data: CoinData;
-  onInsertBlock: (block: ProposedBlock) => void;
+  siteSchema: any;
+  onExecuteAction: (action: CopilotAction) => void;
 }
 
 const storageKey = (siteId: string | null) =>
   `copilot-thread:${siteId ?? 'draft'}`;
 
-const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }: Props) => {
+const CopilotPanel = ({ open, onClose, siteId, activePage, data, siteSchema, onExecuteAction }: Props) => {
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [connectedPlugins, setConnectedPlugins] = useState<string[]>([]);
   const [availableBlocks, setAvailableBlocks] = useState<string[]>([]);
+  const [scope, setScope] = useState<'page' | 'site'>('site');
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   // Restore thread per site
@@ -170,6 +191,8 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
         existing_socials: data.socials,
         connected_plugins: connectedPlugins,
         available_blocks: availableBlocks,
+        scope,
+        site_schema: siteSchema,
       };
       const { data: res, error } = await supabase.functions.invoke('copilot-builder-chat', {
         body: {
@@ -179,12 +202,23 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
         },
       });
       if (error) throw error;
+      // Normalize: if no actions but a proposed_block, synthesize an insert_block action.
+      let actions: CopilotAction[] = Array.isArray(res?.actions) ? res.actions : [];
+      if (actions.length === 0 && res?.proposed_block) {
+        actions = [{
+          type: 'insert_block',
+          block_type: res.proposed_block.block_type,
+          config: res.proposed_block.config ?? {},
+          target_section: res.proposed_block.target_section ?? 'utilities',
+        }];
+      }
       const assistantMsg: CopilotMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: res?.message ?? 'Done.',
-        proposed_block: res?.proposed_block,
         plugin_suggestions: res?.plugin_suggestions,
+        actions,
+        applied: {},
       };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (e: any) {
@@ -201,11 +235,38 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
     }
   };
 
-  const handleInsert = (msgId: string, block: ProposedBlock) => {
-    onInsertBlock(block);
-    setMessages(prev => prev.map(m => (m.id === msgId ? { ...m, inserted: true } : m)));
-    const label = BLOCK_META[block.block_type]?.label ?? block.block_type;
-    toast.success(`${label} inserted`, { description: 'Added to your page with a sparkle.' });
+  const applyAction = (msgId: string, idx: number, action: CopilotAction) => {
+    try {
+      onExecuteAction(action);
+      setMessages(prev => prev.map(m =>
+        m.id === msgId ? { ...m, applied: { ...(m.applied ?? {}), [idx]: 'applied' } } : m
+      ));
+      toast.success(actionLabel(action));
+    } catch (e: any) {
+      toast.error(`Couldn't apply: ${e?.message ?? 'unknown error'}`);
+    }
+  };
+
+  const skipAction = (msgId: string, idx: number) => {
+    setMessages(prev => prev.map(m =>
+      m.id === msgId ? { ...m, applied: { ...(m.applied ?? {}), [idx]: 'skipped' } } : m
+    ));
+  };
+
+  const setMessageMode = (msgId: string, mode: 'bulk' | 'step') => {
+    setMessages(prev => prev.map(m => (m.id === msgId ? { ...m, mode } : m)));
+  };
+
+  const applyAll = (msg: CopilotMessage) => {
+    (msg.actions ?? []).forEach((a, i) => {
+      if (msg.applied?.[i]) return;
+      if (a.requires_confirmation) return; // force step mode for these
+      applyAction(msg.id, i, a);
+    });
+    // If any action requires confirmation, flip to step mode so user can address them
+    if ((msg.actions ?? []).some(a => a.requires_confirmation)) {
+      setMessageMode(msg.id, 'step');
+    }
   };
 
   return (
@@ -227,23 +288,48 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-foreground">Copilot</div>
                 <div className="text-[10px] text-muted-foreground truncate">
-                  Editing: {activePage}
+                  Editing: {scope === 'site' ? 'entire site' : activePage}
                 </div>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-md hover:bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Close copilot"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
+                {(['page', 'site'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setScope(s)}
+                    className={cn(
+                      'text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors capitalize',
+                      scope === s
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-md hover:bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close copilot"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Thread */}
           <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
             {messages.map(m => (
-              <MessageBubble key={m.id} message={m} onInsert={(b) => handleInsert(m.id, b)} />
+              <MessageBubble
+                key={m.id}
+                message={m}
+                onApplyAll={() => applyAll(m)}
+                onStepMode={() => setMessageMode(m.id, 'step')}
+                onApplyOne={(i, a) => applyAction(m.id, i, a)}
+                onSkipOne={(i) => skipAction(m.id, i)}
+              />
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -309,14 +395,47 @@ const CopilotPanel = ({ open, onClose, siteId, activePage, data, onInsertBlock }
   );
 };
 
+const actionLabel = (a: CopilotAction): string => {
+  switch (a.type) {
+    case 'insert_block': {
+      const meta = BLOCK_META[a.block_type]?.label ?? a.block_type;
+      return `Add ${meta} to ${a.target_section ?? 'Utilities'}`;
+    }
+    case 'update_block': {
+      const keys = Object.keys(a.patch ?? a.config ?? {});
+      return `Update block (${keys.join(', ') || 'config'})`;
+    }
+    case 'delete_block': return `Remove block`;
+    case 'move_block': return `Move block${a.target_section ? ` to ${a.target_section}` : ''}`;
+    case 'update_section': {
+      const keys = Object.keys(a.patch ?? {});
+      return `Update ${a.section_id} (${keys.join(', ') || 'fields'})`;
+    }
+    case 'update_site': {
+      const keys = Object.keys(a.patch ?? {});
+      return `Update site ${keys.join(', ') || 'settings'}`;
+    }
+  }
+};
+
+const actionGlyph = (type: CopilotAction['type']) =>
+  type === 'insert_block' ? '+' : type === 'delete_block' ? '✕' : type === 'move_block' ? '↕' : '✎';
+
 const MessageBubble = ({
   message,
-  onInsert,
+  onApplyAll,
+  onStepMode,
+  onApplyOne,
+  onSkipOne,
 }: {
   message: CopilotMessage;
-  onInsert: (b: ProposedBlock) => void;
+  onApplyAll: () => void;
+  onStepMode: () => void;
+  onApplyOne: (idx: number, action: CopilotAction) => void;
+  onSkipOne: (idx: number) => void;
 }) => {
   const isUser = message.role === 'user';
+  const hasActions = (message.actions?.length ?? 0) > 0;
   return (
     <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start')}>
       <div
@@ -352,77 +471,124 @@ const MessageBubble = ({
         </div>
       )}
 
-      {message.proposed_block && (
-        <ProposedBlockCard
-          block={message.proposed_block}
-          inserted={!!message.inserted}
-          onInsert={() => onInsert(message.proposed_block!)}
+      {hasActions && (
+        <ProposedChangesCard
+          message={message}
+          onApplyAll={onApplyAll}
+          onStepMode={onStepMode}
+          onApplyOne={onApplyOne}
+          onSkipOne={onSkipOne}
         />
       )}
     </div>
   );
 };
 
-const ProposedBlockCard = ({
-  block,
-  inserted,
-  onInsert,
+const ProposedChangesCard = ({
+  message,
+  onApplyAll,
+  onStepMode,
+  onApplyOne,
+  onSkipOne,
 }: {
-  block: ProposedBlock;
-  inserted: boolean;
-  onInsert: () => void;
+  message: CopilotMessage;
+  onApplyAll: () => void;
+  onStepMode: () => void;
+  onApplyOne: (idx: number, action: CopilotAction) => void;
+  onSkipOne: (idx: number) => void;
 }) => {
-  const meta = BLOCK_META[block.block_type] ?? { label: block.block_type, icon: Sparkles };
-  const Icon = meta.icon;
+  const actions = message.actions ?? [];
+  const applied = message.applied ?? {};
+  const total = actions.length;
+  const doneCount = Object.values(applied).filter(s => s === 'applied').length;
+  const allHandled = actions.every((_, i) => !!applied[i]);
+  const stepMode = message.mode === 'step' || actions.some(a => a.requires_confirmation);
+
   return (
     <div className="w-full max-w-[88%] rounded-xl border border-primary/30 bg-gradient-to-br from-primary/5 to-transparent p-3 space-y-2.5">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-primary" />
+        <div className="w-7 h-7 rounded-md bg-primary/15 flex items-center justify-center">
+          <Wand2 className="w-3.5 h-3.5 text-primary" />
         </div>
-        <div className="min-w-0">
-          <div className="text-xs font-semibold text-foreground">{meta.label}</div>
-          {block.target_section && (
-            <div className="text-[10px] text-muted-foreground">
-              Into: {block.target_section}
+        <div className="text-xs font-semibold text-foreground">
+          {allHandled
+            ? `${doneCount}/${total} change${total === 1 ? '' : 's'} applied`
+            : `${total} change${total === 1 ? '' : 's'} proposed`}
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        {actions.map((a, i) => {
+          const state = applied[i];
+          const needsConfirm = !!a.requires_confirmation;
+          return (
+            <div
+              key={i}
+              className={cn(
+                'rounded-md border border-border bg-background/60 px-2.5 py-2',
+                state === 'applied' && 'border-primary/40 bg-primary/5',
+                state === 'skipped' && 'opacity-50',
+              )}
+            >
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-bold text-sm leading-tight w-3 shrink-0">
+                  {actionGlyph(a.type)}
+                </span>
+                <div className="min-w-0 flex-1 text-[11px] text-foreground/90 leading-snug">
+                  {actionLabel(a)}
+                  {needsConfirm && !state && (
+                    <span className="ml-1.5 text-[9px] uppercase tracking-wide font-semibold text-amber-500">
+                      confirm
+                    </span>
+                  )}
+                </div>
+                {state === 'applied' && (
+                  <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                )}
+              </div>
+              {stepMode && !state && (
+                <div className="flex gap-1.5 mt-2 pl-5">
+                  <Button
+                    size="sm"
+                    onClick={() => onApplyOne(i, a)}
+                    className="h-6 px-2 text-[10px] bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Apply
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onSkipOne(i)}
+                    className="h-6 px-2 text-[10px] text-muted-foreground hover:text-foreground"
+                  >
+                    <SkipForward className="w-3 h-3 mr-1" /> Skip
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+          );
+        })}
+      </div>
+
+      {!allHandled && !stepMode && (
+        <div className="flex gap-1.5">
+          <Button
+            size="sm"
+            onClick={onApplyAll}
+            className="flex-1 h-8 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Check className="w-3.5 h-3.5 mr-1" /> Apply all
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onStepMode}
+            className="flex-1 h-8 text-xs font-semibold"
+          >
+            One by one
+          </Button>
         </div>
-      </div>
-
-      {/* mini preview */}
-      <div className="rounded-md border border-border bg-background/60 p-2.5 text-[10px] text-muted-foreground font-mono max-h-24 overflow-hidden">
-        {Object.entries(block.config ?? {}).slice(0, 4).map(([k, v]) => (
-          <div key={k} className="truncate">
-            <span className="text-foreground/70">{k}:</span> {String(v)}
-          </div>
-        ))}
-        {(!block.config || Object.keys(block.config).length === 0) && (
-          <div className="opacity-60">No configuration required.</div>
-        )}
-      </div>
-
-      <Button
-        size="sm"
-        onClick={onInsert}
-        disabled={inserted}
-        className={cn(
-          'w-full h-8 text-xs font-semibold',
-          inserted
-            ? 'bg-muted text-muted-foreground hover:bg-muted'
-            : 'bg-primary text-primary-foreground hover:bg-primary/90'
-        )}
-      >
-        {inserted ? (
-          <>
-            <Check className="w-3.5 h-3.5 mr-1" /> Inserted
-          </>
-        ) : (
-          <>
-            <Plus className="w-3.5 h-3.5 mr-1" /> Insert this block
-          </>
-        )}
-      </Button>
+      )}
     </div>
   );
 };
