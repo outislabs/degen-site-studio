@@ -82,6 +82,9 @@ export interface CoinData {
 
   // Copilot-inserted utility blocks (rendered at the bottom of the site preview)
   copilotBlocks?: CopilotBlockInstance[];
+
+  // Where the UTILITIES section should render on the published site.
+  utilitiesPosition?: 'top' | 'after-hero' | 'before-footer' | 'bottom';
 }
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance' | 'lavender-pop' | 'sky-toon' | 'sponge-pop' | 'ocean-bolt' | 'rose-garden' | 'midnight-chrome' | 'cartoon-sky';
@@ -128,4 +131,5 @@ export const defaultCoinData: CoinData = {
   showCountdown: false,
   launchDate: null,
   copilotBlocks: [],
+  utilitiesPosition: 'bottom',
 };
