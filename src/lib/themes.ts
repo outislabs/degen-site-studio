@@ -404,3 +404,146 @@ export const themes: Record<ThemeId, ThemeConfig> = {
 };
 
 export const themeList = Object.values(themes);
+
+// ────────────────────────────────────────────────────────────────────────────
+// Per-field theme overrides
+// ────────────────────────────────────────────────────────────────────────────
+// Users (and the Copilot) can override individual color fields on top of any
+// preset without abandoning it. Any field left undefined falls back to the
+// preset's value.
+
+export interface ThemeOverrides {
+  /** Solid page background (hex). Overrides preset bg + previewBg. */
+  bg?: string;
+  /** Background gradient. Either a raw CSS gradient string, or a nested
+   *  { from, to, angle } object so users can change one stop without losing
+   *  the others. */
+  bgGradient?: string | { from?: string; to?: string; angle?: number };
+  /** Primary accent hex (drives accent text, borders, button gradient start). */
+  accentHex?: string;
+  /** Secondary accent hex (button gradient end). */
+  accentHex2?: string;
+  /** Secondary text color (hex). */
+  textSecondary?: string;
+  /** Button label text color (hex). */
+  buttonText?: string;
+}
+
+const isHex = (v: unknown): v is string =>
+  typeof v === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(v.trim());
+
+const hexToRgb = (hex: string): [number, number, number] => {
+  let h = hex.trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const num = parseInt(h.slice(0, 6), 16);
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+};
+const rgba = (hex: string, a: number) => {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
+const buildGradient = (
+  base: string,
+  override: ThemeOverrides['bgGradient'],
+): string => {
+  if (!override) return base;
+  if (typeof override === 'string') return override;
+  // Try to extract existing from/to/angle from the preset gradient string so
+  // partial overrides don't blow it away.
+  const match = base.match(/linear-gradient\(\s*(-?\d+)deg,\s*([^ ]+)[^,]*,\s*[^,]*,\s*([^ ]+)/i);
+  const baseAngle = match ? Number(match[1]) : 160;
+  const baseFrom = match ? match[2] : '#000000';
+  const baseTo = match ? match[3] : '#111111';
+  const angle = typeof override.angle === 'number' ? override.angle : baseAngle;
+  const from = isHex(override.from) ? override.from : baseFrom;
+  const to = isHex(override.to) ? override.to : baseTo;
+  return `linear-gradient(${angle}deg, ${from} 0%, ${to} 100%)`;
+};
+
+/**
+ * Merge a preset ThemeConfig with optional per-field overrides and return a
+ * new ThemeConfig where downstream Tailwind class strings (borders, buttons,
+ * card backgrounds, etc.) are rewritten to stay visually consistent with the
+ * overridden hex values.
+ */
+export const resolveTheme = (
+  themeId: ThemeId | string | undefined,
+  overrides?: ThemeOverrides | null,
+): ThemeConfig => {
+  const preset =
+    (themeId && (themes as Record<string, ThemeConfig>)[themeId as ThemeId]) ||
+    themes['degen-dark'];
+  if (!overrides) return preset;
+
+  const accent = isHex(overrides.accentHex) ? overrides.accentHex! : preset.accentHex;
+  const accent2 = isHex(overrides.accentHex2) ? overrides.accentHex2! : preset.accentHex2;
+  const textSec = isHex(overrides.textSecondary) ? overrides.textSecondary! : null;
+  const btnText = isHex(overrides.buttonText) ? overrides.buttonText! : null;
+  const bgHex = isHex(overrides.bg) ? overrides.bg! : null;
+
+  const next: ThemeConfig = { ...preset };
+
+  if (bgHex) {
+    next.bg = `bg-[${bgHex}]`;
+    next.previewBg = `bg-[${bgHex}]`;
+  }
+
+  if (overrides.bgGradient !== undefined) {
+    next.bgGradient = buildGradient(preset.bgGradient, overrides.bgGradient);
+  } else if (bgHex) {
+    // Solid bg override with no gradient override → fall back to a flat gradient.
+    next.bgGradient = `linear-gradient(160deg, ${bgHex} 0%, ${bgHex} 100%)`;
+  }
+
+  if (accent !== preset.accentHex || accent2 !== preset.accentHex2) {
+    next.accentHex = accent;
+    next.accentHex2 = accent2;
+    next.accent = `text-[${accent}]`;
+    next.border = `border-[${accent}]/15`;
+    next.previewBorder = `border-[${accent}]`;
+    next.button = `bg-gradient-to-r from-[${accent}] to-[${accent2}] hover:from-[${accent2}] hover:to-[${accent}] shadow-[0_0_30px_${rgba(accent, 0.3)}]`;
+    // Keep cardBg's bg layer from the preset but retint its border.
+    next.cardBg = preset.cardBg.replace(/border-\[#[0-9a-fA-F]+\]\/\d+/, `border-[${accent}]/8`);
+  }
+
+  if (textSec) next.textSecondary = `text-[${textSec}]`;
+  if (btnText) next.buttonText = `text-[${btnText}]`;
+
+  return next;
+};
+
+/** Extract the current effective color values (preset + overrides) as plain
+ *  hex strings, useful for color pickers and for the Copilot context. */
+export const resolvedColors = (
+  themeId: ThemeId | string | undefined,
+  overrides?: ThemeOverrides | null,
+) => {
+  const preset =
+    (themeId && (themes as Record<string, ThemeConfig>)[themeId as ThemeId]) ||
+    themes['degen-dark'];
+  const o = overrides ?? {};
+  // Parse preset gradient stops for from/to defaults.
+  const m = preset.bgGradient.match(/linear-gradient\(\s*(-?\d+)deg,\s*([^ ]+)[^,]*,\s*[^,]*,\s*([^ ]+)/i);
+  const presetFrom = m ? m[2] : '#000000';
+  const presetTo = m ? m[3] : '#111111';
+  const presetAngle = m ? Number(m[1]) : 160;
+  const grad = typeof o.bgGradient === 'object' && o.bgGradient ? o.bgGradient : {};
+  const bgMatch = preset.bg.match(/bg-\[(#[0-9a-fA-F]+)\]/);
+  return {
+    bg: isHex(o.bg) ? o.bg! : (bgMatch ? bgMatch[1] : presetFrom),
+    accentHex: isHex(o.accentHex) ? o.accentHex! : preset.accentHex,
+    accentHex2: isHex(o.accentHex2) ? o.accentHex2! : preset.accentHex2,
+    textSecondary: isHex(o.textSecondary)
+      ? o.textSecondary!
+      : (preset.textSecondary.match(/text-\[(#[0-9a-fA-F]+)\]/)?.[1] ?? '#ffffff'),
+    buttonText: isHex(o.buttonText)
+      ? o.buttonText!
+      : (preset.buttonText.match(/text-\[(#[0-9a-fA-F]+)\]/)?.[1] ?? '#ffffff'),
+    bgGradient: {
+      from: isHex(grad.from) ? grad.from! : presetFrom,
+      to: isHex(grad.to) ? grad.to! : presetTo,
+      angle: typeof grad.angle === 'number' ? grad.angle : presetAngle,
+    },
+  };
+};
