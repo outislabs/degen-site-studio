@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import CopilotPanel, { ProposedBlock } from '@/components/builder/CopilotPanel';
+import CopilotPanel, { CopilotAction } from '@/components/builder/CopilotPanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const memecoinSteps = [
@@ -212,30 +212,126 @@ const Builder = () => {
 
   const activePage = steps[step]?.label ?? 'Home page';
 
-  const handleInsertBlock = (block: ProposedBlock) => {
-    const instance: CopilotBlockInstance = {
-      id: crypto.randomUUID(),
-      block_type: block.block_type,
-      config: block.config ?? {},
-      target_section: block.target_section,
-      created_at: Date.now(),
-    };
-    setData(prev => ({
-      ...prev,
-      copilotBlocks: [...(prev.copilotBlocks ?? []), instance],
-    }));
-    // Persist immediately if the site already exists so the preview stays in sync.
-    if (editingId) {
-      (async () => {
-        const nextBlocks = [...(data.copilotBlocks ?? []), instance];
-        const nextData = { ...data, copilotBlocks: nextBlocks };
-        const { error } = await supabase
-          .from('sites')
-          .update({ data: JSON.parse(JSON.stringify(nextData)) } as any)
-          .eq('id', editingId);
-        if (error) console.error('Failed to persist copilot block:', error);
-      })();
-    }
+  // Snapshot of the editable site structure passed to the Copilot edge function
+  // so the AI can reference real section/block IDs in its actions.
+  const siteSchema = useMemo(() => ({
+    site_id: editingId,
+    site_type: data.siteType,
+    name: data.name,
+    ticker: data.ticker,
+    theme: { theme_id: data.theme, layout: data.layout },
+    socials: data.socials,
+    pages: steps.map((s, i) => ({
+      page_id: s.label.toLowerCase(),
+      title: s.label,
+      sections: i === 0
+        ? [
+            {
+              section_id: 'hero',
+              type: 'hero',
+              title: data.name,
+              subtitle: data.tagline,
+              description: data.description,
+            },
+            {
+              section_id: 'utilities',
+              type: 'utilities',
+              position: data.utilitiesPosition ?? 'bottom',
+              blocks: (data.copilotBlocks ?? []).map(b => ({
+                block_id: b.id,
+                block_type: b.block_type,
+                config: b.config,
+              })),
+            },
+          ]
+        : [],
+    })),
+  }), [editingId, steps, data]);
+
+  // Executes a structured action from the Copilot against the live site state.
+  const handleExecuteAction = (action: CopilotAction) => {
+    setData(prev => {
+      let next: CoinData = prev;
+      switch (action.type) {
+        case 'insert_block': {
+          const instance: CopilotBlockInstance = {
+            id: crypto.randomUUID(),
+            block_type: action.block_type,
+            config: action.config ?? {},
+            target_section: action.target_section ?? 'utilities',
+            created_at: Date.now(),
+          };
+          const blocks = [...(prev.copilotBlocks ?? [])];
+          const pos = typeof action.position === 'number'
+            ? Math.max(0, Math.min(action.position, blocks.length))
+            : blocks.length;
+          blocks.splice(pos, 0, instance);
+          next = { ...prev, copilotBlocks: blocks };
+          break;
+        }
+        case 'update_block': {
+          const patch = action.patch ?? action.config ?? {};
+          next = {
+            ...prev,
+            copilotBlocks: (prev.copilotBlocks ?? []).map(b =>
+              b.id === action.block_id
+                ? { ...b, config: { ...(b.config ?? {}), ...patch } }
+                : b,
+            ),
+          };
+          break;
+        }
+        case 'delete_block': {
+          next = {
+            ...prev,
+            copilotBlocks: (prev.copilotBlocks ?? []).filter(b => b.id !== action.block_id),
+          };
+          break;
+        }
+        case 'move_block': {
+          const blocks = [...(prev.copilotBlocks ?? [])];
+          const idx = blocks.findIndex(b => b.id === action.block_id);
+          if (idx < 0) break;
+          const [moved] = blocks.splice(idx, 1);
+          const pos = typeof action.position === 'number'
+            ? Math.max(0, Math.min(action.position, blocks.length))
+            : blocks.length;
+          blocks.splice(pos, 0, moved);
+          next = { ...prev, copilotBlocks: blocks };
+          break;
+        }
+        case 'update_section': {
+          const patch = action.patch ?? {};
+          if (action.section_id === 'hero') {
+            next = {
+              ...prev,
+              ...(patch.title != null ? { name: String(patch.title) } : {}),
+              ...(patch.subtitle != null ? { tagline: String(patch.subtitle) } : {}),
+              ...(patch.description != null ? { description: String(patch.description) } : {}),
+            };
+          } else if (action.section_id === 'utilities' && patch.position) {
+            next = { ...prev, utilitiesPosition: patch.position };
+          }
+          break;
+        }
+        case 'update_site': {
+          const patch = action.patch ?? {};
+          next = {
+            ...prev,
+            ...(patch.name != null ? { name: String(patch.name) } : {}),
+            ...(patch.ticker != null ? { ticker: String(patch.ticker) } : {}),
+            ...(patch.tagline != null ? { tagline: String(patch.tagline) } : {}),
+            ...(patch.description != null ? { description: String(patch.description) } : {}),
+            ...(patch.theme != null ? { theme: patch.theme } : {}),
+            ...(patch.layout != null ? { layout: patch.layout } : {}),
+            ...(patch.socials != null ? { socials: { ...prev.socials, ...patch.socials } } : {}),
+          };
+          break;
+        }
+      }
+      if (next !== prev) persistData(next);
+      return next;
+    });
   };
 
   // Persist the current data.copilotBlocks (and related fields) to the DB,
@@ -576,7 +672,8 @@ const Builder = () => {
         siteId={editingId}
         activePage={activePage}
         data={data}
-        onInsertBlock={handleInsertBlock}
+        siteSchema={siteSchema}
+        onExecuteAction={handleExecuteAction}
       />
     </div>
   );
