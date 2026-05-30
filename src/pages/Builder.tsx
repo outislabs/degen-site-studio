@@ -238,6 +238,68 @@ const Builder = () => {
     }
   };
 
+  // Persist the current data.copilotBlocks (and related fields) to the DB,
+  // but only when the site already exists.
+  const persistData = (next: CoinData) => {
+    if (!editingId) return;
+    (async () => {
+      const { error } = await supabase
+        .from('sites')
+        .update({ data: JSON.parse(JSON.stringify(next)) } as any)
+        .eq('id', editingId);
+      if (error) console.error('Failed to persist site data:', error);
+    })();
+  };
+
+  const updateBlocks = (mutator: (blocks: CopilotBlockInstance[]) => CopilotBlockInstance[]) => {
+    setData(prev => {
+      const next = { ...prev, copilotBlocks: mutator(prev.copilotBlocks ?? []) };
+      persistData(next);
+      return next;
+    });
+  };
+
+  const handleDeleteBlock = (id: string) =>
+    updateBlocks(blocks => blocks.filter(b => b.id !== id));
+
+  const handleMoveBlock = (id: string, dir: 'up' | 'down') =>
+    updateBlocks(blocks => {
+      const idx = blocks.findIndex(b => b.id === id);
+      if (idx < 0) return blocks;
+      const swap = dir === 'up' ? idx - 1 : idx + 1;
+      if (swap < 0 || swap >= blocks.length) return blocks;
+      const next = blocks.slice();
+      [next[idx], next[swap]] = [next[swap], next[idx]];
+      return next;
+    });
+
+  const handleDuplicateBlock = (id: string) =>
+    updateBlocks(blocks => {
+      const idx = blocks.findIndex(b => b.id === id);
+      if (idx < 0) return blocks;
+      const orig = blocks[idx];
+      const copy: CopilotBlockInstance = {
+        ...orig,
+        id: crypto.randomUUID(),
+        config: { ...(orig.config ?? {}) },
+        created_at: Date.now(),
+      };
+      const next = blocks.slice();
+      next.splice(idx + 1, 0, copy);
+      toast.success('Block duplicated');
+      return next;
+    });
+
+  const handleConfigBlockChange = (id: string, cfg: Record<string, any>) =>
+    updateBlocks(blocks => blocks.map(b => (b.id === id ? { ...b, config: cfg } : b)));
+
+  const handlePositionChange = (p: 'top' | 'after-hero' | 'before-footer' | 'bottom') =>
+    setData(prev => {
+      const next = { ...prev, utilitiesPosition: p };
+      persistData(next);
+      return next;
+    });
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ── HEADER ── */}
@@ -490,7 +552,16 @@ const Builder = () => {
                   </div>
                 }
               >
-                <LivePreview data={data} />
+                <LivePreview
+                  data={data}
+                  editor
+                  onDeleteBlock={handleDeleteBlock}
+                  onMoveBlock={handleMoveBlock}
+                  onDuplicateBlock={handleDuplicateBlock}
+                  onConfigBlockChange={handleConfigBlockChange}
+                  onPositionChange={handlePositionChange}
+                  onOpenCopilot={() => setShowCopilot(true)}
+                />
               </ErrorBoundary>
             </div>
           </div>
