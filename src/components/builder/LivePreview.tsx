@@ -1,7 +1,7 @@
 import { CoinData, ThemeId } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
-import { themes } from '@/lib/themes';
+import { themes, resolveTheme } from '@/lib/themes';
 import ClassicLayout from './layouts/ClassicLayout';
 import SplitHeroLayout from './layouts/SplitHeroLayout';
 import BentoLayout from './layouts/BentoLayout';
@@ -52,7 +52,7 @@ const LivePreview = ({
   onDeleteBlock, onMoveBlock, onDuplicateBlock, onConfigBlockChange,
   onPositionChange, onOpenCopilot,
 }: Props) => {
-  const style = themes[data.theme] ?? themes[FALLBACK_THEME];
+  const style = resolveTheme(data.theme ?? FALLBACK_THEME, data.themeOverrides);
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
   useEffect(() => {
