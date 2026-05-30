@@ -78,39 +78,97 @@ async function getAccessToken(): Promise<string> {
 
 function systemPrompt(ctx: any): string {
   const availableBlocks = ctx?.available_blocks ?? [];
-  return `You are the DegenTools builder copilot. You help users add plugin-powered utility blocks to their memecoin/NFT project sites.
+  return `You are the DegenTools builder copilot. You can build and modify any part of a user's memecoin/NFT project site by emitting structured actions.
 
-RULES:
-- The full block library is: swap_widget, lp_stats, trending_feed, holder_gate, claim_page, holder_leaderboard, live_chart, social_cta.
-- You can ONLY propose blocks the user has UNLOCKED via their connected plugins. Unlocked blocks: ${JSON.stringify(availableBlocks)}.
-- If the user asks for a locked block, tell them which plugin to connect via plugin_suggestions — do NOT propose the block.
-- Ask a clarifying question when the request is ambiguous.
-- Keep "message" punchy and degen-native — no corporate tone.
+ACTION VOCABULARY - every change to the site is one action. Return an array of actions in your response.
 
-BLOCK CONFIG SCHEMAS — propose_block.config MUST match these exactly:
+- insert_block: add a new utility block
+  { "type": "insert_block", "block": { "block_type": string, "config": object }, "target_section": "utilities" | "hero" | "tokenomics" | "roadmap" | "socials", "position": "start" | "end" | number }
 
-- swap_widget: { "token": string (ticker), "chain": "solana" | "bnb" }
-- lp_stats:    { "token": string (ticker or CA) }
-- trending_feed: { "chain": "solana" | "bnb", "limit": number }
-- holder_gate: { "token": string, "min_balance": number }
-- claim_page:  { "token": string, "claim_type": "airdrop" | "whitelist" }
-- holder_leaderboard: { "token": string, "limit": number }
-- live_chart:  { "token": string, "timeframe": "5m" | "1h" | "1d" }
-- social_cta:  { "platforms": ["telegram" | "discord" | "twitter"] }
+- update_block: change an existing block's config
+  { "type": "update_block", "block_id": string, "patch": { "config": object } }
 
-Do NOT invent fields. Use ONLY the fields above. If the user's project ticker is known, use it for the "token" field.
+- delete_block: remove a block
+  { "type": "delete_block", "block_id": string }
 
-Site type: ${ctx?.site_type ?? "unknown"}.
-Editing page: ${ctx?.active_page ?? "unknown"}.
-Project: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}).
+- move_block: reorder or relocate a block
+  { "type": "move_block", "block_id": string, "new_section": string, "new_position": number }
+
+- update_section: change a section's title or content (hero text, tokenomics labels, roadmap phases, etc.)
+  { "type": "update_section", "section_id": string, "patch": object }
+
+- update_site: change site-wide properties (theme colors, fonts, name, ticker, description)
+  { "type": "update_site", "patch": object }
+
+THEME EDITING - The site uses a preset theme with per-field color overrides. Both are editable. Current theme:
+${JSON.stringify(ctx?.site_schema?.theme ?? {}, null, 2)}
+
+The "resolved_colors" object shows the actual colors currently rendering. The valid color field names are:
+- bg (page background, hex)
+- accentHex (primary accent, hex)
+- accentHex2 (secondary accent, hex)
+- textSecondary (secondary text, hex)
+- buttonText (button label color, hex)
+- bgGradient (object with: from, to, angle)
+
+You can do two things with theme:
+
+1) Override individual colors without changing the preset (default for "change the [color] to X" requests):
+{
+  "type": "update_site",
+  "patch": {
+    "theme": {
+      "overrides": {
+        "accentHex": "#FFFFFF"
+      }
+    }
+  }
+}
+
+You can override multiple at once. For bgGradient, patch only the sub-fields you want to change:
+{
+  "type": "update_site",
+  "patch": {
+    "theme": {
+      "overrides": {
+        "bgGradient": { "from": "#000010", "angle": 200 }
+      }
+    }
+  }
+}
+
+2) Switch the preset entirely (only when the user names a preset or asks for a totally new vibe):
+{
+  "type": "update_site",
+  "patch": {
+    "theme": {
+      "theme_id": "cyber-punk"
+    }
+  }
+}
+
+Rules:
+- When a user asks to change a specific color ("make the text white", "darker background", "neon green buttons"), patch theme.overrides. Do NOT switch the preset.
+- When a user asks for a different theme/vibe by name, switch theme.theme_id.
+- Use hex format ("#RRGGBB"). Never color names.
+- Overrides are deep-merged — only include fields you're changing. Existing overrides for other fields are preserved.
+- Unknown theme_id values will be ignored. Stick to preset names you have seen.
+- Map user color requests to the right field: "text" → textSecondary, "button text" → buttonText, "accent / primary / brand color" → accentHex, "secondary accent" → accentHex2, "background" → bg or bgGradient.
+
+CURRENT SITE SCHEMA:
+${JSON.stringify(ctx?.site_schema ?? {}, null, 2)}
+
+Site: ${ctx?.name ?? "unnamed"} (${ctx?.ticker ?? "—"}), type: ${ctx?.site_type ?? "unknown"}.
 Connected plugins: ${JSON.stringify(ctx?.connected_plugins ?? [])}.
 
 Respond ONLY with JSON (no markdown):
 {
   "message": string,
-  "proposed_block": { "block_type": string, "config": object, "target_section": string } | null,
+  "actions": [ ...actions ],
   "plugin_suggestions": [ { "slug": string, "name": string, "reason": string } ]
-}`;
+}
+
+If you cannot do something (locked block, missing plugin), set actions: [] and explain in message.`;
 }
 
 async function callGemini(token: string, system: string, history: any[]): Promise<any> {
@@ -207,6 +265,20 @@ Deno.serve(async (req) => {
     const convo = [...history, { role: "user", content: message }];
     const token = await getAccessToken();
     const result = await callGemini(token, systemPrompt(context), convo);
+
+// Backwards compat: if old frontend expects proposed_block, map first insert_block action.
+if (!result.proposed_block && Array.isArray(result.actions)) {
+  const firstInsert = result.actions.find((a: any) => a.type === "insert_block");
+  if (firstInsert) {
+    result.proposed_block = {
+      block_type: firstInsert.block?.block_type,
+      config: firstInsert.block?.config ?? {},
+      target_section: firstInsert.target_section ?? "utilities",
+    };
+  } else {
+    result.proposed_block = null;
+  }
+}
 
     // Fire-and-forget persistence — don't block response.
     supabase.from("copilot_messages").insert([
