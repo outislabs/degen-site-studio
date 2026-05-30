@@ -1,4 +1,4 @@
-import { CoinData } from '@/types/coin';
+import { CoinData, ThemeId } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { themes } from '@/lib/themes';
