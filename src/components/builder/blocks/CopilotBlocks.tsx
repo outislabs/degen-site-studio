@@ -119,7 +119,7 @@ const LpStats = ({ config = {} }: { config?: any }) => {
   return (
     <Shell icon={BarChart3} title={`${token} · LP Stats`} tag="Mock market data">
       {!hasToken && <div className="rounded-lg bg-muted/40 border border-border p-2.5 text-xs text-muted-foreground mb-3">LP stats — configure to display</div>}
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="grid grid-cols-1 min-[480px]:grid-cols-3 gap-2 text-center">
         {[
           { l: 'Price', v: price },
           { l: '24h Vol', v: volumeLabel },
