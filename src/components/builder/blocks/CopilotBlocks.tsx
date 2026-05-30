@@ -3,7 +3,7 @@ import {
   Zap, BarChart3, TrendingUp, Users, Gift, Trophy, LineChart, MessageCircle, Send, Sparkles,
   Trash2, ArrowUp, ArrowDown, Settings, Copy, AlertTriangle, Plus,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { CopilotBlockInstance } from '@/types/coin';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
