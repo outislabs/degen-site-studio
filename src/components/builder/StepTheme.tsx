@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { themeList } from '@/lib/themes';
+import { themeList, resolvedColors, ThemeOverrides } from '@/lib/themes';
 import { useTemplateSettings } from '@/hooks/useTemplateSettings';
 import { usePlan } from '@/hooks/usePlan';
 import { toast } from 'sonner';
@@ -71,6 +71,72 @@ const StepTheme = ({ data, onChange }: Props) => {
     }
     onChange({ layout: layoutId });
   };
+
+  const effective = resolvedColors(data.theme, data.themeOverrides);
+  const overrides = data.themeOverrides ?? {};
+  const setOverride = (next: ThemeOverrides) => onChange({ themeOverrides: next });
+
+  const updateField = (
+    field: 'bg' | 'accentHex' | 'accentHex2' | 'textSecondary' | 'buttonText',
+    value: string,
+  ) => setOverride({ ...overrides, [field]: value });
+
+  const updateGradient = (key: 'from' | 'to', value: string) => {
+    const current = (typeof overrides.bgGradient === 'object' && overrides.bgGradient) || {};
+    setOverride({
+      ...overrides,
+      bgGradient: {
+        from: current.from ?? effective.bgGradient.from,
+        to: current.to ?? effective.bgGradient.to,
+        angle: current.angle ?? effective.bgGradient.angle,
+        [key]: value,
+      },
+    });
+  };
+
+  const resetField = (field: keyof ThemeOverrides) => {
+    const { [field]: _, ...rest } = overrides;
+    setOverride(rest);
+  };
+
+  const resetAll = () => onChange({ themeOverrides: undefined });
+
+  const hasOverride = (field: keyof ThemeOverrides) => overrides[field] !== undefined;
+  const hasAnyOverride = Object.keys(overrides).length > 0;
+
+  const ColorRow = ({
+    label, value, onChange: onPickerChange, onReset, overridden,
+  }: {
+    label: string; value: string;
+    onChange: (v: string) => void; onReset: () => void; overridden: boolean;
+  }) => (
+    <div className="flex items-center gap-3">
+      <input
+        type="color"
+        value={value}
+        onChange={e => onPickerChange(e.target.value)}
+        className="h-9 w-12 rounded-md border border-border bg-transparent cursor-pointer p-0.5"
+        aria-label={label}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="text-xs font-medium text-foreground flex items-center gap-1.5">
+          {label}
+          {overridden && <span className="text-[9px] uppercase tracking-wider text-primary">overridden</span>}
+        </div>
+        <div className="text-[10px] text-muted-foreground font-mono">{value}</div>
+      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={onReset}
+        disabled={!overridden}
+        className="text-[10px] h-7 px-2"
+      >
+        Reset
+      </Button>
+    </div>
+  );
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -145,6 +211,87 @@ const StepTheme = ({ data, onChange }: Props) => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Color overrides */}
+      <div className="border border-border rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <Label>Custom Colors</Label>
+            <p className="text-xs text-muted-foreground">Override individual colors on top of the preset.</p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={resetAll}
+            disabled={!hasAnyOverride}
+            className="text-[10px] h-7"
+          >
+            Reset all
+          </Button>
+        </div>
+        <div className="space-y-2 pt-2">
+          <ColorRow
+            label="Background"
+            value={effective.bg}
+            overridden={hasOverride('bg')}
+            onChange={v => updateField('bg', v)}
+            onReset={() => resetField('bg')}
+          />
+          <ColorRow
+            label="Gradient from"
+            value={effective.bgGradient.from}
+            overridden={typeof overrides.bgGradient === 'object' && overrides.bgGradient?.from !== undefined}
+            onChange={v => updateGradient('from', v)}
+            onReset={() => {
+              const g = typeof overrides.bgGradient === 'object' ? { ...overrides.bgGradient } : {};
+              delete (g as any).from;
+              if (Object.keys(g).length === 0) resetField('bgGradient');
+              else setOverride({ ...overrides, bgGradient: g });
+            }}
+          />
+          <ColorRow
+            label="Gradient to"
+            value={effective.bgGradient.to}
+            overridden={typeof overrides.bgGradient === 'object' && overrides.bgGradient?.to !== undefined}
+            onChange={v => updateGradient('to', v)}
+            onReset={() => {
+              const g = typeof overrides.bgGradient === 'object' ? { ...overrides.bgGradient } : {};
+              delete (g as any).to;
+              if (Object.keys(g).length === 0) resetField('bgGradient');
+              else setOverride({ ...overrides, bgGradient: g });
+            }}
+          />
+          <ColorRow
+            label="Primary accent"
+            value={effective.accentHex}
+            overridden={hasOverride('accentHex')}
+            onChange={v => updateField('accentHex', v)}
+            onReset={() => resetField('accentHex')}
+          />
+          <ColorRow
+            label="Secondary accent"
+            value={effective.accentHex2}
+            overridden={hasOverride('accentHex2')}
+            onChange={v => updateField('accentHex2', v)}
+            onReset={() => resetField('accentHex2')}
+          />
+          <ColorRow
+            label="Secondary text"
+            value={effective.textSecondary}
+            overridden={hasOverride('textSecondary')}
+            onChange={v => updateField('textSecondary', v)}
+            onReset={() => resetField('textSecondary')}
+          />
+          <ColorRow
+            label="Button text"
+            value={effective.buttonText}
+            overridden={hasOverride('buttonText')}
+            onChange={v => updateField('buttonText', v)}
+            onReset={() => resetField('buttonText')}
+          />
         </div>
       </div>
 

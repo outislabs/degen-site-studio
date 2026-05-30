@@ -1,3 +1,5 @@
+import type { ThemeOverrides } from '@/lib/themes';
+
 export type SiteType = 'memecoin' | 'nft';
 
 export interface TeamMember {
@@ -73,6 +75,8 @@ export interface CoinData {
   
   // Step 5
   theme: ThemeId;
+  /** Optional per-field overrides applied on top of the preset theme. */
+  themeOverrides?: ThemeOverrides;
   layout: LayoutStyle;
   showCountdown: boolean;
   launchDate: Date | null;

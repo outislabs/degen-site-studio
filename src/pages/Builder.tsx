@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CopilotPanel, { CopilotAction } from '@/components/builder/CopilotPanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { deepMerge } from '@/lib/deepMerge';
-import { themes } from '@/lib/themes';
+import { themes, resolvedColors } from '@/lib/themes';
 
 const memecoinSteps = [
   { label: 'Basics', icon: Coins },
@@ -221,7 +221,12 @@ const Builder = () => {
     site_type: data.siteType,
     name: data.name,
     ticker: data.ticker,
-    theme: { theme_id: data.theme, layout: data.layout },
+    theme: {
+      theme_id: data.theme,
+      layout: data.layout,
+      resolved_colors: resolvedColors(data.theme, data.themeOverrides),
+      overrides: data.themeOverrides ?? {},
+    },
     socials: data.socials,
     pages: steps.map((s, i) => ({
       page_id: s.label.toLowerCase(),
@@ -325,8 +330,30 @@ const Builder = () => {
           const patch = { ...(action.patch ?? {}) };
           // Only accept known theme ids — unknown values would crash the renderer.
           if (patch.theme != null && !(patch.theme in themes)) {
-            console.warn('Copilot tried to set unknown theme:', patch.theme);
-            delete patch.theme;
+            // The Copilot may send theme as an object { theme_id, overrides }.
+            // Translate it into the flat CoinData fields used in state.
+            if (typeof patch.theme === 'object') {
+              const t: any = patch.theme;
+              const nextOverrides = t.overrides
+                ? deepMerge(prev.themeOverrides ?? {}, t.overrides)
+                : prev.themeOverrides;
+              const flat: Partial<CoinData> = {};
+              if (typeof t.theme_id === 'string' && t.theme_id in themes) {
+                flat.theme = t.theme_id;
+              }
+              if (typeof t.layout === 'string') flat.layout = t.layout;
+              if (nextOverrides) flat.themeOverrides = nextOverrides as any;
+              delete patch.theme;
+              Object.assign(patch, flat);
+            } else {
+              console.warn('Copilot tried to set unknown theme:', patch.theme);
+              delete patch.theme;
+            }
+          }
+          // Deep-merge themeOverrides instead of replacing wholesale so the AI
+          // can tweak a single field without wiping the rest.
+          if (patch.themeOverrides) {
+            patch.themeOverrides = deepMerge(prev.themeOverrides ?? {}, patch.themeOverrides);
           }
           // Deep-merge the entire patch so nested objects (theme settings,
           // socials, distribution, etc.) don't wipe sibling fields.
