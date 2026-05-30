@@ -628,7 +628,8 @@ const ConfigEditor = ({
   onChange: (cfg: Record<string, any>) => void;
 }) => {
   const key = normalize(text(block.block_type, ''));
-  const fields = CONFIG_FIELDS[key] ?? Object.keys(block.config ?? {}).map(k => ({ key: k, label: k }));
+  const fields: { key: string; label: string; placeholder?: string }[] =
+    CONFIG_FIELDS[key] ?? Object.keys(block.config ?? {}).map(k => ({ key: k, label: k }));
   const label = BLOCK_LABELS[key] ?? block.block_type;
 
   const update = (field: string, raw: string) => {
