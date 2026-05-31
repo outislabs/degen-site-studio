@@ -382,16 +382,48 @@ export const BlockRenderer = ({ block, extras }: { block: CopilotBlockInstance; 
   );
 };
 
-interface SectionProps {
+// ─── New free-floating renderer ─────────────────────────────────────────────
+
+export const POSITION_OPTIONS: { value: BlockPosition; label: string }[] = [
+  { value: 'top', label: 'Top of page' },
+  { value: 'after_hero', label: 'After hero' },
+  { value: 'after_tokenomics', label: 'After tokenomics' },
+  { value: 'after_roadmap', label: 'After roadmap' },
+  { value: 'after_socials', label: 'After socials' },
+  { value: 'before_footer', label: 'Before footer' },
+  { value: 'bottom', label: 'Bottom of page' },
+];
+
+const SIZE_OPTIONS: { value: BlockSize; label: string; px: string }[] = [
+  { value: 'small',  label: 'Small',  px: '320px' },
+  { value: 'medium', label: 'Medium', px: '480px' },
+  { value: 'large',  label: 'Large',  px: '640px' },
+  { value: 'full',   label: 'Full',   px: '100%'  },
+];
+
+const sizeToMaxWidth = (s: BlockSize): string =>
+  s === 'small' ? '320px' : s === 'large' ? '640px' : s === 'full' ? '100%' : '480px';
+
+const alignToMargin = (a: BlockAlignment): string =>
+  a === 'left' ? 'mr-auto ml-0' : a === 'right' ? 'ml-auto mr-0' : 'mx-auto';
+
+export const resolvePlacement = (block: CopilotBlockInstance): BlockPlacement => ({
+  ...DEFAULT_PLACEMENT,
+  ...(block.placement ?? {}),
+});
+
+interface RendererProps {
   blocks?: CopilotBlockInstance[];
+  position: BlockPosition;
   /** Editor mode adds management controls, AI badges, empty state, etc. */
   editor?: boolean;
-  position?: 'top' | 'after-hero' | 'before-footer' | 'bottom';
-  onPositionChange?: (p: 'top' | 'after-hero' | 'before-footer' | 'bottom') => void;
+  /** Show an empty-state inviting Copilot. Only render at one position to avoid duplicates. */
+  showEmptyState?: boolean;
   onDelete?: (id: string) => void;
   onMove?: (id: string, direction: 'up' | 'down') => void;
   onDuplicate?: (id: string) => void;
   onConfigChange?: (id: string, nextConfig: Record<string, any>) => void;
+  onPlacementChange?: (id: string, patch: Partial<BlockPlacement>) => void;
   onOpenCopilot?: () => void;
   /** Published-site context: enables live Jupiter swap and theming. */
   contractAddress?: string;
@@ -399,95 +431,41 @@ interface SectionProps {
   bgHex?: string;
 }
 
-const POSITION_OPTIONS = [
-  { value: 'top', label: 'Top of page' },
-  { value: 'after-hero', label: 'After hero' },
-  { value: 'before-footer', label: 'Before footer' },
-  { value: 'bottom', label: 'Bottom (default)' },
-] as const;
-
-export const CopilotBlocksSection = ({
+export const CopilotBlocksRenderer = ({
   blocks,
+  position,
   editor = false,
-  position = 'bottom',
-  onPositionChange,
+  showEmptyState = false,
   onDelete,
   onMove,
   onDuplicate,
   onConfigChange,
+  onPlacementChange,
   onOpenCopilot,
   contractAddress,
   accentHex,
   bgHex,
-}: SectionProps) => {
+}: RendererProps) => {
   const [editing, setEditing] = useState<CopilotBlockInstance | null>(null);
+  const isMobile = useIsMobile();
 
   const list = blocks ?? [];
+  // Filter by position. On the published site also drop stale blocks.
+  const atHere = list.filter(b => resolvePlacement(b).position === position);
+  const visibleBlocks = editor ? atHere : atHere.filter(b => !isBlockStale(b));
 
-  // On the published site: hide stale blocks completely and don't render the
-  // section at all if nothing remains.
-  const visibleBlocks = editor ? list : list.filter(b => !isBlockStale(b));
-
-  // On the published site, no blocks = no section header.
-  if (!editor && visibleBlocks.length === 0) return null;
-  // In the editor, no blocks AND no opt-in to show the section => render nothing.
-  // We still want to surface an empty-state when blocks have been touched OR the
-  // user has explicitly chosen a position other than the default; for v1 we
-  // always render the empty-state placeholder when in editor mode and there are
-  // zero blocks — gives users a clear entry point.
-
-  const sources = Array.from(
-    new Set(
-      visibleBlocks
-        .map(b => BLOCK_SOURCES[normalize(text(b.block_type, ''))])
-        .filter(Boolean) as string[],
-    ),
-  );
+  // Nothing to render and no empty state requested → return null (no framing!).
+  if (visibleBlocks.length === 0 && !showEmptyState) return null;
 
   return (
     <>
-      <section className="px-4 sm:px-6 py-6 space-y-4 bg-black/20 border-t border-white/5">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-white/60 font-semibold">
-              <Sparkles className="w-3 h-3 text-primary" />
-              Utilities
-            </div>
-            {sources.length > 0 && (
-              <div className="text-[10px] text-white/40 mt-0.5">
-                Powered by {sources.join(', ')}
-              </div>
-            )}
-          </div>
-
-          {editor && onPositionChange && (
-            <div className="flex items-center gap-2 text-[10px] text-white/50">
-              <span className="uppercase tracking-wider">Position</span>
-              <Select
-                value={position}
-                onValueChange={(v) => onPositionChange(v as any)}
-              >
-                <SelectTrigger className="h-7 w-[140px] text-[11px] bg-black/40 border-white/10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {POSITION_OPTIONS.map(o => (
-                    <SelectItem key={o.value} value={o.value} className="text-xs">
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-
-        {visibleBlocks.length === 0 && editor ? (
-          <div className="rounded-2xl border border-dashed border-white/15 bg-black/30 p-8 text-center">
+      <div className="px-4 sm:px-6 py-3 space-y-4">
+        {visibleBlocks.length === 0 && editor && showEmptyState && (
+          <div className="rounded-2xl border border-dashed border-white/15 bg-black/30 p-8 text-center max-w-xl mx-auto">
             <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-sm font-semibold text-white">No utilities yet</div>
+            <div className="text-sm font-semibold text-white">No utility blocks yet</div>
             <div className="text-xs text-white/50 mt-1 mb-4">
-              Open Copilot to add a swap widget, holder gate, claim page and more.
+              Open Copilot to add a swap widget, holder gate, claim page and more — placed anywhere on the page.
             </div>
             {onOpenCopilot && (
               <Button
@@ -495,91 +473,146 @@ export const CopilotBlocksSection = ({
                 onClick={onOpenCopilot}
                 className="h-8 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                <Plus className="w-3.5 h-3.5 mr-1.5" />
-                Open Copilot
+                <Plus className="w-3.5 h-3.5 mr-1.5" /> Open Copilot
               </Button>
             )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {visibleBlocks.map((b, i) => {
-              const stale = isBlockStale(b);
-              const key = normalize(text(b.block_type, ''));
-              const label = BLOCK_LABELS[key] ?? b.block_type;
-              return (
-                <div key={b.id} className="relative group">
-                  {/* AI badge — editor only */}
-                  {editor && (
-                    <div className="absolute -top-2 -left-2 z-10 px-1.5 h-5 rounded-md bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-md ring-2 ring-background">
-                      <Sparkles className="w-2.5 h-2.5" /> AI
-                    </div>
-                  )}
-
-                  {/* Stale warning */}
-                  {editor && stale && (
-                    <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200 flex items-center gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                      <span>This block needs configuration — hidden on the published site.</span>
-                    </div>
-                  )}
-
-                  <BlockRenderer
-                    block={b}
-                    extras={{
-                      live: !editor,
-                      contractAddress,
-                      accentHex,
-                      bgHex,
-                    }}
-                  />
-
-                  {/* Hover toolbar — editor only */}
-                  {editor && (
-                    <div className="absolute top-2 right-2 z-10 flex items-center gap-0.5 rounded-lg bg-black/80 backdrop-blur-sm border border-white/10 p-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                      <ToolbarBtn
-                        title="Move up"
-                        disabled={i === 0}
-                        onClick={() => onMove?.(b.id, 'up')}
-                      >
-                        <ArrowUp className="w-3.5 h-3.5" />
-                      </ToolbarBtn>
-                      <ToolbarBtn
-                        title="Move down"
-                        disabled={i === visibleBlocks.length - 1}
-                        onClick={() => onMove?.(b.id, 'down')}
-                      >
-                        <ArrowDown className="w-3.5 h-3.5" />
-                      </ToolbarBtn>
-                      <ToolbarBtn
-                        title="Configure"
-                        onClick={() => setEditing(b)}
-                      >
-                        <Settings className="w-3.5 h-3.5" />
-                      </ToolbarBtn>
-                      <ToolbarBtn
-                        title="Duplicate"
-                        onClick={() => onDuplicate?.(b.id)}
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </ToolbarBtn>
-                      <ToolbarBtn
-                        title="Delete"
-                        destructive
-                        onClick={() => {
-                          onDelete?.(b.id);
-                          toast.success('Block removed');
-                        }}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </ToolbarBtn>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
         )}
-      </section>
+
+        {visibleBlocks.map((b, i) => {
+          const stale = isBlockStale(b);
+          const placement = resolvePlacement(b);
+          // Mobile: force full width and center; ignore declared size/alignment.
+          const effectiveSize: BlockSize = isMobile ? 'full' : placement.size;
+          const effectiveAlign: BlockAlignment = isMobile ? 'center' : placement.alignment;
+          const maxWidth = sizeToMaxWidth(effectiveSize);
+          const alignClass = alignToMargin(effectiveAlign);
+          return (
+            <div
+              key={b.id}
+              className={cn('relative group w-full', alignClass)}
+              style={{ maxWidth }}
+            >
+              {/* AI badge — editor only */}
+              {editor && (
+                <div className="absolute -top-2 -left-2 z-10 px-1.5 h-5 rounded-md bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-md ring-2 ring-background">
+                  <Sparkles className="w-2.5 h-2.5" /> AI
+                </div>
+              )}
+
+              {/* Stale warning */}
+              {editor && stale && (
+                <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200 flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>This block needs configuration — hidden on the published site.</span>
+                </div>
+              )}
+
+              <BlockRenderer
+                block={b}
+                extras={{
+                  live: !editor,
+                  contractAddress,
+                  accentHex,
+                  bgHex,
+                  size: effectiveSize,
+                }}
+              />
+
+              {/* Placement controls — editor only, always visible at bottom */}
+              {editor && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-lg bg-black/60 border border-white/10 p-1.5">
+                  <Select
+                    value={placement.position}
+                    onValueChange={(v) => onPlacementChange?.(b.id, { position: v as BlockPosition })}
+                  >
+                    <SelectTrigger className="h-7 w-[140px] text-[10px] bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {POSITION_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={placement.size}
+                    onValueChange={(v) => onPlacementChange?.(b.id, { size: v as BlockSize })}
+                  >
+                    <SelectTrigger className="h-7 w-[100px] text-[10px] bg-black/40 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SIZE_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value} className="text-xs">
+                          {o.label} ({o.px})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {placement.size !== 'full' && (
+                    <div className="flex items-center gap-0.5 rounded-md bg-black/40 border border-white/10 p-0.5">
+                      {([
+                        { v: 'left',   Icon: AlignLeft   },
+                        { v: 'center', Icon: AlignCenter },
+                        { v: 'right',  Icon: AlignRight  },
+                      ] as const).map(({ v, Icon }) => (
+                        <button
+                          key={v}
+                          type="button"
+                          title={`Align ${v}`}
+                          aria-label={`Align ${v}`}
+                          onClick={() => onPlacementChange?.(b.id, { alignment: v as BlockAlignment })}
+                          className={cn(
+                            'w-6 h-6 rounded flex items-center justify-center transition-colors',
+                            placement.alignment === v
+                              ? 'bg-primary/20 text-primary'
+                              : 'text-white/60 hover:text-white hover:bg-white/10'
+                          )}
+                        >
+                          <Icon className="w-3 h-3" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-0.5 ml-auto">
+                    <ToolbarBtn
+                      title="Move up (within this position)"
+                      disabled={i === 0}
+                      onClick={() => onMove?.(b.id, 'up')}
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </ToolbarBtn>
+                    <ToolbarBtn
+                      title="Move down"
+                      disabled={i === visibleBlocks.length - 1}
+                      onClick={() => onMove?.(b.id, 'down')}
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </ToolbarBtn>
+                    <ToolbarBtn title="Configure" onClick={() => setEditing(b)}>
+                      <Settings className="w-3.5 h-3.5" />
+                    </ToolbarBtn>
+                    <ToolbarBtn title="Duplicate" onClick={() => onDuplicate?.(b.id)}>
+                      <Copy className="w-3.5 h-3.5" />
+                    </ToolbarBtn>
+                    <ToolbarBtn
+                      title="Delete"
+                      destructive
+                      onClick={() => { onDelete?.(b.id); toast.success('Block removed'); }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </ToolbarBtn>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* Configure sheet */}
       {editor && (
