@@ -1,4 +1,4 @@
-import { CoinData, ThemeId } from '@/types/coin';
+import { CoinData, ThemeId, BlockPlacement, BlockPosition } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { themes, resolveTheme } from '@/lib/themes';
@@ -27,7 +27,7 @@ import NftGalleryWallLayout from './layouts/NftGalleryWallLayout';
 import NftAnimeLayout from './layouts/NftAnimeLayout';
 import NftBlueprintLayout from './layouts/NftBlueprintLayout';
 import NftLuxuryEditorialLayout from './layouts/NftLuxuryEditorialLayout';
-import CopilotBlocksSection from './blocks/CopilotBlocks';
+import { CopilotBlocksRenderer } from './blocks/CopilotBlocks';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Props {
@@ -39,7 +39,7 @@ interface Props {
   onMoveBlock?: (id: string, dir: 'up' | 'down') => void;
   onDuplicateBlock?: (id: string) => void;
   onConfigBlockChange?: (id: string, cfg: Record<string, any>) => void;
-  onPositionChange?: (p: 'top' | 'after-hero' | 'before-footer' | 'bottom') => void;
+  onPlacementChange?: (id: string, patch: Partial<BlockPlacement>) => void;
   onOpenCopilot?: () => void;
 }
 
@@ -50,7 +50,7 @@ const FALLBACK_THEME: ThemeId = 'degen-dark';
 const LivePreview = ({
   data, showWatermark = false, siteId, editor = false,
   onDeleteBlock, onMoveBlock, onDuplicateBlock, onConfigBlockChange,
-  onPositionChange, onOpenCopilot,
+  onPlacementChange, onOpenCopilot,
 }: Props) => {
   const style = resolveTheme(data.theme ?? FALLBACK_THEME, data.themeOverrides);
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -78,21 +78,21 @@ const LivePreview = ({
     return `${data.name}${data.ticker ? ` ($${data.ticker})` : ''}`;
   }, [data.name, data.ticker]);
 
-  const position = data.utilitiesPosition ?? 'bottom';
-  // top + after-hero render above the layout; before-footer + bottom render below.
-  const renderAbove = position === 'top' || position === 'after-hero';
-
-  const utilities = (
-    <ErrorBoundary label="copilot-blocks-section">
-      <CopilotBlocksSection
-        blocks={data.copilotBlocks}
+  // Render the same blocks list at every position — the renderer filters by
+  // placement.position. No group framing, no "Utilities" header anywhere.
+  const blocks = data.copilotBlocks ?? [];
+  const bandAt = (pos: BlockPosition, showEmpty = false) => (
+    <ErrorBoundary label={`copilot-blocks:${pos}`}>
+      <CopilotBlocksRenderer
+        blocks={blocks}
+        position={pos}
         editor={editor}
-        position={position}
-        onPositionChange={onPositionChange}
+        showEmptyState={showEmpty}
         onDelete={onDeleteBlock}
         onMove={onMoveBlock}
         onDuplicate={onDuplicateBlock}
         onConfigChange={onConfigBlockChange}
+        onPlacementChange={onPlacementChange}
         onOpenCopilot={onOpenCopilot}
         contractAddress={data.contractAddress}
         accentHex={style?.accentHex}
@@ -101,12 +101,15 @@ const LivePreview = ({
     </ErrorBoundary>
   );
 
+  // Show empty-state once, at before_footer, when in editor mode with no blocks.
+  const noBlocks = blocks.length === 0;
+
   return (
     <div className={cn('min-h-full rounded-xl overflow-hidden text-white relative')} style={{ background: style?.bgGradient ?? '#050a05' }}>
       {pageTitle && (
         <h1 className="sr-only">{pageTitle}</h1>
       )}
-      {renderAbove && utilities}
+      {bandAt('top')}
       {layout === 'classic' && <ClassicLayout {...layoutProps} />}
       {layout === 'split-hero' && <SplitHeroLayout {...layoutProps} />}
       {layout === 'bento' && <BentoLayout {...layoutProps} />}
@@ -132,7 +135,12 @@ const LivePreview = ({
       {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
       {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
       {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
-      {!renderAbove && utilities}
+      {bandAt('after_hero')}
+      {bandAt('after_tokenomics')}
+      {bandAt('after_roadmap')}
+      {bandAt('after_socials')}
+      {bandAt('before_footer', editor && noBlocks)}
+      {bandAt('bottom')}
     </div>
   );
 };
