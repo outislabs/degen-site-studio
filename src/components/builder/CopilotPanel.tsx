@@ -8,6 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CoinData } from '@/types/coin';
 
+import type { BlockPlacement } from '@/types/coin';
+
 export type PluginBlockType =
   | 'swap-widget'
   | 'lp-stats'
@@ -32,10 +34,11 @@ export interface PluginSuggestion {
 }
 
 export type CopilotAction =
-  | { type: 'insert_block'; block_type: string; config?: Record<string, any>; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'insert_block'; block_type: string; config?: Record<string, any>; target_section?: string; position?: number; placement?: Partial<BlockPlacement>; requires_confirmation?: boolean }
   | { type: 'update_block'; block_id: string; patch?: Record<string, any>; config?: Record<string, any>; requires_confirmation?: boolean }
   | { type: 'delete_block'; block_id: string; requires_confirmation?: boolean }
   | { type: 'move_block'; block_id: string; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'update_placement'; block_id: string; placement: Partial<BlockPlacement>; requires_confirmation?: boolean }
   | { type: 'update_section'; section_id: string; patch: Record<string, any>; requires_confirmation?: boolean }
   | { type: 'update_site'; patch: Record<string, any>; requires_confirmation?: boolean };
 
