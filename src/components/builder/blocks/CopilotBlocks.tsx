@@ -754,4 +754,4 @@ const ConfigEditor = ({
   );
 };
 
-export default CopilotBlocksSection;
+export default CopilotBlocksRenderer;
