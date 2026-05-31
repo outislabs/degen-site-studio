@@ -55,6 +55,8 @@ interface Props {
   contractAddress?: string;
   accentHex?: string;
   bgHex?: string;
+  /** Logical size of the block — controls wrapper width. Jupiter itself stays 420px. */
+  size?: 'small' | 'medium' | 'large' | 'full';
 }
 
 /**
@@ -62,7 +64,7 @@ interface Props {
  * Loads plugin-v1.js lazily; if the address is missing or the script fails,
  * we degrade gracefully instead of crashing the site.
  */
-const JupiterSwapLive = ({ contractAddress, accentHex, bgHex }: Props) => {
+const JupiterSwapLive = ({ contractAddress, accentHex, bgHex, size = 'medium' }: Props) => {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const targetId = `jup-plugin-${uid}`;
   const mountedRef = useRef(false);
@@ -76,6 +78,14 @@ const JupiterSwapLive = ({ contractAddress, accentHex, bgHex }: Props) => {
   const cardBg = bgHex
     ? `linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), ${bgHex}`
     : 'rgba(255,255,255,0.02)';
+
+  // Outer wrapper width by size. Jupiter's internal target stays 480 max so it
+  // centers nicely inside larger cards.
+  const wrapperMaxWidth =
+    size === 'small' ? '320px'
+    : size === 'large' ? '640px'
+    : size === 'full' ? '100%'
+    : '480px';
 
   useEffect(() => {
     if (!hasAddress) return;
@@ -161,8 +171,8 @@ const JupiterSwapLive = ({ contractAddress, accentHex, bgHex }: Props) => {
 
   return (
     <div
-      className="rounded-2xl border p-3 sm:p-4 text-white w-full max-w-full overflow-hidden"
-      style={{ borderColor: accentSoft, background: cardBg }}
+      className="rounded-2xl border p-3 sm:p-4 text-white w-full overflow-hidden mx-auto"
+      style={{ borderColor: accentSoft, background: cardBg, maxWidth: wrapperMaxWidth }}
     >
       <div className="flex items-center gap-2 pb-3 mb-1 border-b" style={{ borderColor: accentSoft }}>
         <div

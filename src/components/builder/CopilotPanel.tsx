@@ -8,6 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CoinData } from '@/types/coin';
 
+import type { BlockPlacement } from '@/types/coin';
+
 export type PluginBlockType =
   | 'swap-widget'
   | 'lp-stats'
@@ -32,10 +34,11 @@ export interface PluginSuggestion {
 }
 
 export type CopilotAction =
-  | { type: 'insert_block'; block_type: string; config?: Record<string, any>; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'insert_block'; block_type: string; config?: Record<string, any>; target_section?: string; position?: number; placement?: Partial<BlockPlacement>; requires_confirmation?: boolean }
   | { type: 'update_block'; block_id: string; patch?: Record<string, any>; config?: Record<string, any>; requires_confirmation?: boolean }
   | { type: 'delete_block'; block_id: string; requires_confirmation?: boolean }
   | { type: 'move_block'; block_id: string; target_section?: string; position?: number; requires_confirmation?: boolean }
+  | { type: 'update_placement'; block_id: string; placement: Partial<BlockPlacement>; requires_confirmation?: boolean }
   | { type: 'update_section'; section_id: string; patch: Record<string, any>; requires_confirmation?: boolean }
   | { type: 'update_site'; patch: Record<string, any>; requires_confirmation?: boolean };
 
@@ -399,7 +402,8 @@ const actionLabel = (a: CopilotAction): string => {
   switch (a.type) {
     case 'insert_block': {
       const meta = BLOCK_META[a.block_type]?.label ?? a.block_type;
-      return `Add ${meta} to ${a.target_section ?? 'Utilities'}`;
+      const where = a.placement?.position ? ` at ${a.placement.position}` : '';
+      return `Add ${meta}${where}`;
     }
     case 'update_block': {
       const keys = Object.keys(a.patch ?? a.config ?? {});
@@ -407,6 +411,10 @@ const actionLabel = (a: CopilotAction): string => {
     }
     case 'delete_block': return `Remove block`;
     case 'move_block': return `Move block${a.target_section ? ` to ${a.target_section}` : ''}`;
+    case 'update_placement': {
+      const keys = Object.keys(a.placement ?? {});
+      return `Move block (${keys.join(', ') || 'placement'})`;
+    }
     case 'update_section': {
       const keys = Object.keys(a.patch ?? {});
       return `Update ${a.section_id} (${keys.join(', ') || 'fields'})`;

@@ -20,7 +20,33 @@ export interface CopilotBlockInstance {
   config: Record<string, any>;
   target_section?: string;
   created_at: number;
+  /** Per-block placement on the page. Free-floating, no group framing. */
+  placement?: BlockPlacement;
 }
+
+export type BlockPosition =
+  | 'top'
+  | 'after_hero'
+  | 'after_tokenomics'
+  | 'after_roadmap'
+  | 'after_socials'
+  | 'before_footer'
+  | 'bottom';
+
+export type BlockSize = 'small' | 'medium' | 'large' | 'full';
+export type BlockAlignment = 'left' | 'center' | 'right';
+
+export interface BlockPlacement {
+  position: BlockPosition;
+  size: BlockSize;
+  alignment: BlockAlignment;
+}
+
+export const DEFAULT_PLACEMENT: BlockPlacement = {
+  position: 'before_footer',
+  size: 'medium',
+  alignment: 'center',
+};
 
 export interface CoinData {
   // Site type

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CoinData, CopilotBlockInstance, defaultCoinData } from '@/types/coin';
+import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
 import StepNftGallery from '@/components/builder/StepNftGallery';
@@ -241,13 +241,13 @@ const Builder = () => {
               description: data.description,
             },
             {
-              section_id: 'utilities',
-              type: 'utilities',
-              position: data.utilitiesPosition ?? 'bottom',
+              section_id: 'blocks',
+              type: 'free_floating_blocks',
               blocks: (data.copilotBlocks ?? []).map(b => ({
                 block_id: b.id,
                 block_type: b.block_type,
                 config: b.config,
+                placement: { ...DEFAULT_PLACEMENT, ...(b.placement ?? {}) },
               })),
             },
           ]
@@ -267,6 +267,10 @@ const Builder = () => {
             config: action.config ?? {},
             target_section: action.target_section ?? 'utilities',
             created_at: Date.now(),
+            placement: {
+              ...DEFAULT_PLACEMENT,
+              ...((action as any).placement ?? {}),
+            },
           };
           const blocks = [...(prev.copilotBlocks ?? [])];
           const pos = typeof action.position === 'number'
@@ -307,6 +311,18 @@ const Builder = () => {
           next = { ...prev, copilotBlocks: blocks };
           break;
         }
+        case 'update_placement': {
+          const partial = (action as any).placement ?? {};
+          next = {
+            ...prev,
+            copilotBlocks: (prev.copilotBlocks ?? []).map(b =>
+              b.id === (action as any).block_id
+                ? { ...b, placement: { ...DEFAULT_PLACEMENT, ...(b.placement ?? {}), ...partial } }
+                : b,
+            ),
+          };
+          break;
+        }
         case 'update_section': {
           const patch = action.patch ?? {};
           if (action.section_id === 'hero') {
@@ -318,8 +334,6 @@ const Builder = () => {
               ...(description != null ? { description: String(description) } : {}),
               ...rest,
             } as Partial<CoinData>);
-          } else if (action.section_id === 'utilities' && patch.position) {
-            next = { ...prev, utilitiesPosition: patch.position };
           } else {
             // Generic deep-merge fallback for any other section patch.
             next = deepMerge(prev, patch as Partial<CoinData>);
@@ -421,12 +435,12 @@ const Builder = () => {
   const handleConfigBlockChange = (id: string, cfg: Record<string, any>) =>
     updateBlocks(blocks => blocks.map(b => (b.id === id ? { ...b, config: cfg } : b)));
 
-  const handlePositionChange = (p: 'top' | 'after-hero' | 'before-footer' | 'bottom') =>
-    setData(prev => {
-      const next = { ...prev, utilitiesPosition: p };
-      persistData(next);
-      return next;
-    });
+  const handlePlacementChange = (id: string, patch: Partial<BlockPlacement>) =>
+    updateBlocks(blocks => blocks.map(b =>
+      b.id === id
+        ? { ...b, placement: { ...DEFAULT_PLACEMENT, ...(b.placement ?? {}), ...patch } }
+        : b,
+    ));
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -687,7 +701,7 @@ const Builder = () => {
                   onMoveBlock={handleMoveBlock}
                   onDuplicateBlock={handleDuplicateBlock}
                   onConfigBlockChange={handleConfigBlockChange}
-                  onPositionChange={handlePositionChange}
+                  onPlacementChange={handlePlacementChange}
                   onOpenCopilot={() => setShowCopilot(true)}
                 />
               </ErrorBoundary>
