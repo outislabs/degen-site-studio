@@ -94,6 +94,9 @@ const LivePreview = ({
         onDuplicate={onDuplicateBlock}
         onConfigChange={onConfigBlockChange}
         onOpenCopilot={onOpenCopilot}
+        contractAddress={data.contractAddress}
+        accentHex={style?.accentHex}
+        bgHex={style?.bg?.match(/#([0-9a-f]{3,8})/i)?.[0]}
       />
     </ErrorBoundary>
   );

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import JupiterSwapLive from './JupiterSwapLive';
 
 const numberValue = (value: unknown, fallback?: number) => {
   const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
@@ -79,7 +80,25 @@ const Shell = ({
   </div>
 );
 
-const SwapWidget = ({ config = {} }: { config?: any }) => {
+interface BlockExtras {
+  live?: boolean;
+  contractAddress?: string;
+  accentHex?: string;
+  bgHex?: string;
+}
+
+const SwapWidget = ({ config = {}, extras }: { config?: any; extras?: BlockExtras }) => {
+  // On published sites, render the real Jupiter plugin. In the builder
+  // canvas we always render the mock so the heavy plugin doesn't load 8x.
+  if (extras?.live) {
+    return (
+      <JupiterSwapLive
+        contractAddress={extras.contractAddress}
+        accentHex={extras.accentHex}
+        bgHex={extras.bgHex}
+      />
+    );
+  }
   const { token: rawToken, token_symbol, symbol, chain: rawChain = 'solana', pay_amount, amount_in, receive_amount, amount_out } = config ?? {};
   const token = text(rawToken ?? token_symbol ?? symbol, 'TOKEN');
   const chain = text(rawChain, 'solana');
@@ -276,7 +295,7 @@ const SocialCta = ({ config = {} }: { config?: any }) => {
   );
 };
 
-const BLOCK_REGISTRY: Record<string, (props: { config: any }) => JSX.Element> = {
+const BLOCK_REGISTRY: Record<string, (props: { config: any; extras?: BlockExtras }) => JSX.Element> = {
   'swap-widget': SwapWidget,
   'lp-stats': LpStats,
   'trending-feed': TrendingFeed,
@@ -326,7 +345,7 @@ export const isBlockStale = (block: CopilotBlockInstance): boolean => {
   return token.trim().toUpperCase() === 'TOKEN';
 };
 
-export const BlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
+export const BlockRenderer = ({ block, extras }: { block: CopilotBlockInstance; extras?: BlockExtras }) => {
   const blockType = text(block?.block_type, 'unknown-block');
   const key = normalize(blockType);
   const Comp = BLOCK_REGISTRY[key];
@@ -344,7 +363,7 @@ export const BlockRenderer = ({ block }: { block: CopilotBlockInstance }) => {
     >
       <ErrorBoundary label={`copilot-block:${blockType}`}>
         {Comp ? (
-          <Comp config={block.config ?? {}} />
+          <Comp config={block.config ?? {}} extras={extras} />
         ) : (
           <Shell icon={Sparkles} title={blockType} tag="Unknown block">
             <div className="text-[11px] text-white/50">No renderer is registered for this block type.</div>
@@ -366,6 +385,10 @@ interface SectionProps {
   onDuplicate?: (id: string) => void;
   onConfigChange?: (id: string, nextConfig: Record<string, any>) => void;
   onOpenCopilot?: () => void;
+  /** Published-site context: enables live Jupiter swap and theming. */
+  contractAddress?: string;
+  accentHex?: string;
+  bgHex?: string;
 }
 
 const POSITION_OPTIONS = [
@@ -385,6 +408,9 @@ export const CopilotBlocksSection = ({
   onDuplicate,
   onConfigChange,
   onOpenCopilot,
+  contractAddress,
+  accentHex,
+  bgHex,
 }: SectionProps) => {
   const [editing, setEditing] = useState<CopilotBlockInstance | null>(null);
 
@@ -489,7 +515,15 @@ export const CopilotBlocksSection = ({
                     </div>
                   )}
 
-                  <BlockRenderer block={b} />
+                  <BlockRenderer
+                    block={b}
+                    extras={{
+                      live: !editor,
+                      contractAddress,
+                      accentHex,
+                      bgHex,
+                    }}
+                  />
 
                   {/* Hover toolbar — editor only */}
                   {editor && (
