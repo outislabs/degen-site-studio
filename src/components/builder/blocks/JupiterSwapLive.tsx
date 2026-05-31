@@ -47,6 +47,7 @@ const loadJupiter = (): Promise<void> => {
 };
 
 const RPC_ENDPOINT =
+  (import.meta.env.VITE_HELIUS_RPC_URL as string | undefined) ||
   (import.meta.env.VITE_HELIUS_RPC as string | undefined) ||
   'https://api.mainnet-beta.solana.com';
 
