@@ -79,6 +79,7 @@ const JupiterSwapLive = ({ contractAddress, accentHex, bgHex }: Props) => {
         if (mountedRef.current) return;
         mountedRef.current = true;
         try {
+          console.log('[JupiterSwapLive] window.Jupiter present?', !!window.Jupiter, 'target:', targetId, 'mint:', contractAddress);
           window.Jupiter.init({
             displayMode: 'integrated',
             integratedTargetId: targetId,
@@ -98,7 +99,9 @@ const JupiterSwapLive = ({ contractAddress, accentHex, bgHex }: Props) => {
             // but accepting these keys is harmless if unsupported by the version.
             branding: accentHex ? { primaryColor: accentHex } : undefined,
           });
+          console.log('[JupiterSwapLive] Jupiter.init called for', targetId);
         } catch (e: any) {
+          console.error('[JupiterSwapLive] init failed', e);
           setError(e?.message || 'Jupiter init failed');
         }
       })
