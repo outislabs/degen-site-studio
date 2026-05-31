@@ -402,7 +402,8 @@ const actionLabel = (a: CopilotAction): string => {
   switch (a.type) {
     case 'insert_block': {
       const meta = BLOCK_META[a.block_type]?.label ?? a.block_type;
-      return `Add ${meta} to ${a.target_section ?? 'Utilities'}`;
+      const where = a.placement?.position ? ` at ${a.placement.position}` : '';
+      return `Add ${meta}${where}`;
     }
     case 'update_block': {
       const keys = Object.keys(a.patch ?? a.config ?? {});
@@ -410,6 +411,10 @@ const actionLabel = (a: CopilotAction): string => {
     }
     case 'delete_block': return `Remove block`;
     case 'move_block': return `Move block${a.target_section ? ` to ${a.target_section}` : ''}`;
+    case 'update_placement': {
+      const keys = Object.keys(a.placement ?? {});
+      return `Move block (${keys.join(', ') || 'placement'})`;
+    }
     case 'update_section': {
       const keys = Object.keys(a.patch ?? {});
       return `Update ${a.section_id} (${keys.join(', ') || 'fields'})`;
