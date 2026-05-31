@@ -2,10 +2,14 @@ import { useState } from 'react';
 import {
   Zap, BarChart3, TrendingUp, Users, Gift, Trophy, LineChart, MessageCircle, Send, Sparkles,
   Trash2, ArrowUp, ArrowDown, Settings, Copy, AlertTriangle, Plus,
+  AlignLeft, AlignCenter, AlignRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import type { CopilotBlockInstance } from '@/types/coin';
+import type {
+  CopilotBlockInstance, BlockPlacement, BlockPosition, BlockSize, BlockAlignment,
+} from '@/types/coin';
+import { DEFAULT_PLACEMENT } from '@/types/coin';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -16,6 +20,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import JupiterSwapLive from './JupiterSwapLive';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const numberValue = (value: unknown, fallback?: number) => {
   const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
@@ -85,6 +90,8 @@ interface BlockExtras {
   contractAddress?: string;
   accentHex?: string;
   bgHex?: string;
+  /** Effective size after mobile collapse — passed so blocks like Jupiter can adapt. */
+  size?: BlockSize;
 }
 
 const SwapWidget = ({ config = {}, extras }: { config?: any; extras?: BlockExtras }) => {
@@ -96,6 +103,7 @@ const SwapWidget = ({ config = {}, extras }: { config?: any; extras?: BlockExtra
         contractAddress={extras.contractAddress}
         accentHex={extras.accentHex}
         bgHex={extras.bgHex}
+        size={extras.size}
       />
     );
   }
