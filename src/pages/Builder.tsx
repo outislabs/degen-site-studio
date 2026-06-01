@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT } from '@/types/coin';
+import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock, normalizeBlocks } from '@/types/coin';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
 import StepNftGallery from '@/components/builder/StepNftGallery';
@@ -91,6 +91,7 @@ const Builder = () => {
         if (site) {
           const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
           coinData.customDomain = (site as any).custom_domain || '';
+          coinData.copilotBlocks = normalizeBlocks(coinData.copilotBlocks);
           setData(coinData);
           setSlug((site as any).slug || '');
           setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
@@ -261,17 +262,17 @@ const Builder = () => {
       let next: CoinData = prev;
       switch (action.type) {
         case 'insert_block': {
-          const instance: CopilotBlockInstance = {
+          // Tolerate placement supplied either at the action top level or
+          // (legacy AI shape) inside config.placement. normalizeBlock collapses
+          // both into the canonical top-level placement.
+          const rawCfg = { ...((action as any).config ?? {}) };
+          const instance = normalizeBlock({
             id: crypto.randomUUID(),
             block_type: action.block_type,
-            config: action.config ?? {},
-            target_section: action.target_section ?? 'utilities',
+            config: rawCfg,
             created_at: Date.now(),
-            placement: {
-              ...DEFAULT_PLACEMENT,
-              ...((action as any).placement ?? {}),
-            },
-          };
+            placement: (action as any).placement,
+          });
           const blocks = [...(prev.copilotBlocks ?? [])];
           const pos = typeof action.position === 'number'
             ? Math.max(0, Math.min(action.position, blocks.length))
@@ -317,7 +318,7 @@ const Builder = () => {
             ...prev,
             copilotBlocks: (prev.copilotBlocks ?? []).map(b =>
               b.id === (action as any).block_id
-                ? { ...b, placement: { ...DEFAULT_PLACEMENT, ...(b.placement ?? {}), ...partial } }
+                ? normalizeBlock({ ...b, placement: { ...DEFAULT_PLACEMENT, ...(b.placement ?? {}), ...partial } })
                 : b,
             ),
           };
@@ -384,10 +385,16 @@ const Builder = () => {
   // but only when the site already exists.
   const persistData = (next: CoinData) => {
     if (!editingId) return;
+    // Canonicalize blocks before they hit the database so old shapes
+    // (config.placement, target_section) get cleaned up on every save.
+    const cleaned: CoinData = {
+      ...next,
+      copilotBlocks: normalizeBlocks(next.copilotBlocks),
+    };
     (async () => {
       const { error } = await supabase
         .from('sites')
-        .update({ data: JSON.parse(JSON.stringify(next)) } as any)
+        .update({ data: JSON.parse(JSON.stringify(cleaned)) } as any)
         .eq('id', editingId);
       if (error) console.error('Failed to persist site data:', error);
     })();
