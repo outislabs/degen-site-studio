@@ -407,10 +407,20 @@ const sizeToMaxWidth = (s: BlockSize): string =>
 const alignToMargin = (a: BlockAlignment): string =>
   a === 'left' ? 'mr-auto ml-0' : a === 'right' ? 'ml-auto mr-0' : 'mx-auto';
 
-export const resolvePlacement = (block: CopilotBlockInstance): BlockPlacement => ({
-  ...DEFAULT_PLACEMENT,
-  ...(block.placement ?? {}),
-});
+export const resolvePlacement = (block: CopilotBlockInstance): BlockPlacement => {
+  // Top-level placement is the source of truth. Fall back to a legacy
+  // config.placement only if the top-level is missing (older AI shapes
+  // wrote it nested). Real saves run normalizeBlock and strip the legacy
+  // copy, so this fallback exists purely for unmigrated reads.
+  const legacy = !block.placement
+    ? ((block.config as any)?.placement as Partial<BlockPlacement> | undefined)
+    : undefined;
+  return {
+    ...DEFAULT_PLACEMENT,
+    ...(legacy ?? {}),
+    ...(block.placement ?? {}),
+  };
+};
 
 interface RendererProps {
   blocks?: CopilotBlockInstance[];

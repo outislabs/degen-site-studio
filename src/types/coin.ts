@@ -48,6 +48,34 @@ export const DEFAULT_PLACEMENT: BlockPlacement = {
   alignment: 'center',
 };
 
+/**
+ * Canonicalize a copilot block: `placement` lives at the top level, never
+ * nested inside `config`. `target_section` is the old API and is dropped.
+ * Tolerates legacy/AI shapes that wrote `config.placement` instead.
+ */
+export function normalizeBlock(raw: any): CopilotBlockInstance {
+  if (!raw || typeof raw !== 'object') return raw;
+  const cfg = { ...(raw.config ?? {}) };
+  const nestedPlacement = (cfg as any).placement;
+  delete (cfg as any).placement;
+  const merged: BlockPlacement = {
+    ...DEFAULT_PLACEMENT,
+    ...(nestedPlacement && typeof nestedPlacement === 'object' ? nestedPlacement : {}),
+    ...(raw.placement && typeof raw.placement === 'object' ? raw.placement : {}),
+  };
+  const { target_section, ...rest } = raw;
+  return {
+    ...rest,
+    config: cfg,
+    placement: merged,
+  } as CopilotBlockInstance;
+}
+
+export function normalizeBlocks(list: any): CopilotBlockInstance[] {
+  if (!Array.isArray(list)) return [];
+  return list.map(normalizeBlock);
+}
+
 export interface CoinData {
   // Site type
   siteType: SiteType;

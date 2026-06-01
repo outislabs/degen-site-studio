@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
-import { CoinData, defaultCoinData } from '@/types/coin';
+import { CoinData, defaultCoinData, normalizeBlocks } from '@/types/coin';
 import { usePageTracking, trackBuyClick } from '@/hooks/useSiteAnalytics';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -51,6 +51,7 @@ const SiteView = () => {
 
       setSiteUuid(site.id);
       let coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
+      coinData.copilotBlocks = normalizeBlocks(coinData.copilotBlocks);
 
       // If NFT site, load NFT collection data and merge
       if ((site as any).site_type === 'nft') {
