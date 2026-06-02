@@ -133,11 +133,7 @@ const LivePreview = ({
       )}
       {bandAt('top')}
       <div
-        className={cn('mx-auto transition-[max-width] duration-300', layoutMaxWidth && 'md:max-w-full')}
-        style={layoutMaxWidth ? ({ ['--section-width' as any]: layoutMaxWidth } as React.CSSProperties) : undefined}
-      >
-      <div
-        className="mx-auto"
+        className="mx-auto transition-[max-width] duration-300"
         style={layoutMaxWidth ? { maxWidth: layoutMaxWidth } : undefined}
       >
       {layout === 'classic' && <ClassicLayout {...layoutProps} />}
@@ -165,7 +161,6 @@ const LivePreview = ({
       {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
       {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
       {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
-      </div>
       </div>
       {bandAt('after_hero')}
       {bandAt('after_tokenomics')}
