@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, Copy, Check, Book, Code2, Server, Wrench, Rocket, Menu, X, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ChevronRight, Copy, Check, Book, Code2, Server, Wrench, Rocket, Menu, X, ArrowLeft, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -69,6 +69,18 @@ const sections: Section[] = [
       { id: 'tool-content-studio', title: 'Content Studio' },
       { id: 'tool-token-launch', title: 'Token Launch' },
       { id: 'tool-bags-wallet', title: 'Bags Wallet' },
+    ],
+  },
+  {
+    id: 'cli',
+    title: 'CLI',
+    icon: Terminal,
+    items: [
+      { id: 'cli-installation', title: 'Installation' },
+      { id: 'cli-authentication', title: 'Authentication' },
+      { id: 'cli-commands', title: 'Commands' },
+      { id: 'cli-global-flags', title: 'Global Flags' },
+      { id: 'cli-api-key-auth', title: 'API Key Auth' },
     ],
   },
 ];
@@ -470,6 +482,92 @@ print(json.loads(meme)["image_url"])`} />
     <P>
       View your Solana wallet portfolio, track token holdings, and manage your bags. Connected via Reown (WalletConnect)
       for secure wallet interactions across all major Solana wallets.
+    </P>
+
+    {/* CLI */}
+    <Heading id="cli-installation">⌨️ DegenTools CLI</Heading>
+    <P>
+      The DegenTools CLI (<code className="text-foreground">dgn</code>) lets you manage your meme coin and NFT project sites directly from your terminal. Build scripts, automate deployments, and integrate DegenTools into your dev workflow.
+    </P>
+
+    <SubHeading id="cli-installation">Installation</SubHeading>
+    <CodeBlock language="bash" code={`npm install -g degentools`} />
+    <P>Verify the installation:</P>
+    <CodeBlock language="bash" code={`dgn --version`} />
+    <P>
+      <strong className="text-foreground">Requirements:</strong> Node.js 18+
+    </P>
+
+    <SubHeading id="cli-authentication">Authentication</SubHeading>
+    <P>
+      <strong className="text-foreground">Login</strong>
+    </P>
+    <CodeBlock language="bash" code={`dgn auth login`} />
+    <P>
+      Opens your browser to the DegenTools authorization page. Click <strong className="text-foreground">Authorize</strong> — the CLI automatically receives and stores a 30-day session token.
+    </P>
+    <P>
+      <strong className="text-foreground">Check status</strong>
+    </P>
+    <CodeBlock language="bash" code={`dgn auth status`} />
+    <P>
+      <strong className="text-foreground">Logout</strong>
+    </P>
+    <CodeBlock language="bash" code={`dgn auth logout`} />
+    <P>
+      Sessions expire after 30 days. Run <code className="text-foreground">dgn auth login</code> to re-authorize.
+    </P>
+
+    <SubHeading id="cli-commands">Commands</SubHeading>
+    <P>
+      <strong className="text-foreground">dgn auth</strong> — Manage your CLI session
+    </P>
+    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-4 ml-1">
+      <li><code className="text-foreground">dgn auth login</code> — Authorize via browser</li>
+      <li><code className="text-foreground">dgn auth status</code> — Show current session info</li>
+      <li><code className="text-foreground">dgn auth logout</code> — Clear the session</li>
+    </ul>
+    <P>
+      <strong className="text-foreground">dgn sites</strong> — Manage your project sites
+    </P>
+    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-4 ml-1">
+      <li><code className="text-foreground">dgn sites list</code> — List all your sites</li>
+      <li><code className="text-foreground">dgn sites info &lt;site-id&gt;</code> — Get details for a site</li>
+      <li><code className="text-foreground">dgn sites open &lt;site-id&gt;</code> — Open a site in the browser</li>
+    </ul>
+    <P>
+      <strong className="text-foreground">dgn content</strong> — AI Content Studio
+    </P>
+    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-4 ml-1">
+      <li><code className="text-foreground">dgn content generate</code> — Generate copy for a site using AI</li>
+    </ul>
+    <P>
+      <strong className="text-foreground">dgn referral</strong> — Referral info
+    </P>
+    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-4 ml-1">
+      <li><code className="text-foreground">dgn referral info</code> — Show your referral code and earnings</li>
+    </ul>
+    <P>
+      <strong className="text-foreground">dgn whoami</strong> — Display the currently authenticated account.
+    </P>
+    <CodeBlock language="bash" code={`dgn whoami`} />
+
+    <SubHeading id="cli-global-flags">Global Flags</SubHeading>
+    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-4 ml-1">
+      <li><code className="text-foreground">--json</code> — Output as JSON (useful for scripting)</li>
+      <li><code className="text-foreground">--version</code> — Print CLI version</li>
+      <li><code className="text-foreground">--help</code> — Show help for any command</li>
+    </ul>
+
+    <SubHeading id="cli-api-key-auth">API Key Auth <span className="text-muted-foreground text-xs font-normal">(Coming Soon)</span></SubHeading>
+    <P>
+      For CI/CD pipelines, GitHub Actions, n8n, and agent contexts (Claude Code, MCP servers), the CLI will support API key auth via environment variable — no browser required.
+    </P>
+    <CodeBlock language="bash" code={`export DEGENTOOLS_API_KEY=dgn_your_key_here
+
+dgn sites list`} />
+    <P>
+      API keys will be generated from your DegenTools dashboard.
     </P>
 
     <div className="mt-16 mb-8 pt-8 border-t border-border">
