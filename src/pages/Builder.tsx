@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock, normalizeBlocks } from '@/types/coin';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock } from '@/types/coin';
+import { coinDataFromRaw, persistedDataFromCoinData } from '@/lib/siteSchema';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
 import StepNftGallery from '@/components/builder/StepNftGallery';
@@ -61,6 +62,9 @@ const Builder = () => {
   const [slugError, setSlugError] = useState<string | null>(null);
   const [domainPaymentStatus, setDomainPaymentStatus] = useState('unpaid');
   const [showCopilot, setShowCopilot] = useState(false);
+  // Snapshot of the raw `sites.data` payload (in new SiteDoc shape) so each
+  // save preserves existing block ids instead of regenerating them.
+  const rawSiteDocRef = useRef<any>(null);
 
   const isNft = data.siteType === 'nft';
   const steps = useMemo(() => isNft ? nftSteps : memecoinSteps, [isNft]);
@@ -89,9 +93,10 @@ const Builder = () => {
       setPublishedId(id);
       supabase.from('sites').select('*').eq('id', id).single().then(({ data: site }) => {
         if (site) {
-          const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
-          coinData.customDomain = (site as any).custom_domain || '';
-          coinData.copilotBlocks = normalizeBlocks(coinData.copilotBlocks);
+          // Lazy-migrate legacy CoinData -> SiteDoc on read.
+          const coinData = coinDataFromRaw(site.data);
+          coinData.customDomain = (site as any).custom_domain || coinData.customDomain || '';
+          rawSiteDocRef.current = site.data;
           setData(coinData);
           setSlug((site as any).slug || '');
           setDomainPaymentStatus((site as any).domain_payment_status || 'unpaid');
@@ -143,7 +148,8 @@ const Builder = () => {
         slug: slugValue,
         custom_domain: data.customDomain || null,
         site_type: data.siteType || 'memecoin',
-        data: JSON.parse(JSON.stringify(data)),
+        // Persist in the unified SiteDoc shape. Preserve prior block ids.
+        data: persistedDataFromCoinData(data, rawSiteDocRef.current),
       } as any;
 
       let siteId = editingId;
@@ -151,6 +157,7 @@ const Builder = () => {
       if (editingId) {
         const { error } = await supabase.from('sites').update(sitePayload).eq('id', editingId);
         if (error) throw error;
+        rawSiteDocRef.current = sitePayload.data;
         setPublishedId(editingId);
         toast.success('Site updated! 🚀');
       } else {
@@ -160,6 +167,7 @@ const Builder = () => {
         }]).select('id').single();
         if (error) throw error;
         siteId = inserted.id;
+        rawSiteDocRef.current = sitePayload.data;
         setEditingId(siteId);
         setPublishedId(siteId);
         toast.success('Site published! 🚀');
@@ -385,16 +393,12 @@ const Builder = () => {
   // but only when the site already exists.
   const persistData = (next: CoinData) => {
     if (!editingId) return;
-    // Canonicalize blocks before they hit the database so old shapes
-    // (config.placement, target_section) get cleaned up on every save.
-    const cleaned: CoinData = {
-      ...next,
-      copilotBlocks: normalizeBlocks(next.copilotBlocks),
-    };
+    const payload = persistedDataFromCoinData(next, rawSiteDocRef.current);
+    rawSiteDocRef.current = payload;
     (async () => {
       const { error } = await supabase
         .from('sites')
-        .update({ data: JSON.parse(JSON.stringify(cleaned)) } as any)
+        .update({ data: payload } as any)
         .eq('id', editingId);
       if (error) console.error('Failed to persist site data:', error);
     })();
