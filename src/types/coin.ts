@@ -22,6 +22,8 @@ export interface CopilotBlockInstance {
   created_at: number;
   /** Per-block placement on the page. Free-floating, no group framing. */
   placement?: BlockPlacement;
+  /** Layout primitive: width + row grouping for side-by-side composition. */
+  layout?: BlockLayout;
 }
 
 export type BlockPosition =
@@ -48,6 +50,51 @@ export const DEFAULT_PLACEMENT: BlockPlacement = {
   alignment: 'center',
 };
 
+// ─── Layout primitive (Phase 2) ─────────────────────────────────────────────
+
+export type BlockWidth =
+  | 'full'
+  | 'half'
+  | 'third'
+  | 'two-thirds'
+  | 'quarter'
+  | 'three-quarters';
+
+export interface BlockLayout {
+  width: BlockWidth;
+  /** Blocks sharing the same row id render side-by-side in a 12-col grid. */
+  row?: string;
+  /** Position within a row. */
+  order?: number;
+}
+
+export const DEFAULT_LAYOUT: BlockLayout = { width: 'full' };
+
+/**
+ * Map a width keyword to the desktop (>=md) Tailwind col-span class.
+ * Strings are explicit so the JIT picks them up.
+ */
+export const widthToColSpan = (w: BlockWidth): string => {
+  switch (w) {
+    case 'half':            return 'md:col-span-6';
+    case 'third':           return 'md:col-span-4';
+    case 'two-thirds':      return 'md:col-span-8';
+    case 'quarter':         return 'md:col-span-3';
+    case 'three-quarters':  return 'md:col-span-9';
+    case 'full':
+    default:                return 'md:col-span-12';
+  }
+};
+
+export const WIDTH_OPTIONS: { value: BlockWidth; label: string }[] = [
+  { value: 'full',            label: 'Full'           },
+  { value: 'three-quarters',  label: '3/4'            },
+  { value: 'two-thirds',      label: '2/3'            },
+  { value: 'half',            label: '1/2'            },
+  { value: 'third',           label: '1/3'            },
+  { value: 'quarter',         label: '1/4'            },
+];
+
 /**
  * Canonicalize a copilot block: `placement` lives at the top level, never
  * nested inside `config`. `target_section` is the old API and is dropped.
@@ -58,16 +105,24 @@ export function normalizeBlock(raw: any): CopilotBlockInstance {
   const cfg = { ...(raw.config ?? {}) };
   const nestedPlacement = (cfg as any).placement;
   delete (cfg as any).placement;
+  const nestedLayout = (cfg as any).layout;
+  delete (cfg as any).layout;
   const merged: BlockPlacement = {
     ...DEFAULT_PLACEMENT,
     ...(nestedPlacement && typeof nestedPlacement === 'object' ? nestedPlacement : {}),
     ...(raw.placement && typeof raw.placement === 'object' ? raw.placement : {}),
+  };
+  const mergedLayout: BlockLayout = {
+    ...DEFAULT_LAYOUT,
+    ...(nestedLayout && typeof nestedLayout === 'object' ? nestedLayout : {}),
+    ...(raw.layout && typeof raw.layout === 'object' ? raw.layout : {}),
   };
   const { target_section, ...rest } = raw;
   return {
     ...rest,
     config: cfg,
     placement: merged,
+    layout: mergedLayout,
   } as CopilotBlockInstance;
 }
 

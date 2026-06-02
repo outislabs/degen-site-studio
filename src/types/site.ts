@@ -1,7 +1,7 @@
 import type { ThemeOverrides } from '@/lib/themes';
 import type {
   CoinData, ThemeId, LayoutStyle, SiteType, BlockPlacement,
-  RoadmapPhase, TeamMember, FaqItem,
+  RoadmapPhase, TeamMember, FaqItem, BlockLayout,
 } from './coin';
 
 /**
@@ -36,6 +36,8 @@ export interface Block {
   config: Record<string, any>;
   /** Free-floating placement (utility blocks only for now). */
   placement?: BlockPlacement;
+  /** Layout primitive (width + row grouping). Phase 2. */
+  layout?: BlockLayout;
   created_at?: number;
 }
 
