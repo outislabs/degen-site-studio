@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import LivePreview from '@/components/builder/LivePreview';
-import { CoinData, defaultCoinData, normalizeBlocks } from '@/types/coin';
+import { CoinData, defaultCoinData } from '@/types/coin';
 import { coinDataFromRaw } from '@/lib/siteSchema';
 import { usePageTracking, trackBuyClick } from '@/hooks/useSiteAnalytics';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
