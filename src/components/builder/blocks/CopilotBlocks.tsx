@@ -2,14 +2,15 @@ import { useState } from 'react';
 import {
   Zap, BarChart3, TrendingUp, Users, Gift, Trophy, LineChart, MessageCircle, Send, Sparkles,
   Trash2, ArrowUp, ArrowDown, Settings, Copy, AlertTriangle, Plus,
-  AlignLeft, AlignCenter, AlignRight,
+  AlignLeft, AlignCenter, AlignRight, Link2, Link2Off,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type {
   CopilotBlockInstance, BlockPlacement, BlockPosition, BlockSize, BlockAlignment,
+  BlockLayout, BlockWidth,
 } from '@/types/coin';
-import { DEFAULT_PLACEMENT } from '@/types/coin';
+import { DEFAULT_PLACEMENT, DEFAULT_LAYOUT, WIDTH_OPTIONS, widthToColSpan } from '@/types/coin';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -422,6 +423,17 @@ export const resolvePlacement = (block: CopilotBlockInstance): BlockPlacement =>
   };
 };
 
+export const resolveLayout = (block: CopilotBlockInstance): BlockLayout => {
+  const legacy = !block.layout
+    ? ((block.config as any)?.layout as Partial<BlockLayout> | undefined)
+    : undefined;
+  return {
+    ...DEFAULT_LAYOUT,
+    ...(legacy ?? {}),
+    ...(block.layout ?? {}),
+  };
+};
+
 interface RendererProps {
   blocks?: CopilotBlockInstance[];
   position: BlockPosition;
@@ -434,6 +446,9 @@ interface RendererProps {
   onDuplicate?: (id: string) => void;
   onConfigChange?: (id: string, nextConfig: Record<string, any>) => void;
   onPlacementChange?: (id: string, patch: Partial<BlockPlacement>) => void;
+  onLayoutChange?: (id: string, patch: Partial<BlockLayout>) => void;
+  onGroupAbove?: (id: string) => void;
+  onBreakRow?: (id: string) => void;
   onOpenCopilot?: () => void;
   /** Published-site context: enables live Jupiter swap and theming. */
   contractAddress?: string;
@@ -451,6 +466,9 @@ export const CopilotBlocksRenderer = ({
   onDuplicate,
   onConfigChange,
   onPlacementChange,
+  onLayoutChange,
+  onGroupAbove,
+  onBreakRow,
   onOpenCopilot,
   contractAddress,
   accentHex,
@@ -466,6 +484,155 @@ export const CopilotBlocksRenderer = ({
 
   // Nothing to render and no empty state requested → return null (no framing!).
   if (visibleBlocks.length === 0 && !showEmptyState) return null;
+
+  // Group blocks by row id, preserving document order of first sight.
+  // Solo blocks (no row, or unique row) render with the existing
+  // size/alignment placement logic. Multi-member rows render as a
+  // 12-col grid where width drives col-span.
+  type Group = { rowId?: string; items: CopilotBlockInstance[] };
+  const groups: Group[] = [];
+  const seen = new Set<string>();
+  for (const b of visibleBlocks) {
+    if (seen.has(b.id)) continue;
+    const { row } = resolveLayout(b);
+    if (row) {
+      const members = visibleBlocks
+        .filter(x => resolveLayout(x).row === row)
+        .sort((a, c) => (resolveLayout(a).order ?? 0) - (resolveLayout(c).order ?? 0));
+      members.forEach(m => seen.add(m.id));
+      groups.push({ rowId: row, items: members });
+    } else {
+      seen.add(b.id);
+      groups.push({ items: [b] });
+    }
+  }
+
+  const renderControls = (b: CopilotBlockInstance, i: number) => {
+    const placement = resolvePlacement(b);
+    const layout = resolveLayout(b);
+    const blockIdx = visibleBlocks.findIndex(x => x.id === b.id);
+    const isFirst = blockIdx === 0;
+    const grouped = !!layout.row;
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-lg bg-black/60 border border-white/10 p-1.5">
+        {/* Width picker — applies when grouped in a row */}
+        <Select
+          value={layout.width}
+          onValueChange={(v) => onLayoutChange?.(b.id, { width: v as BlockWidth })}
+        >
+          <SelectTrigger
+            className="h-7 w-[88px] text-[10px] bg-black/40 border-white/10"
+            title={grouped ? 'Column width within row' : 'Width applies when grouped in a row'}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {WIDTH_OPTIONS.map(o => (
+              <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Group with above / break row */}
+        {grouped ? (
+          <ToolbarBtn title="Break row" onClick={() => onBreakRow?.(b.id)}>
+            <Link2Off className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+        ) : (
+          <ToolbarBtn
+            title={isFirst ? 'No block above to group with' : 'Group with block above'}
+            disabled={isFirst}
+            onClick={() => onGroupAbove?.(b.id)}
+          >
+            <Link2 className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+        )}
+
+        {/* Position select (existing) */}
+        <Select
+          value={placement.position}
+          onValueChange={(v) => onPlacementChange?.(b.id, { position: v as BlockPosition })}
+        >
+          <SelectTrigger className="h-7 w-[130px] text-[10px] bg-black/40 border-white/10">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {POSITION_OPTIONS.map(o => (
+              <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Solo size + alignment (legacy placement) only when not grouped */}
+        {!grouped && (
+          <>
+            <Select
+              value={placement.size}
+              onValueChange={(v) => onPlacementChange?.(b.id, { size: v as BlockSize })}
+            >
+              <SelectTrigger className="h-7 w-[100px] text-[10px] bg-black/40 border-white/10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SIZE_OPTIONS.map(o => (
+                  <SelectItem key={o.value} value={o.value} className="text-xs">
+                    {o.label} ({o.px})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {placement.size !== 'full' && (
+              <div className="flex items-center gap-0.5 rounded-md bg-black/40 border border-white/10 p-0.5">
+                {([
+                  { v: 'left',   Icon: AlignLeft   },
+                  { v: 'center', Icon: AlignCenter },
+                  { v: 'right',  Icon: AlignRight  },
+                ] as const).map(({ v, Icon }) => (
+                  <button
+                    key={v}
+                    type="button"
+                    title={`Align ${v}`}
+                    aria-label={`Align ${v}`}
+                    onClick={() => onPlacementChange?.(b.id, { alignment: v as BlockAlignment })}
+                    className={cn(
+                      'w-6 h-6 rounded flex items-center justify-center transition-colors',
+                      placement.alignment === v
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-white/60 hover:text-white hover:bg-white/10'
+                    )}
+                  >
+                    <Icon className="w-3 h-3" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        <div className="flex items-center gap-0.5 ml-auto">
+          <ToolbarBtn title="Move up" disabled={i === 0} onClick={() => onMove?.(b.id, 'up')}>
+            <ArrowUp className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+          <ToolbarBtn title="Move down" onClick={() => onMove?.(b.id, 'down')}>
+            <ArrowDown className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+          <ToolbarBtn title="Configure" onClick={() => setEditing(b)}>
+            <Settings className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+          <ToolbarBtn title="Duplicate" onClick={() => onDuplicate?.(b.id)}>
+            <Copy className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+          <ToolbarBtn
+            title="Delete"
+            destructive
+            onClick={() => { onDelete?.(b.id); toast.success('Block removed'); }}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </ToolbarBtn>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -489,136 +656,87 @@ export const CopilotBlocksRenderer = ({
           </div>
         )}
 
-        {visibleBlocks.map((b, i) => {
-          const stale = isBlockStale(b);
-          const placement = resolvePlacement(b);
-          // Mobile: force full width and center; ignore declared size/alignment.
-          const effectiveSize: BlockSize = isMobile ? 'full' : placement.size;
-          const effectiveAlign: BlockAlignment = isMobile ? 'center' : placement.alignment;
-          const maxWidth = sizeToMaxWidth(effectiveSize);
-          const alignClass = alignToMargin(effectiveAlign);
+        {groups.map((group, gi) => {
+          // Solo block — render with legacy size/alignment placement.
+          if (group.items.length === 1 && !group.rowId) {
+            const b = group.items[0];
+            const stale = isBlockStale(b);
+            const placement = resolvePlacement(b);
+            const effectiveSize: BlockSize = isMobile ? 'full' : placement.size;
+            const effectiveAlign: BlockAlignment = isMobile ? 'center' : placement.alignment;
+            const maxWidth = sizeToMaxWidth(effectiveSize);
+            const alignClass = alignToMargin(effectiveAlign);
+            const i = visibleBlocks.findIndex(x => x.id === b.id);
+            return (
+              <div
+                key={b.id}
+                className={cn('relative group w-full', alignClass)}
+                style={{ maxWidth }}
+              >
+                {editor && (
+                  <div className="absolute -top-2 -left-2 z-10 px-1.5 h-5 rounded-md bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-md ring-2 ring-background">
+                    <Sparkles className="w-2.5 h-2.5" /> AI
+                  </div>
+                )}
+                {editor && stale && (
+                  <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200 flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>This block needs configuration — hidden on the published site.</span>
+                  </div>
+                )}
+                <BlockRenderer
+                  block={b}
+                  extras={{
+                    live: !editor,
+                    contractAddress,
+                    accentHex,
+                    bgHex,
+                    size: effectiveSize,
+                  }}
+                />
+                {editor && renderControls(b, i)}
+              </div>
+            );
+          }
+
+          // Grouped row — 12-col grid; mobile collapses to single column.
           return (
             <div
-              key={b.id}
-              className={cn('relative group w-full', alignClass)}
-              style={{ maxWidth }}
+              key={group.rowId ?? `row-${gi}`}
+              className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center w-full"
             >
-              {/* AI badge — editor only */}
-              {editor && (
-                <div className="absolute -top-2 -left-2 z-10 px-1.5 h-5 rounded-md bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-md ring-2 ring-background">
-                  <Sparkles className="w-2.5 h-2.5" /> AI
-                </div>
-              )}
-
-              {/* Stale warning */}
-              {editor && stale && (
-                <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200 flex items-center gap-2">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  <span>This block needs configuration — hidden on the published site.</span>
-                </div>
-              )}
-
-              <BlockRenderer
-                block={b}
-                extras={{
-                  live: !editor,
-                  contractAddress,
-                  accentHex,
-                  bgHex,
-                  size: effectiveSize,
-                }}
-              />
-
-              {/* Placement controls — editor only, always visible at bottom */}
-              {editor && (
-                <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-lg bg-black/60 border border-white/10 p-1.5">
-                  <Select
-                    value={placement.position}
-                    onValueChange={(v) => onPlacementChange?.(b.id, { position: v as BlockPosition })}
-                  >
-                    <SelectTrigger className="h-7 w-[140px] text-[10px] bg-black/40 border-white/10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {POSITION_OPTIONS.map(o => (
-                        <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={placement.size}
-                    onValueChange={(v) => onPlacementChange?.(b.id, { size: v as BlockSize })}
-                  >
-                    <SelectTrigger className="h-7 w-[100px] text-[10px] bg-black/40 border-white/10">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SIZE_OPTIONS.map(o => (
-                        <SelectItem key={o.value} value={o.value} className="text-xs">
-                          {o.label} ({o.px})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {placement.size !== 'full' && (
-                    <div className="flex items-center gap-0.5 rounded-md bg-black/40 border border-white/10 p-0.5">
-                      {([
-                        { v: 'left',   Icon: AlignLeft   },
-                        { v: 'center', Icon: AlignCenter },
-                        { v: 'right',  Icon: AlignRight  },
-                      ] as const).map(({ v, Icon }) => (
-                        <button
-                          key={v}
-                          type="button"
-                          title={`Align ${v}`}
-                          aria-label={`Align ${v}`}
-                          onClick={() => onPlacementChange?.(b.id, { alignment: v as BlockAlignment })}
-                          className={cn(
-                            'w-6 h-6 rounded flex items-center justify-center transition-colors',
-                            placement.alignment === v
-                              ? 'bg-primary/20 text-primary'
-                              : 'text-white/60 hover:text-white hover:bg-white/10'
-                          )}
-                        >
-                          <Icon className="w-3 h-3" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-0.5 ml-auto">
-                    <ToolbarBtn
-                      title="Move up (within this position)"
-                      disabled={i === 0}
-                      onClick={() => onMove?.(b.id, 'up')}
-                    >
-                      <ArrowUp className="w-3.5 h-3.5" />
-                    </ToolbarBtn>
-                    <ToolbarBtn
-                      title="Move down"
-                      disabled={i === visibleBlocks.length - 1}
-                      onClick={() => onMove?.(b.id, 'down')}
-                    >
-                      <ArrowDown className="w-3.5 h-3.5" />
-                    </ToolbarBtn>
-                    <ToolbarBtn title="Configure" onClick={() => setEditing(b)}>
-                      <Settings className="w-3.5 h-3.5" />
-                    </ToolbarBtn>
-                    <ToolbarBtn title="Duplicate" onClick={() => onDuplicate?.(b.id)}>
-                      <Copy className="w-3.5 h-3.5" />
-                    </ToolbarBtn>
-                    <ToolbarBtn
-                      title="Delete"
-                      destructive
-                      onClick={() => { onDelete?.(b.id); toast.success('Block removed'); }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </ToolbarBtn>
+              {group.items.map((b) => {
+                const stale = isBlockStale(b);
+                const layout = resolveLayout(b);
+                const span = widthToColSpan(layout.width);
+                const i = visibleBlocks.findIndex(x => x.id === b.id);
+                return (
+                  <div key={b.id} className={cn('relative w-full', span)}>
+                    {editor && (
+                      <div className="absolute -top-2 -left-2 z-10 px-1.5 h-5 rounded-md bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-md ring-2 ring-background">
+                        <Sparkles className="w-2.5 h-2.5" /> AI
+                      </div>
+                    )}
+                    {editor && stale && (
+                      <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200 flex items-center gap-2">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        <span>This block needs configuration — hidden on the published site.</span>
+                      </div>
+                    )}
+                    <BlockRenderer
+                      block={b}
+                      extras={{
+                        live: !editor,
+                        contractAddress,
+                        accentHex,
+                        bgHex,
+                        size: 'full',
+                      }}
+                    />
+                    {editor && renderControls(b, i)}
                   </div>
-                </div>
-              )}
+                );
+              })}
             </div>
           );
         })}

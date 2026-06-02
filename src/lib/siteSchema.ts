@@ -68,6 +68,7 @@ function blocksFromCoinData(data: CoinData): Block[] {
     type: b.block_type,
     config: b.config ?? {},
     placement: b.placement,
+    layout: b.layout,
     created_at: b.created_at,
   }));
 
@@ -90,6 +91,7 @@ export function toSiteDoc(raw: any): SiteDoc {
             block_type: b.type,
             config: b.config ?? {},
             placement: b.placement,
+            layout: b.layout,
             created_at: b.created_at ?? Date.now(),
           } as any);
           return {
@@ -97,6 +99,7 @@ export function toSiteDoc(raw: any): SiteDoc {
             type: normalized.block_type,
             config: normalized.config ?? {},
             placement: normalized.placement,
+            layout: normalized.layout,
             created_at: normalized.created_at,
           };
         }),
@@ -169,6 +172,7 @@ export function fromSiteDoc(doc: SiteDoc): CoinData {
       block_type: b.type,
       config: b.config ?? {},
       placement: b.placement,
+      layout: b.layout,
       created_at: b.created_at ?? Date.now(),
     }));
 
@@ -271,6 +275,7 @@ export function applyCoinDataToDoc(doc: SiteDoc, data: CoinData): SiteDoc {
     type: b.block_type,
     config: b.config ?? {},
     placement: b.placement,
+    layout: b.layout,
     created_at: b.created_at,
   }));
 

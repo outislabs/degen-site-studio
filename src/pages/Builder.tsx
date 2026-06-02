@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock } from '@/types/coin';
+import {
+  CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT,
+  BlockLayout, DEFAULT_LAYOUT, normalizeBlock,
+} from '@/types/coin';
 import { coinDataFromRaw, persistedDataFromCoinData } from '@/lib/siteSchema';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
@@ -453,6 +456,66 @@ const Builder = () => {
         : b,
     ));
 
+  const handleLayoutChange = (id: string, patch: Partial<BlockLayout>) =>
+    updateBlocks(blocks => blocks.map(b =>
+      b.id === id
+        ? { ...b, layout: { ...DEFAULT_LAYOUT, ...(b.layout ?? {}), ...patch } }
+        : b,
+    ));
+
+  const handleGroupAbove = (id: string) =>
+    updateBlocks(blocks => {
+      const idx = blocks.findIndex(b => b.id === id);
+      if (idx <= 0) return blocks;
+      const above = blocks[idx - 1];
+      const aboveLayout = { ...DEFAULT_LAYOUT, ...(above.layout ?? {}) };
+      const rowId = aboveLayout.row ?? `row_${crypto.randomUUID().slice(0, 8)}`;
+      // Highest order currently in the row, so the new block lands at the end.
+      const orders = blocks
+        .filter(b => (b.layout?.row ?? null) === rowId)
+        .map(b => b.layout?.order ?? 0);
+      const baseOrder = orders.length ? Math.max(...orders) : 0;
+      return blocks.map((b, i) => {
+        if (i === idx - 1 && !aboveLayout.row) {
+          return { ...b, layout: { ...aboveLayout, row: rowId, order: baseOrder } };
+        }
+        if (b.id === id) {
+          return {
+            ...b,
+            layout: {
+              ...DEFAULT_LAYOUT,
+              ...(b.layout ?? {}),
+              row: rowId,
+              order: baseOrder + 1,
+            },
+          };
+        }
+        return b;
+      });
+    });
+
+  const handleBreakRow = (id: string) =>
+    updateBlocks(blocks => {
+      const target = blocks.find(b => b.id === id);
+      const rowId = target?.layout?.row;
+      if (!rowId) return blocks;
+      // Drop row+order on this block. If the row now has <2 members, drop it
+      // from the remaining sole member too so it returns to solo rendering.
+      const remaining = blocks.filter(b => b.id !== id && b.layout?.row === rowId);
+      const collapseSole = remaining.length === 1;
+      return blocks.map(b => {
+        if (b.id === id) {
+          const { row, order, ...rest } = (b.layout ?? {}) as BlockLayout;
+          return { ...b, layout: { ...DEFAULT_LAYOUT, ...rest } };
+        }
+        if (collapseSole && b.id === remaining[0].id) {
+          const { row, order, ...rest } = (b.layout ?? {}) as BlockLayout;
+          return { ...b, layout: { ...DEFAULT_LAYOUT, ...rest } };
+        }
+        return b;
+      });
+    });
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* ── HEADER ── */}
@@ -713,6 +776,9 @@ const Builder = () => {
                   onDuplicateBlock={handleDuplicateBlock}
                   onConfigBlockChange={handleConfigBlockChange}
                   onPlacementChange={handlePlacementChange}
+                  onLayoutChange={handleLayoutChange}
+                  onGroupAbove={handleGroupAbove}
+                  onBreakRow={handleBreakRow}
                   onOpenCopilot={() => setShowCopilot(true)}
                 />
               </ErrorBoundary>
