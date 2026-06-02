@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, Copy, Check, Book, Code2, Server, Wrench, Rocket, Menu, X, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ChevronRight, Copy, Check, Book, Code2, Server, Wrench, Rocket, Menu, X, ArrowLeft, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -69,6 +69,18 @@ const sections: Section[] = [
       { id: 'tool-content-studio', title: 'Content Studio' },
       { id: 'tool-token-launch', title: 'Token Launch' },
       { id: 'tool-bags-wallet', title: 'Bags Wallet' },
+    ],
+  },
+  {
+    id: 'cli',
+    title: 'CLI',
+    icon: Terminal,
+    items: [
+      { id: 'cli-installation', title: 'Installation' },
+      { id: 'cli-authentication', title: 'Authentication' },
+      { id: 'cli-commands', title: 'Commands' },
+      { id: 'cli-global-flags', title: 'Global Flags' },
+      { id: 'cli-api-key-auth', title: 'API Key Auth' },
     ],
   },
 ];
