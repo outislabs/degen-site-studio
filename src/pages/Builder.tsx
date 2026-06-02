@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock, normalizeBlocks } from '@/types/coin';
+import { CoinData, CopilotBlockInstance, defaultCoinData, BlockPlacement, DEFAULT_PLACEMENT, normalizeBlock } from '@/types/coin';
 import { coinDataFromRaw, persistedDataFromCoinData } from '@/lib/siteSchema';
 import StepCoinBasics from '@/components/builder/StepCoinBasics';
 import StepTokenomics from '@/components/builder/StepTokenomics';
