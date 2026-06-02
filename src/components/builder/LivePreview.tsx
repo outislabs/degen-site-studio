@@ -1,4 +1,4 @@
-import { CoinData, ThemeId, BlockPlacement, BlockPosition } from '@/types/coin';
+import { CoinData, ThemeId, BlockPlacement, BlockPosition, BlockLayout } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { themes, resolveTheme } from '@/lib/themes';
@@ -40,6 +40,9 @@ interface Props {
   onDuplicateBlock?: (id: string) => void;
   onConfigBlockChange?: (id: string, cfg: Record<string, any>) => void;
   onPlacementChange?: (id: string, patch: Partial<BlockPlacement>) => void;
+  onLayoutChange?: (id: string, patch: Partial<BlockLayout>) => void;
+  onGroupAbove?: (id: string) => void;
+  onBreakRow?: (id: string) => void;
   onOpenCopilot?: () => void;
 }
 
@@ -50,7 +53,7 @@ const FALLBACK_THEME: ThemeId = 'degen-dark';
 const LivePreview = ({
   data, showWatermark = false, siteId, editor = false,
   onDeleteBlock, onMoveBlock, onDuplicateBlock, onConfigBlockChange,
-  onPlacementChange, onOpenCopilot,
+  onPlacementChange, onLayoutChange, onGroupAbove, onBreakRow, onOpenCopilot,
 }: Props) => {
   const style = resolveTheme(data.theme ?? FALLBACK_THEME, data.themeOverrides);
   const [countdown, setCountdown] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -93,6 +96,9 @@ const LivePreview = ({
         onDuplicate={onDuplicateBlock}
         onConfigChange={onConfigBlockChange}
         onPlacementChange={onPlacementChange}
+        onLayoutChange={onLayoutChange}
+        onGroupAbove={onGroupAbove}
+        onBreakRow={onBreakRow}
         onOpenCopilot={onOpenCopilot}
         contractAddress={data.contractAddress}
         accentHex={style?.accentHex}
