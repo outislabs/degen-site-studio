@@ -198,6 +198,14 @@ export interface CoinData {
 
   // Where the UTILITIES section should render on the published site.
   utilitiesPosition?: 'top' | 'after-hero' | 'before-footer' | 'bottom';
+
+  /**
+   * Per-section layout overrides (Phase 2.5). Stored on the corresponding
+   * section block in the unified SiteDoc; surfaced here for the in-memory
+   * builder. Only sections with explicit overrides appear in this map; absent
+   * keys render at default full width (existing visual behavior).
+   */
+  sectionLayouts?: Partial<Record<'hero' | 'tokenomics' | 'socials' | 'roadmap', BlockLayout>>;
 }
 
 export type ThemeId = 'degen-dark' | 'pepe-classic' | 'moon-cult' | 'cyber-punk' | 'golden-ape' | 'arctic-whale' | 'solana-sun' | 'bitcoin-og' | 'fire-sale' | 'matrix' | 'stealth-ops' | 'crude-energy' | 'neon-romance' | 'lavender-pop' | 'sky-toon' | 'sponge-pop' | 'ocean-bolt' | 'rose-garden' | 'midnight-chrome' | 'cartoon-sky';

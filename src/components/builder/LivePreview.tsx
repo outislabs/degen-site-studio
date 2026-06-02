@@ -1,4 +1,4 @@
-import { CoinData, ThemeId, BlockPlacement, BlockPosition, BlockLayout } from '@/types/coin';
+import { CoinData, ThemeId, BlockPlacement, BlockPosition, BlockLayout, DEFAULT_LAYOUT } from '@/types/coin';
 import { cn } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import { themes, resolveTheme } from '@/lib/themes';
@@ -81,6 +81,22 @@ const LivePreview = ({
     return `${data.name}${data.ticker ? ` ($${data.ticker})` : ''}`;
   }, [data.name, data.ticker]);
 
+  // Hero width is the simplest visual feedback for section width changes:
+  // wrap the entire layout in a max-width container. Other section widths
+  // are persisted but applied in future layout refactor.
+  const heroLayout: BlockLayout = { ...DEFAULT_LAYOUT, ...(data.sectionLayouts?.hero ?? {}) };
+  const widthToPct = (w: string): string | null => {
+    switch (w) {
+      case 'half':           return '50%';
+      case 'third':          return '33.3333%';
+      case 'two-thirds':     return '66.6666%';
+      case 'quarter':        return '25%';
+      case 'three-quarters': return '75%';
+      default:               return null;
+    }
+  };
+  const layoutMaxWidth = widthToPct(heroLayout.width);
+
   // Render the same blocks list at every position — the renderer filters by
   // placement.position. No group framing, no "Utilities" header anywhere.
   const blocks = data.copilotBlocks ?? [];
@@ -116,6 +132,10 @@ const LivePreview = ({
         <h1 className="sr-only">{pageTitle}</h1>
       )}
       {bandAt('top')}
+      <div
+        className="mx-auto transition-[max-width] duration-300"
+        style={layoutMaxWidth ? { maxWidth: layoutMaxWidth } : undefined}
+      >
       {layout === 'classic' && <ClassicLayout {...layoutProps} />}
       {layout === 'split-hero' && <SplitHeroLayout {...layoutProps} />}
       {layout === 'bento' && <BentoLayout {...layoutProps} />}
@@ -141,6 +161,7 @@ const LivePreview = ({
       {layout === 'nft-anime' && <NftAnimeLayout {...layoutProps} />}
       {layout === 'nft-blueprint' && <NftBlueprintLayout {...layoutProps} />}
       {layout === 'nft-luxury' && <NftLuxuryEditorialLayout {...layoutProps} />}
+      </div>
       {bandAt('after_hero')}
       {bandAt('after_tokenomics')}
       {bandAt('after_roadmap')}
