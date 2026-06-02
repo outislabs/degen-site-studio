@@ -1,5 +1,6 @@
 import {
   CoinData, CopilotBlockInstance, defaultCoinData, normalizeBlocks, normalizeBlock,
+  BlockLayout, DEFAULT_LAYOUT,
 } from '@/types/coin';
 import type { Block, Page, SiteDoc, SiteMeta, SiteTheme, SectionBlockType } from '@/types/site';
 
@@ -159,7 +160,8 @@ export function toSiteDoc(raw: any): SiteDoc {
  */
 export function fromSiteDoc(doc: SiteDoc): CoinData {
   const home = doc.pages[0];
-  const find = (t: SectionBlockType) => home?.blocks.find(b => b.type === t)?.config ?? {};
+  const findBlock = (t: SectionBlockType) => home?.blocks.find(b => b.type === t);
+  const find = (t: SectionBlockType) => findBlock(t)?.config ?? {};
   const hero = find('hero');
   const tk = find('tokenomics');
   const soc = find('socials');
@@ -175,6 +177,15 @@ export function fromSiteDoc(doc: SiteDoc): CoinData {
       layout: b.layout,
       created_at: b.created_at ?? Date.now(),
     }));
+
+  // Surface any explicit section layouts so the builder can edit them.
+  const sectionLayouts: CoinData['sectionLayouts'] = {};
+  (['hero', 'tokenomics', 'socials', 'roadmap'] as const).forEach(t => {
+    const layout = findBlock(t)?.layout;
+    if (layout && (layout.width !== 'full' || layout.row)) {
+      sectionLayouts![t] = { ...DEFAULT_LAYOUT, ...layout };
+    }
+  });
 
   return {
     ...defaultCoinData,
@@ -216,6 +227,7 @@ export function fromSiteDoc(doc: SiteDoc): CoinData {
 
     customDomain: doc.meta.customDomain,
     copilotBlocks: utility,
+    sectionLayouts: Object.keys(sectionLayouts!).length ? sectionLayouts : undefined,
   };
 }
 
@@ -231,13 +243,19 @@ export function fromSiteDoc(doc: SiteDoc): CoinData {
 export function applyCoinDataToDoc(doc: SiteDoc, data: CoinData): SiteDoc {
   const home: Page = doc.pages[0] ?? { page_id: 'home', slug: '/', title: 'Home', blocks: [] };
 
-  const existingId = (t: SectionBlockType) =>
-    home.blocks.find(b => b.type === t)?.id ?? newId();
+  const existing = (t: SectionBlockType) => home.blocks.find(b => b.type === t);
+  const existingId = (t: SectionBlockType) => existing(t)?.id ?? newId();
+  const sectionLayout = (t: SectionBlockType): BlockLayout | undefined => {
+    const override = data.sectionLayouts?.[t];
+    if (override) return { ...DEFAULT_LAYOUT, ...override };
+    return existing(t)?.layout;
+  };
 
   const nextSections: Block[] = [
     {
       id: existingId('hero'),
       type: 'hero',
+      layout: sectionLayout('hero'),
       config: {
         name: data.name,
         ticker: data.ticker,
@@ -250,6 +268,7 @@ export function applyCoinDataToDoc(doc: SiteDoc, data: CoinData): SiteDoc {
     {
       id: existingId('tokenomics'),
       type: 'tokenomics',
+      layout: sectionLayout('tokenomics'),
       config: {
         totalSupply: data.totalSupply,
         distribution: data.distribution,
@@ -261,11 +280,13 @@ export function applyCoinDataToDoc(doc: SiteDoc, data: CoinData): SiteDoc {
     {
       id: existingId('socials'),
       type: 'socials',
+      layout: sectionLayout('socials'),
       config: { ...data.socials },
     },
     {
       id: existingId('roadmap'),
       type: 'roadmap',
+      layout: sectionLayout('roadmap'),
       config: { phases: data.roadmap ?? [] },
     },
   ];
