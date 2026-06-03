@@ -45,6 +45,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
       toast.error('Failed to copy');
     }
   };
+  return (
     <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 overflow-hidden">
       {/* Single subtle radial for depth — no mesh */}
       <div className="absolute inset-0 pointer-events-none">
