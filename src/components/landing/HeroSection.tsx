@@ -109,6 +109,26 @@ const HeroSection = ({ onGetStarted }: Props) => {
           >
             Join 500+ devs launching on Solana, Base, and Ethereum.
           </motion.p>
+
+          {/* DEGENTOOLS CA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[hsla(0,0%,100%,0.06)] bg-[hsla(0,0%,100%,0.02)] cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-colors"
+            onClick={handleCopyCA}
+            title="Click to copy contract address"
+          >
+            <span className="text-[10px] text-muted-foreground/50 font-medium">$DEGENTOOLS</span>
+            <span className="text-[10px] text-muted-foreground/30 font-mono truncate max-w-[140px] sm:max-w-[200px]">
+              {DEGENTOOLS_CA.slice(0, 6)}...{DEGENTOOLS_CA.slice(-6)}
+            </span>
+            {copied ? (
+              <Check className="w-3 h-3 text-primary" />
+            ) : (
+              <Copy className="w-3 h-3 text-muted-foreground/30" />
+            )}
+          </motion.div>
         </motion.div>
 
         {/* Product screenshot mockup */}
