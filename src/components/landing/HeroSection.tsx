@@ -30,8 +30,21 @@ interface Props {
   onGetStarted: () => void;
 }
 
+const DEGENTOOLS_CA = 'DyTPvbT4AAP7s8LBGmAcmU98UVJDqxRAKnZgoXkHBAGS';
+
 const HeroSection = ({ onGetStarted }: Props) => {
-  return (
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCA = async () => {
+    try {
+      await navigator.clipboard.writeText(DEGENTOOLS_CA);
+      setCopied(true);
+      toast.success('Contract address copied');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy');
+    }
+  };
     <section className="relative section-padding pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 overflow-hidden">
       {/* Single subtle radial for depth — no mesh */}
       <div className="absolute inset-0 pointer-events-none">
