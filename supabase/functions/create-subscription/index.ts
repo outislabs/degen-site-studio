@@ -28,9 +28,10 @@ const VALID_PLANS = ["degen", "creator", "whale"];
 const VALID_BILLING_PERIODS = ["monthly", "annual"];
 
 const PLAN_PRICES: Record<string, number> = {
-  degen: 8,
-  creator: 29,
-  whale: 75,
+  degen: 19,
+  creator: 49,
+  pro: 99,
+  whale: 249,
 };
 
 Deno.serve(async (req) => {
