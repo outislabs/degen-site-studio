@@ -6,11 +6,13 @@ import { toast } from 'sonner';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
-import ProductSurfaceStrip from '@/components/landing/ProductSurfaceStrip';
-import WhyDegenTools from '@/components/landing/WhyDegenTools';
+
+import HowItWorks from '@/components/landing/HowItWorks';
+import FeaturesGrid from '@/components/landing/FeaturesGrid';
+
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
-
+import TerminalSection from '@/components/landing/TerminalSection';
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
 import FAQSection from '@/components/landing/FAQSection';
@@ -95,11 +97,14 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      <ProductSurfaceStrip />
-      <WhyDegenTools />
+      
+      <HowItWorks />
+      <FeaturesGrid />
+      
       <ContentStudioShowcase />
       <CommunityShowcase />
       <ThemeShowcase />
+      <TerminalSection />
       <PricingSection onGetStarted={handleNewSite} />
       <FAQSection />
       <CTASection onGetStarted={handleNewSite} />
