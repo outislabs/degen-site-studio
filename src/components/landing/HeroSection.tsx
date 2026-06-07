@@ -76,7 +76,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
-            Everything your meme coin needs in less than 5 minutes, website, memes, shills, and more. Built for devs who move fast.
+            Launch a coin. Build the site. Ship utilities. Wake agents. Degentools is where memecoins become small economies in 5 minutes, no code, no team.
           </p>
 
           {/* CTA */}
