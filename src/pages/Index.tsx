@@ -6,10 +6,8 @@ import { toast } from 'sonner';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
-
-import HowItWorks from '@/components/landing/HowItWorks';
-import FeaturesGrid from '@/components/landing/FeaturesGrid';
-
+import ProductSurfaceStrip from '@/components/landing/ProductSurfaceStrip';
+import WhyDegenTools from '@/components/landing/WhyDegenTools';
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
 
@@ -97,10 +95,8 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      
-      <HowItWorks />
-      <FeaturesGrid />
-      
+      <ProductSurfaceStrip />
+      <WhyDegenTools />
       <ContentStudioShowcase />
       <CommunityShowcase />
       <ThemeShowcase />
