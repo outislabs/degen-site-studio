@@ -12,7 +12,7 @@ import FeaturesGrid from '@/components/landing/FeaturesGrid';
 
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
-import TerminalSection from '@/components/landing/TerminalSection';
+
 import PricingSection from '@/components/landing/PricingSection';
 import CTASection from '@/components/landing/CTASection';
 import FAQSection from '@/components/landing/FAQSection';
@@ -104,7 +104,6 @@ const Index = () => {
       <ContentStudioShowcase />
       <CommunityShowcase />
       <ThemeShowcase />
-      <TerminalSection />
       <PricingSection onGetStarted={handleNewSite} />
       <FAQSection />
       <CTASection onGetStarted={handleNewSite} />
