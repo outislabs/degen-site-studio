@@ -66,13 +66,13 @@ const HeroSection = ({ onGetStarted }: Props) => {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[hsla(0,0%,100%,0.08)] bg-[hsla(0,0%,100%,0.03)] mb-6 sm:mb-8"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium tracking-wide">Now with multi-chain import</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium tracking-wide">Now with API, CLI, and MCP for agents</span>
           </motion.div>
 
           {/* Heading — 56px max desktop, 32px mobile */}
           <h1 className="text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.08] mb-4 sm:mb-6 tracking-[-0.03em] font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            The Ultimate<br />
-            <span className="text-primary">Meme Coin Toolkit</span>
+            Operating system for<br />
+            <span className="text-primary">memecoin economies</span>
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
