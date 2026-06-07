@@ -1,14 +1,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { hashKey } from "../_shared/apiKey.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-async function hashKey(key: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
 
 function generateRawKey(): string {
   const bytes = new Uint8Array(20); // 20 bytes → 40 hex chars

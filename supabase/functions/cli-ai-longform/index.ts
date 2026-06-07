@@ -1,4 +1,4 @@
-import { verifyCliToken } from "../_shared/cliJWT.ts";
+import { verifyAnyToken } from "../_shared/cliJWT.ts";
 import { generateText, checkRateLimit } from "../_shared/gemini.ts";
 
 const corsHeaders = {
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const cliUser = await verifyCliToken(req);
+    const cliUser = await verifyAnyToken(req);
     if (!cliUser) return json({ error: "Unauthorized" }, 401);
 
     if (!checkRateLimit(`user:${cliUser.userId}`)) {
@@ -72,6 +72,9 @@ Deno.serve(async (req) => {
     return json({ output });
 
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Rate limit exceeded")) {
+      return json({ error: err.message }, 429);
+    }
     console.error("cli-ai-longform error:", err);
     return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
   }

@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { verifyCliToken } from "../_shared/cliJWT.ts";
+import { verifyAnyToken } from "../_shared/cliJWT.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const cliUser = await verifyCliToken(req);
+    const cliUser = await verifyAnyToken(req);
     if (!cliUser) return json({ error: "Unauthorized" }, 401);
 
     const adminClient = createClient(
@@ -45,6 +45,9 @@ Deno.serve(async (req) => {
 
     return json(result);
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Rate limit exceeded")) {
+      return json({ error: err.message }, 429);
+    }
     console.error("cli-sites error:", err);
     return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
   }

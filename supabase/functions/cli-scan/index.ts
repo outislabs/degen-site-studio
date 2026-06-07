@@ -1,4 +1,4 @@
-import { verifyCliToken } from "../_shared/cliJWT.ts";
+import { verifyAnyToken } from "../_shared/cliJWT.ts";
 import { scanSolanaToken, scanEVMToken, computeSafetyScore } from "../_shared/scanner.ts";
 
 const corsHeaders = {
@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
   if (req.method !== "GET") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const cliUser = await verifyCliToken(req);
+    const cliUser = await verifyAnyToken(req);
     if (!cliUser) return json({ error: "Unauthorized" }, 401);
 
     const url = new URL(req.url);
@@ -132,6 +132,9 @@ Deno.serve(async (req) => {
     });
 
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Rate limit exceeded")) {
+      return json({ error: err.message }, 429);
+    }
     console.error("cli-scan error:", err);
     return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
   }

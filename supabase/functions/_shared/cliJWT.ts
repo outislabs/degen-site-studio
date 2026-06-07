@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { validateApiKey, checkRateLimits, logUsage } from "./apiKey.ts";
 
 export type CliUser = {
   userId: string;
@@ -140,4 +141,35 @@ export async function verifyCliToken(req: Request): Promise<CliUser | null> {
     email: payload.email as string,
     sessionId: session.id as string,
   };
+}
+
+export type AuthedUser = CliUser & { kind: "cli" | "api_key" };
+
+export async function verifyAnyToken(req: Request): Promise<AuthedUser | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return null;
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+
+  if (token.startsWith("dgt_")) {
+    const svc = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const apiKey = await validateApiKey(token, svc);
+    if (!apiKey) return null;
+    const rate = await checkRateLimits(apiKey, svc);
+    if (!rate.ok) throw new Error(rate.error ?? "Rate limit exceeded");
+    const { data: user } = await svc.auth.admin.getUserById(apiKey.user_id);
+    logUsage(apiKey.id, req.url, svc);
+    return {
+      userId: apiKey.user_id,
+      email: user?.user?.email ?? "",
+      sessionId: apiKey.id,
+      kind: "api_key",
+    };
+  }
+
+  const cliUser = await verifyCliToken(req);
+  if (!cliUser) return null;
+  return { ...cliUser, kind: "cli" };
 }

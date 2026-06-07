@@ -1,4 +1,4 @@
-import { verifyCliToken } from "../_shared/cliJWT.ts";
+import { verifyAnyToken } from "../_shared/cliJWT.ts";
 import { generateText, checkRateLimit } from "../_shared/gemini.ts";
 
 const corsHeaders = {
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const cliUser = await verifyCliToken(req);
+    const cliUser = await verifyAnyToken(req);
     if (!cliUser) return json({ error: "Unauthorized" }, 401);
 
     if (!checkRateLimit(`user:${cliUser.userId}`)) {
@@ -76,6 +76,9 @@ Output ONLY the tweets separated by ---TWEET---. No intro text, no explanations.
     });
 
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("Rate limit exceeded")) {
+      return json({ error: err.message }, 429);
+    }
     console.error("cli-ai-tweet error:", err);
     return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
   }
