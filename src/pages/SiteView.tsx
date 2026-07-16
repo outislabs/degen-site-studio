@@ -52,7 +52,10 @@ const SiteView = () => {
 
       setSiteUuid(site.id);
       // Lazy-migrate legacy CoinData -> SiteDoc on read.
+      console.log('[SiteView] raw site.data:', site.data);
       let coinData = coinDataFromRaw(site.data);
+      console.log('[SiteView] coinData after fromRaw:', coinData);
+
 
       // If NFT site, load NFT collection data and merge
       if ((site as any).site_type === 'nft') {
