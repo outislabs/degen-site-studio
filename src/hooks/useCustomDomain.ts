@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CoinData, defaultCoinData } from '@/types/coin';
+import { coinDataFromRaw } from '@/lib/siteSchema';
 
 const KNOWN_HOSTS = [
   'localhost',
@@ -56,7 +57,7 @@ export const useCustomDomain = (): CustomDomainResult => {
             return;
           }
 
-          const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
+          const coinData = coinDataFromRaw(site.data);
           const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
           setState({ isCustomDomain: true, siteData: coinData, siteId: site.id, showWatermark: !plan || plan === 'free', loading: false, error: false });
         };
@@ -89,13 +90,13 @@ export const useCustomDomain = (): CustomDomainResult => {
           return;
         }
 
-        const coinData = { ...defaultCoinData, ...(altSite.data as unknown as CoinData) };
+        const coinData = coinDataFromRaw(altSite.data);
         const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: altSite.user_id });
         setState({ isCustomDomain: true, siteData: coinData, siteId: altSite.id, showWatermark: !plan || plan === 'free', loading: false, error: false });
         return;
       }
 
-      const coinData = { ...defaultCoinData, ...(site.data as unknown as CoinData) };
+      const coinData = coinDataFromRaw(site.data);
       const { data: plan } = await supabase.rpc('get_user_plan', { _user_id: site.user_id });
       setState({ isCustomDomain: true, siteData: coinData, siteId: site.id, showWatermark: !plan || plan === 'free', loading: false, error: false });
     };
