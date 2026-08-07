@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/api/v1/:path*",
+      "has": [{ "type": "host", "value": "console.degentools.co" }],
+      "destination": "https://degentools.co/api/v1/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/v1/mcp/:path*",

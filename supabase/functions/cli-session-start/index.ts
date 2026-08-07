@@ -36,7 +36,8 @@ Deno.serve(async (req) => {
 
     if (error) throw new Error(error.message);
 
-    const authorizeUrl = `https://degentools.co/cli-authorize?session=${sessionToken}`;
+    const consoleBase = Deno.env.get("CONSOLE_BASE_URL") || "https://console.degentools.co";
+    const authorizeUrl = `${consoleBase}/cli-authorize?session=${sessionToken}`;
 
     console.log("cli-session-start: pending session created");
     return json({ session_token: sessionToken, authorize_url: authorizeUrl });

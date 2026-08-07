@@ -7,6 +7,9 @@ const KNOWN_HOSTS = [
   'localhost',
   'degentools.co',
   'www.degentools.co',
+  'console.degentools.co',
+  'degentools.local',
+  'console.degentools.local',
   'degen-site-studio.lovable.app',
   'degen-site-studio.vercel.app',
 ];
