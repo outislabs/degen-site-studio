@@ -81,7 +81,7 @@ function matchesAny(patterns: string[], pathname: string) {
 
 const SurfaceGate = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { pathname, search, hash } = location;
 
   let redirectTo: string | null = null;
@@ -98,8 +98,15 @@ const SurfaceGate = ({ children }: { children: React.ReactNode }) => {
     } else if (pathname === '/' && user) {
       redirectTo = `${origin(consoleHost)}/${search}${hash}`;
     }
-  } else if (surface === 'console' && matchesAny(MARKETING_ONLY_ROUTES, pathname)) {
-    redirectTo = `${origin(counterpartHost(hostname, 'marketing'))}${pathname}${search}${hash}`;
+  } else if (surface === 'console') {
+    if (pathname === '/' && !loading && !user) {
+      // Logged-out users on console have no reason to be at root — the console is
+      // for authenticated work. Bounce to /auth on the same host. Gated on `loading`
+      // so we don't flash a logged-in user through /auth during session hydration.
+      redirectTo = `${origin(hostname)}/auth${search}${hash}`;
+    } else if (matchesAny(MARKETING_ONLY_ROUTES, pathname)) {
+      redirectTo = `${origin(counterpartHost(hostname, 'marketing'))}${pathname}${search}${hash}`;
+    }
   }
 
   useEffect(() => {
