@@ -1,31 +1,31 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Image, Sticker, Share2, Type, Wand2, ArrowRight } from 'lucide-react';
+import { Sparkles, LayoutTemplate, Blocks, Lock, Type, Wand2, ArrowRight } from 'lucide-react';
 
 const featured = {
-  icon: Image,
-  title: 'AI Meme Generator',
-  desc: 'Generate viral memes tailored to your token — diamond hands, rug pull survivors, moon missions. Just describe what you want.',
+  icon: LayoutTemplate,
+  title: 'Sites & pages',
+  desc: 'Describe the site you want and Copilot composes it — hero, tokenomics, socials, launch pages — then ships it to your domain.',
   tag: 'Popular',
-  prompt: '"Diamond hands Pepe with laser eyes holding $DEGEN"',
+  prompt: '"Build a launch page for $DEGEN with a swap widget"',
 };
 
 const tools = [
   {
-    icon: Sticker,
-    title: 'Sticker Packs',
-    desc: 'Custom Telegram sticker packs with your mascot and branding.',
-    tag: 'Creator+',
-  },
-  {
-    icon: Share2,
-    title: 'Social Graphics',
-    desc: 'Scroll-stopping visuals for Twitter, TG, and Discord drops.',
-    tag: 'Creator+',
-  },
-  {
     icon: Type,
-    title: 'Marketing Copy',
-    desc: 'AI shill tweets, welcome messages, and FOMO announcements.',
+    title: 'Memes & shill copy',
+    desc: 'Memes, stickers, social graphics, and shill posts tailored to your token.',
+    tag: 'Creator+',
+  },
+  {
+    icon: Blocks,
+    title: 'Utility widgets',
+    desc: 'Swap widgets, live charts, leaderboards, and claim pages, placed by prompt.',
+    tag: 'Creator+',
+  },
+  {
+    icon: Lock,
+    title: 'Token gates',
+    desc: 'Gate pages and perks behind holder checks without writing code.',
     tag: 'Creator+',
   },
 ];
@@ -51,10 +51,10 @@ const ContentStudioShowcase = () => {
             <span className="text-[11px] text-muted-foreground tracking-[0.2em] font-medium uppercase">AI-POWERED</span>
           </div>
           <h2 className="font-heading font-bold text-2xl sm:text-3xl md:text-[40px] text-foreground mb-3 tracking-tight leading-tight">
-            Content Studio
+            Copilot
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
-            Generate memes, stickers, social posts, and marketing copy — all tailored to your token.
+            Prompt DegenTools to build for you. Content, sites, utility apps, integrations — all from natural language, all onchain.
           </p>
         </motion.div>
 
