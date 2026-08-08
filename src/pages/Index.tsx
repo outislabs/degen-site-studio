@@ -8,7 +8,8 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import HeroSection from '@/components/landing/HeroSection';
 
 import HowItWorks from '@/components/landing/HowItWorks';
-import FeaturesGrid from '@/components/landing/FeaturesGrid';
+import ProductStrip from '@/components/landing/ProductStrip';
+import OnchainOS from '@/components/landing/OnchainOS';
 
 import ThemeShowcase from '@/components/landing/ThemeShowcase';
 import ContentStudioShowcase from '@/components/landing/ContentStudioShowcase';
@@ -97,9 +98,10 @@ const Index = () => {
         onSignOut={signOut}
       />
       <HeroSection onGetStarted={handleNewSite} />
-      
+
+      <ProductStrip />
+      <OnchainOS />
       <HowItWorks />
-      <FeaturesGrid />
       
       <ContentStudioShowcase />
       <CommunityShowcase />
