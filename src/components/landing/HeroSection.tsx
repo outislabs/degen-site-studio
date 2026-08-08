@@ -66,17 +66,17 @@ const HeroSection = ({ onGetStarted }: Props) => {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[hsla(0,0%,100%,0.08)] bg-[hsla(0,0%,100%,0.03)] mb-6 sm:mb-8"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" />
-            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium tracking-wide">Now with API, CLI, and MCP for agents</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground font-mono tracking-wide">Piade — AI dev team, launching soon</span>
           </motion.div>
 
           {/* Heading — 56px max desktop, 32px mobile */}
           <h1 className="text-[32px] sm:text-[44px] md:text-[56px] text-foreground leading-[1.08] mb-4 sm:mb-6 tracking-[-0.03em] font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Operating system for<br />
-            <span className="text-primary">memecoin economies</span>
+            Build, trade, ship.<br />
+            <span className="text-primary">Onchain.</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
-            Launch a coin. Build the site. Ship utilities. Wake agents. Degentools is where memecoins become small economies in 5 minutes, no code, no team.
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6 sm:mb-10 px-2">
+            DegenTools is the onchain OS for web3 builders — a home for the products, agents, and interfaces that ship real things onchain. From memecoin launches to full dApps to autonomous dev teams.
           </p>
 
           {/* CTA */}
@@ -93,10 +93,10 @@ const HeroSection = ({ onGetStarted }: Props) => {
             <Button
               size="lg"
               variant="outline"
-              onClick={onGetStarted}
+              onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
               className="w-full sm:w-auto border-[hsla(0,0%,100%,0.1)] text-muted-foreground hover:text-foreground hover:border-[hsla(0,0%,100%,0.2)] font-medium text-sm px-8 py-6 rounded-xl"
             >
-              View Live Demo
+              Explore Products
             </Button>
           </div>
 
@@ -107,7 +107,7 @@ const HeroSection = ({ onGetStarted }: Props) => {
             transition={{ delay: 0.4 }}
             className="mt-4 sm:mt-6 text-[10px] sm:text-xs text-muted-foreground/40"
           >
-            Join 500+ devs launching on Solana, Base, and Ethereum.
+            Join 100+ projects launching on Solana, Base, Ethereum, BNB, and TON.
           </motion.p>
 
           {/* DEGENTOOLS CA */}
