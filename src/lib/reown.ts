@@ -13,7 +13,9 @@ const isAppHost = (): boolean => {
     h === 'localhost' ||
     h === '127.0.0.1' ||
     h === 'degentools.co' ||
-    h === 'www.degentools.co'
+    h === 'www.degentools.co' ||
+    h === 'console.degentools.co' ||
+    h === 'console.degentools.local'
   ) return true
   if (
     h.endsWith('.lovable.app') ||
@@ -31,7 +33,7 @@ export const modal = isAppHost()
       metadata: {
         name: 'DegenTools',
         description: 'The complete launch stack for meme coin devs',
-        url: 'https://degentools.co',
+        url: 'https://console.degentools.co',
         icons: ['https://degentools.co/favicon.ico'],
       },
       projectId: '46f2509c102c8015b2a19c0cf4038f11',
